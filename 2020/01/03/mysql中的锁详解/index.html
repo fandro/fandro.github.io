@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="细数星辰">
 <meta property="og:description" content="本文简介了解mysql中的各种锁">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-08T08:21:25.000Z">
+<meta property="og:updated_time" content="2020-01-09T09:30:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql中的锁详解">
 <meta name="twitter:description" content="本文简介了解mysql中的各种锁">
@@ -335,7 +335,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.3k 字
+                  3.7k 字
                 </span>
               
 
@@ -360,15 +360,15 @@
       
 
       
-        <h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>了解mysql中的各种锁</p>
+        <h4 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h4><p>了解mysql中的各种锁</p>
 <a id="more"></a>
-<h3 id="事务ACID四大特性"><a href="#事务ACID四大特性" class="headerlink" title="事务ACID四大特性"></a>事务ACID四大特性</h3><ul>
+<h4 id="事务ACID四大特性"><a href="#事务ACID四大特性" class="headerlink" title="事务ACID四大特性"></a>事务ACID四大特性</h4><ul>
 <li>Atomicity 原子性：要么成功，要么失败，不允许部分成功或失败。</li>
 <li>Consistency 一致性：事务操作之后数据库状态和业务规则一致。AB转账，A减少并且B增加。</li>
 <li>Isolation 隔离性：多个事务并发执行，相互之间不干扰，和独立执行事务一样。</li>
 <li>Durability 持久性：事务提交后被持久化到数据库.</li>
 </ul>
-<h4 id="数据库并发访问面临的问题"><a href="#数据库并发访问面临的问题" class="headerlink" title="数据库并发访问面临的问题"></a>数据库并发访问面临的问题</h4><table>
+<h4 id="并发访问面临的问题"><a href="#并发访问面临的问题" class="headerlink" title="并发访问面临的问题"></a>并发访问面临的问题</h4><table>
 <thead>
 <tr>
 <th align="left">英文名</th>
@@ -407,19 +407,84 @@
 <td align="left"></td>
 </tr>
 </tbody></table>
-<h4 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h4><p>| 名称 | 说明| 存在问题|解决的问题|mysql解决方式|<br>|:—|:—| :—|:—|<br>|DEFAULT          |默认值，spring使用数据库设置的隔离级别 |  | | |<br>|READ_UNCOMMITTED |读未提交内容 |脏读，不可重复读，幻读 | | |<br>|READ_COMMITTED   |读取提交内容 |不可重复读，幻读  | 脏读| |<br>|REPEATABLE_READ  |可重复读，mysql默认值 | 幻读  |脏读，不可重复读 | |<br>|SERIALIZABLE     |可串行化 |   |脏读，不可重复读，幻读 |使用悲观锁理论，读加共享锁，写加排他锁，读写互斥 |</p>
+<h4 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h4><table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="left">说明</th>
+<th align="left">存在问题</th>
+<th align="left">解决的问题</th>
+<th align="left">mysql解决方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">DEFAULT</td>
+<td align="left">默认值，spring使用数据库设置的隔离级别</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">READ_UNCOMMITTED</td>
+<td align="left">读未提交内容</td>
+<td align="left">脏读，不可重复读，幻读</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">READ_COMMITTED</td>
+<td align="left">读取提交内容</td>
+<td align="left">不可重复读，幻读</td>
+<td align="left">脏读</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">REPEATABLE_READ</td>
+<td align="left">可重复读，mysql默认值</td>
+<td align="left">幻读</td>
+<td align="left">脏读，不可重复读</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">SERIALIZABLE</td>
+<td align="left">可串行化</td>
+<td align="left"></td>
+<td align="left">脏读，不可重复读，幻读</td>
+<td align="left">使用悲观锁理论，读加共享锁，写加排他锁，读写互斥</td>
+</tr>
+</tbody></table>
 <h4 id="锁的分类"><a href="#锁的分类" class="headerlink" title="锁的分类"></a>锁的分类</h4><ol>
-<li>按封锁类型分类：  <ul>
-<li>排他锁(又称写锁，X锁)：阻止其他事务对数据对象A的读和写</li>
-<li>共享锁：<br>封锁数据对象可以是表和行</li>
+<li>按使用方式分类:<ul>
+<li>悲观锁</li>
+<li>乐观锁</li>
 </ul>
 </li>
+</ol>
+<ol start="2">
+<li>按封锁级别分类:<ul>
+<li>共享锁(S锁)</li>
+<li>排他锁(X锁)</li>
+<li>意向锁</li>
+<li>间隙锁</li>
+</ul>
+</li>
+</ol>
+<ol start="3">
+<li>按封锁类型分类：<ul>
+<li>排他锁(又称写锁，X锁)：阻止其他事务对数据对象A的读和写</li>
+<li>共享锁(S锁)<br>封锁数据对象可以是表和行</li>
+</ul>
+</li>
+</ol>
+<ol start="3">
 <li>按封锁的数据粒度分类：<ul>
 <li>表级锁定</li>
 <li>行级锁定</li>
 <li>页级锁定</li>
 </ul>
 </li>
+</ol>
+<ol start="4">
 <li>innodb 内部意向锁：<ul>
 <li>意向排他锁</li>
 <li>意向共享锁<br>在表锁和行锁多粒度锁共存时，行加锁时需先获取表的意向锁，通过意向锁实现多粒度锁机制，意向锁是表级锁。</li>
@@ -433,7 +498,7 @@
 <li>优点：逻辑简单，开销小，加锁快，不会出现死锁</li>
 <li>缺点：锁冲突概率高，并发性能低</li>
 </ul>
-<p><strong>* 什么时候使用表锁？*</strong></p>
+<p><strong>什么时候使用表锁?</strong></p>
 <blockquote>
 <ol>
 <li>事务需要更新大部分或全部数据，表比较大，如果默认使用行锁，会导致长时间锁等待和频繁锁冲突，事务效率低，这种情况下使用表锁会提高事务的执行速度。  </li>
@@ -449,7 +514,7 @@
 <h4 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h4><p>为了实现表锁和行锁共存，实现多粒度锁机制，innoDB使用了两个内部的意向锁（Intention Locks）,这两个都是表锁。<br>意向锁的主要作用是提升存储引擎性能，innoDB中的行级S锁和行级X锁，每当事务到来时，存储引擎需要遍历所有行的锁持有情况，性能较低，因此引入意向锁，检查行锁前先检查意向锁是否存在，如果存在则阻塞线程。</p>
 <h5 id="意向排他锁"><a href="#意向排他锁" class="headerlink" title="意向排他锁"></a>意向排他锁</h5><p>事务在给一个数据行加排他锁之前必须先获得该表的意向排他锁。</p>
 <h5 id="意向共享锁"><a href="#意向共享锁" class="headerlink" title="意向共享锁"></a>意向共享锁</h5><p>事务在给一个数据行加共享锁之前必须先获得该表的意向共享锁。</p>
-<h5 id="间隙锁-next-key锁"><a href="#间隙锁-next-key锁" class="headerlink" title="间隙锁(next-key锁)"></a>间隙锁(next-key锁)</h5><p>&nbsp;&nbsp;当我们用范围条件检索数据，并请求共享锁或排他锁时，InnoDB会给符合条件数据记录的索引加上行锁，对键值在条件范围内但并不存在的记录，称为间隙，InnoDB会给间隙加锁，称为间隙锁。  </p>
+<h4 id="间隙锁-next-key锁"><a href="#间隙锁-next-key锁" class="headerlink" title="间隙锁(next-key锁)"></a>间隙锁(next-key锁)</h4><p>&nbsp;&nbsp;当我们用范围条件检索数据，并请求共享锁或排他锁时，InnoDB会给符合条件数据记录的索引加上行锁，对键值在条件范围内但并不存在的记录，称为间隙，InnoDB会给间隙加锁，称为间隙锁。  </p>
 <h6 id="1-间隙锁产生的条件"><a href="#1-间隙锁产生的条件" class="headerlink" title="1. 间隙锁产生的条件"></a>1. 间隙锁产生的条件</h6><p>InnoDB间隙锁产生需要满足三个条件：</p>
 <ol>
 <li>隔离级别是RR（可重复读）</li>
@@ -471,7 +536,7 @@
 </blockquote>
 </li>
 </ol>
-<h5 id="InnoDB表锁模式兼容性列表"><a href="#InnoDB表锁模式兼容性列表" class="headerlink" title="InnoDB表锁模式兼容性列表"></a>InnoDB表锁模式兼容性列表</h5><table>
+<h4 id="InnoDB表锁模式兼容性列表"><a href="#InnoDB表锁模式兼容性列表" class="headerlink" title="InnoDB表锁模式兼容性列表"></a>InnoDB表锁模式兼容性列表</h4><table>
 <thead>
 <tr>
 <th align="left">当前锁模式/请求锁模式</th>
@@ -510,7 +575,7 @@
 <td align="left">兼容</td>
 </tr>
 </tbody></table>
-<h5 id="锁分类表"><a href="#锁分类表" class="headerlink" title="锁分类表"></a>锁分类表</h5><table>
+<h4 id="锁分类表"><a href="#锁分类表" class="headerlink" title="锁分类表"></a>锁分类表</h4><table>
 <thead>
 <tr>
 <th align="left">锁粒度/锁分类</th>
@@ -538,7 +603,40 @@
 <td align="left">表锁和行锁同时使用时，只有获取表级意向锁成功后，才可以加行锁。意向锁是innoDB的内部锁，保证了表锁和行锁不会冲突</td>
 </tr>
 </tbody></table>
-<h5 id="sql显示指定锁"><a href="#sql显示指定锁" class="headerlink" title="sql显示指定锁"></a>sql显示指定锁</h5><ul>
+<h4 id="多版本并发控制协议"><a href="#多版本并发控制协议" class="headerlink" title="多版本并发控制协议"></a>多版本并发控制协议</h4><p>mysql面对并发问题，使用了两个并发控制方法：</p>
+<ol>
+<li>基于锁的并发控制(Based-lock Concurrency Control)</li>
+<li>基于多版本的并发控制(MVCC Multi-Version Concurrency Control)</li>
+</ol>
+<h5 id="mvcc优点："><a href="#mvcc优点：" class="headerlink" title="mvcc优点："></a>mvcc优点：</h5><ol>
+<li>读操作不加锁</li>
+<li>读写不冲突<br>这两个优点，使得数据库并发性很好。  </li>
+</ol>
+<h5 id="mvcc缺点："><a href="#mvcc缺点：" class="headerlink" title="mvcc缺点："></a>mvcc缺点：</h5><ol>
+<li>每行都额外存储的版本信息</li>
+<li>需要维护行的数据版本信息</li>
+<li>检索时需要进行版本比较，降低查询效率</li>
+<li>定期清理不需要的行版本，回收空间，增加了开销</li>
+</ol>
+<h5 id="mvcc实现机制"><a href="#mvcc实现机制" class="headerlink" title="mvcc实现机制"></a>mvcc实现机制</h5><ol>
+<li>每行都隐藏一个版本字段，记录着该行的最新版本</li>
+<li>每次查询开始时读取行数据并分配新的版本号</li>
+<li>通过比较版本号确定后续操作</li>
+</ol>
+<h5 id="读操作"><a href="#读操作" class="headerlink" title="读操作"></a>读操作</h5><p>有两种读操作：快照读，当前读</p>
+<ol>
+<li><p>快照读 snapshot read</p>
+<blockquote>
+<p>快照读：读取的是记录的可见版本，不用加锁。<br>快照读适用隔离级别: Read Committed 和 Read Repeatable。<br>select语句使用的就是快照读，除了加锁的select。</p>
+</blockquote>
+</li>
+<li><p>当前读 current</p>
+<blockquote>
+<p>当前读：读取最新成功事务的数据，并加锁，以阻塞其他事务修改数据。<br>当前读通过Next-key锁(行锁+间隙锁)来实现 。<br>使用当前读的有两类语句：DML语句(insert、update、delete)和 加锁select(select …for update; select … for share model)</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="sql显示指定锁"><a href="#sql显示指定锁" class="headerlink" title="sql显示指定锁"></a>sql显示指定锁</h4><ul>
 <li>表级排他锁  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lock tables tableName [LOW_PRIORITY] WRITE</span><br><span class="line">...</span><br><span class="line">unlock tables;</span><br></pre></td></tr></table></figure>
 
 </li>
@@ -560,7 +658,7 @@
 
 </li>
 </ul>
-<h5 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h5><p>MyIsam表锁是 deadlock free的，所以不会产生死锁。<br>在InnoDB 中锁逐步获取的，所以会发送死锁情况。发生死锁后数据库有两种方式解决：</p>
+<h4 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h4><p>MyIsam表锁是 deadlock free的，所以不会产生死锁。<br>在InnoDB 中锁逐步获取的，所以会发送死锁情况。发生死锁后数据库有两种方式解决：</p>
 <ol>
 <li>innoDB自动检查到死锁，会让一个事务释放锁并回退，另一个事务获得锁，继续完成事务。</li>
 <li>行锁是数据库引擎级别，表锁是Mysql Server级别，所以涉及到外部锁或表锁时，innoDB不能完全检测到死锁。这就需要通过设置锁超时参数来解决了，锁超时参数：innodb_lock_wait_timeout。这个参数主要是解决大量事务无法获取锁而挂起消耗大量资源问题的。</li>
@@ -581,13 +679,13 @@
 <li>尽量用相等的条件访问数据，这样减少间隙锁对并发的影响</li>
 <li>对于一些特定的事务，可以使用表锁来提高处理速度或减少死锁的可能。</li>
 </ol>
-<h5 id="相关语句"><a href="#相关语句" class="headerlink" title="相关语句"></a>相关语句</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 查看进程</span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">PROCESSLIST</span>;</span><br><span class="line">// 查看是否锁表</span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">OPEN</span> <span class="keyword">TABLES</span> <span class="keyword">WHERE</span> In_use &gt; <span class="number">0</span>;</span><br><span class="line">// 查看正在锁的事务</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> INFORMATION_SCHEMA.INNODB_LOCKS;</span><br><span class="line">// 查看等待锁的事务</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> INFORMATION_SCHEMA.INNODB_LOCK_WAITS;</span><br><span class="line">// 确定最后一个死锁产生的原因</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="相关语句"><a href="#相关语句" class="headerlink" title="相关语句"></a>相关语句</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 查看进程</span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">PROCESSLIST</span>;</span><br><span class="line">// 查看是否锁表</span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">OPEN</span> <span class="keyword">TABLES</span> <span class="keyword">WHERE</span> In_use &gt; <span class="number">0</span>;</span><br><span class="line">// 查看正在锁的事务</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> INFORMATION_SCHEMA.INNODB_LOCKS;</span><br><span class="line">// 查看等待锁的事务</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> INFORMATION_SCHEMA.INNODB_LOCK_WAITS;</span><br><span class="line">// 确定最后一个死锁产生的原因</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
 
 <p>MySQL内部有两组专门的状态变量记录系统内部锁资源争用情况：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show status like 'table%';</span><br><span class="line">+<span class="comment">----------------------------+---------+</span></span><br><span class="line">| Variable_name              | Value   |</span><br><span class="line">+<span class="comment">----------------------------+---------+</span></span><br><span class="line">| Table_locks_immediate      | 100     |</span><br><span class="line">| Table_locks_waited         | 11      |</span><br><span class="line">+<span class="comment">----------------------------+---------+</span></span><br><span class="line">Table_locks_immediate：产生表级锁定的次数；</span><br><span class="line">Table_locks_waited：出现表级锁定争用而发生等待的次数；</span><br></pre></td></tr></table></figure>
 
 <p>通过检查InnoDB_row_lock状态变量来分析系统上的行锁的争夺情况</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show status like &apos;InnoDB_row_lock%&apos;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| InnoDB_row_lock_current_waits | 0     |</span><br><span class="line">| InnoDB_row_lock_time          | 0     |</span><br><span class="line">| InnoDB_row_lock_time_avg      | 0     |</span><br><span class="line">| InnoDB_row_lock_time_max      | 0     |</span><br><span class="line">| InnoDB_row_lock_waits         | 0     |</span><br><span class="line">+-------------------------------+-------+</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show status like 'InnoDB_row_lock%';</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br><span class="line">| InnoDB_row_lock_current_waits | 0     |</span><br><span class="line">| InnoDB_row_lock_time          | 0     |</span><br><span class="line">| InnoDB_row_lock_time_avg      | 0     |</span><br><span class="line">| InnoDB_row_lock_time_max      | 0     |</span><br><span class="line">| InnoDB_row_lock_waits         | 0     |</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">InnoDB 的行级锁定状态变量不仅记录了锁定等待次数，还记录了锁定总时长，每次平均时长，以及最大时长，此外还有一个非累积状态量显示了当前正在等待锁定的等待数量。对各个状态量的说明如下：</span><br><span class="line">InnoDB_row_lock_current_waits：当前正在等待锁定的数量；</span><br><span class="line">InnoDB_row_lock_time：从系统启动到现在锁定总时间长度；</span><br><span class="line">InnoDB_row_lock_time_avg：每次等待所花平均时间；</span><br><span class="line">InnoDB_row_lock_time_max：从系统启动到现在等待最常的一次所花的时间；</span><br><span class="line">InnoDB_row_lock_waits：系统启动后到现在总共等待的次数；</span><br><span class="line">尤其是当等待次数很高，而且每次等待时长也不小的时候，我们就需要分析系统中为什么会有如此多的等待，然后根据分析结果着手指定优化计划。</span><br></pre></td></tr></table></figure>
 
@@ -602,6 +700,7 @@
 <p>探索Mysql锁机制(一)——乐观锁&amp;悲观锁<br><a href="https://www.jianshu.com/p/ed896335b3b4" target="_blank" rel="noopener">https://www.jianshu.com/p/ed896335b3b4</a></p>
 <p>探索Mysql锁机制(二)——共享锁&amp;排他锁&amp;意向锁&amp;间隙锁<br><a href="https://www.jianshu.com/p/904f52bde904" target="_blank" rel="noopener">https://www.jianshu.com/p/904f52bde904</a></p>
 <p>Mysql加锁过程详解<br><a href="https://www.cnblogs.com/crazylqy/p/7611069.html" target="_blank" rel="noopener">https://www.cnblogs.com/crazylqy/p/7611069.html</a></p>
+<p>《快照读、当前读和MVCC》<br><a href="https://www.cnblogs.com/AlmostWasteTime/p/11466520.html" target="_blank" rel="noopener">https://www.cnblogs.com/AlmostWasteTime/p/11466520.html</a></p>
 
       
     </div>
@@ -641,10 +740,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/01/03/MySQL EXPLAIN详解/" rel="prev" title="MySQL EXPLAIN详解">
-                MySQL EXPLAIN详解 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -724,7 +819,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -770,7 +865,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#本文简介"><span class="nav-number">1.</span> <span class="nav-text">本文简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事务ACID四大特性"><span class="nav-number">2.</span> <span class="nav-text">事务ACID四大特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库并发访问面临的问题"><span class="nav-number">2.1.</span> <span class="nav-text">数据库并发访问面临的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#隔离级别"><span class="nav-number">2.2.</span> <span class="nav-text">隔离级别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁的分类"><span class="nav-number">2.3.</span> <span class="nav-text">锁的分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁的详解"><span class="nav-number">2.4.</span> <span class="nav-text">锁的详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#排他锁"><span class="nav-number">2.4.1.</span> <span class="nav-text">排他锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#共享锁"><span class="nav-number">2.4.2.</span> <span class="nav-text">共享锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#表级锁（table-level）"><span class="nav-number">2.4.3.</span> <span class="nav-text">表级锁（table level）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#行级锁（row-level）"><span class="nav-number">2.4.4.</span> <span class="nav-text">行级锁（row level）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#页级锁-page-level"><span class="nav-number">2.4.5.</span> <span class="nav-text">页级锁 (page level)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#意向锁"><span class="nav-number">2.5.</span> <span class="nav-text">意向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#意向排他锁"><span class="nav-number">2.5.1.</span> <span class="nav-text">意向排他锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#意向共享锁"><span class="nav-number">2.5.2.</span> <span class="nav-text">意向共享锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#间隙锁-next-key锁"><span class="nav-number">2.5.3.</span> <span class="nav-text">间隙锁(next-key锁)</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-间隙锁产生的条件"><span class="nav-number">2.5.3.1.</span> <span class="nav-text">1. 间隙锁产生的条件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-间隙锁的作用"><span class="nav-number">2.5.3.2.</span> <span class="nav-text">2. 间隙锁的作用</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#InnoDB表锁模式兼容性列表"><span class="nav-number">2.5.4.</span> <span class="nav-text">InnoDB表锁模式兼容性列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁分类表"><span class="nav-number">2.5.5.</span> <span class="nav-text">锁分类表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#sql显示指定锁"><span class="nav-number">2.5.6.</span> <span class="nav-text">sql显示指定锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#死锁"><span class="nav-number">2.5.7.</span> <span class="nav-text">死锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免死锁方法"><span class="nav-number">2.5.8.</span> <span class="nav-text">避免死锁方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#减少锁冲突"><span class="nav-number">2.5.9.</span> <span class="nav-text">减少锁冲突</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#相关语句"><span class="nav-number">2.5.10.</span> <span class="nav-text">相关语句</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考"><span class="nav-number">2.6.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#本文简介"><span class="nav-number">1.</span> <span class="nav-text">本文简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务ACID四大特性"><span class="nav-number">2.</span> <span class="nav-text">事务ACID四大特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#并发访问面临的问题"><span class="nav-number">3.</span> <span class="nav-text">并发访问面临的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#隔离级别"><span class="nav-number">4.</span> <span class="nav-text">隔离级别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁的分类"><span class="nav-number">5.</span> <span class="nav-text">锁的分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁的详解"><span class="nav-number">6.</span> <span class="nav-text">锁的详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#排他锁"><span class="nav-number">6.1.</span> <span class="nav-text">排他锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#共享锁"><span class="nav-number">6.2.</span> <span class="nav-text">共享锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#表级锁（table-level）"><span class="nav-number">6.3.</span> <span class="nav-text">表级锁（table level）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#行级锁（row-level）"><span class="nav-number">6.4.</span> <span class="nav-text">行级锁（row level）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#页级锁-page-level"><span class="nav-number">6.5.</span> <span class="nav-text">页级锁 (page level)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#意向锁"><span class="nav-number">7.</span> <span class="nav-text">意向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#意向排他锁"><span class="nav-number">7.1.</span> <span class="nav-text">意向排他锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#意向共享锁"><span class="nav-number">7.2.</span> <span class="nav-text">意向共享锁</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#间隙锁-next-key锁"><span class="nav-number">8.</span> <span class="nav-text">间隙锁(next-key锁)</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-间隙锁产生的条件"><span class="nav-number">8.0.1.</span> <span class="nav-text">1. 间隙锁产生的条件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-间隙锁的作用"><span class="nav-number">8.0.2.</span> <span class="nav-text">2. 间隙锁的作用</span></a></li></ol></li></ol><li class="nav-item nav-level-4"><a class="nav-link" href="#InnoDB表锁模式兼容性列表"><span class="nav-number">9.</span> <span class="nav-text">InnoDB表锁模式兼容性列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁分类表"><span class="nav-number">10.</span> <span class="nav-text">锁分类表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多版本并发控制协议"><span class="nav-number">11.</span> <span class="nav-text">多版本并发控制协议</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#mvcc优点："><span class="nav-number">11.1.</span> <span class="nav-text">mvcc优点：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mvcc缺点："><span class="nav-number">11.2.</span> <span class="nav-text">mvcc缺点：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mvcc实现机制"><span class="nav-number">11.3.</span> <span class="nav-text">mvcc实现机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#读操作"><span class="nav-number">11.4.</span> <span class="nav-text">读操作</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sql显示指定锁"><span class="nav-number">12.</span> <span class="nav-text">sql显示指定锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#死锁"><span class="nav-number">13.</span> <span class="nav-text">死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#避免死锁方法"><span class="nav-number">13.1.</span> <span class="nav-text">避免死锁方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#减少锁冲突"><span class="nav-number">13.2.</span> <span class="nav-text">减少锁冲突</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#相关语句"><span class="nav-number">14.</span> <span class="nav-text">相关语句</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考"><span class="nav-number">15.</span> <span class="nav-text">参考</span></a></li></div>
             
 
           </div>
