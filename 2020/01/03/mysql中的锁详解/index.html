@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="细数星辰">
 <meta property="og:description" content="本文简介了解mysql中的各种锁">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-09T09:30:52.000Z">
+<meta property="og:updated_time" content="2020-01-10T00:52:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql中的锁详解">
 <meta name="twitter:description" content="本文简介了解mysql中的各种锁">
@@ -335,7 +335,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.7k 字
+                  3.9k 字
                 </span>
               
 
@@ -395,8 +395,8 @@
 <tr>
 <td align="left">Phantom Read</td>
 <td align="left">幻读</td>
-<td align="left">一次事务中两次读取一定范围的数据时有新数据(‘幻影’行)产生，原因是在两次查询时间段内其他事务新增(insert)了数据。</td>
-<td align="left">一次事务两次读取数据的数量不同了</td>
+<td align="left">一次事务中两次读取一定范围的数据时有新数据(‘幻影’行)产生，原因是在两次查询时间段内其他事务新增(insert)了数据。【另解释：幻读，并不是说两次读取获取的结果集不同，幻读侧重的方面是某一次的 select 操作得到的结果所表征的数据状态无法支撑后续的业务操作。更为具体一些：select 某记录是否存在，不存在，准备插入此记录，但执行 insert 时发现此记录已存在，无法插入，此时就发生了幻读。】</td>
+<td align="left">一次事务两次读取数据的数量不同了，</td>
 <td align="left">Next-Key锁(行锁和GAP间隙锁两者的合并) ,行锁锁定一定范围的行，间隙锁锁定范围两边的数据，这样就保证不会插入数据</td>
 </tr>
 <tr>
@@ -632,7 +632,11 @@
 </li>
 <li><p>当前读 current</p>
 <blockquote>
-<p>当前读：读取最新成功事务的数据，并加锁，以阻塞其他事务修改数据。<br>当前读通过Next-key锁(行锁+间隙锁)来实现 。<br>使用当前读的有两类语句：DML语句(insert、update、delete)和 加锁select(select …for update; select … for share model)</p>
+<p>当前读：读取最新成功事务的数据，并加锁，以阻塞其他事务修改数据。<br>当前读通过Next-key锁(行锁+间隙锁)来实现 。<br>使用当前读的有两类语句：</p>
+<ol>
+<li>DML语句: insert(Unique Key的冲突检查)、update、delete</li>
+<li>加锁select: select …for update; select … for share model</li>
+</ol>
 </blockquote>
 </li>
 </ol>
@@ -701,6 +705,7 @@
 <p>探索Mysql锁机制(二)——共享锁&amp;排他锁&amp;意向锁&amp;间隙锁<br><a href="https://www.jianshu.com/p/904f52bde904" target="_blank" rel="noopener">https://www.jianshu.com/p/904f52bde904</a></p>
 <p>Mysql加锁过程详解<br><a href="https://www.cnblogs.com/crazylqy/p/7611069.html" target="_blank" rel="noopener">https://www.cnblogs.com/crazylqy/p/7611069.html</a></p>
 <p>《快照读、当前读和MVCC》<br><a href="https://www.cnblogs.com/AlmostWasteTime/p/11466520.html" target="_blank" rel="noopener">https://www.cnblogs.com/AlmostWasteTime/p/11466520.html</a></p>
+<p>从MVCC协议来区分不可重复读与幻读<br><a href="https://segmentfault.com/a/1190000020680168?utm_source=tag-newest" target="_blank" rel="noopener">https://segmentfault.com/a/1190000020680168?utm_source=tag-newest</a></p>
 
       
     </div>
