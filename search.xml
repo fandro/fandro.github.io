@@ -902,6 +902,102 @@
       </tags>
   </entry>
   <entry>
+    <title>02 基础入门 - 集群内的原来</title>
+    <url>/2020/01/14/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/02-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h3 id="集群内的原理"><a href="#集群内的原理" class="headerlink" title="集群内的原理"></a>集群内的原理</h3><p>ES集群主旨：</p>
+<ol>
+<li>随时可用</li>
+<li>按需扩容</li>
+</ol>
+<p>集群两种扩容方式：</p>
+<ol>
+<li>垂直扩容(纵向扩容)：增强机器配置</li>
+<li>水平扩容(横向扩容): 增加机器数量</li>
+</ol>
+<p>ES天生支持分布式，可管理多节点来提高扩容性和可用性</p>
+<a id="more"></a>
+<h3 id="空集群"><a href="#空集群" class="headerlink" title="空集群"></a>空集群</h3><p>节点：</p>
+<blockquote>
+<p>一个运行中的Elasticsearch实例称为一个节点</p>
+</blockquote>
+<p>集群:</p>
+<blockquote>
+<p>拥有相同集群名(cluster.name)的多个节点组成了一个集群，共同承担数据和负载的压力。</p>
+</blockquote>
+<p>节点有变动时集群怎么处理？</p>
+<blockquote>
+<p>当集群中有节点加入或移除时，集群会重新平均分布所有的数据。</p>
+</blockquote>
+<p>master节点</p>
+<blockquote>
+<p>集群中节点会选举出一个节点做为master节点，master节点负责管理集群级别的所有变更，例如：增加索引、删除索引、增加节点、删除节点等。master节点并不负责文档级别的变更和搜索等操作。</p>
+</blockquote>
+<p>节点平等</p>
+<blockquote>
+<ol>
+<li>每个节点都可以成为master节点。</li>
+<li>每个节点都可以接受外部请求，节点接到请求后把请求转发到存储数据的节点，数据节点处理完返回给该节点，该节点再返回给客户端。也是说每个节点都知道数据存储的位置。</li>
+</ol>
+</blockquote>
+<h3 id="集群健康"><a href="#集群健康" class="headerlink" title="集群健康"></a>集群健康</h3><p>查询集群状态</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /_cluster/health</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"cluster_name"</span>:          <span class="string">"elasticsearch"</span>,</span><br><span class="line">   <span class="attr">"status"</span>:                <span class="string">"green"</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>:             <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"number_of_nodes"</span>:       <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"number_of_data_nodes"</span>:  <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"active_primary_shards"</span>: <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"active_shards"</span>:         <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"relocating_shards"</span>:     <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"initializing_shards"</span>:   <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"unassigned_shards"</span>:     <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>status状态值：</p>
+<ol>
+<li>green : 所有的主片和副片都运行正常</li>
+<li>yellow : 所有的主片运行正常，有的副片都运行不正常</li>
+<li>red : 有主片运行不正常</li>
+</ol>
+<h3 id="添加索引"><a href="#添加索引" class="headerlink" title="添加索引"></a>添加索引</h3><p>索引(名词) :</p>
+<blockquote>
+<p>保存相关数据的地方，是指向一个或多个物理分片的逻辑命名空间。</p>
+</blockquote>
+<p>分片</p>
+<blockquote>
+<ol>
+<li>分片是一个底层的工作单元</li>
+<li>一个分片就是一个Lucene实例，本身是一个完整的索引引擎</li>
+<li>分片保存全部数据的一部分</li>
+<li>文档被存储到分片中，但应用程序直接与索引交互，而不是与分片交互。</li>
+<li>文档存储在分片内，分片又被分配到节点里，集群规模扩大或缩小时，ES会迁移节点中的分片是数据保持均衡</li>
+<li>一个节点可以包含多个分片，也可以理解为：一个ES实例包含多个Lucene实例</li>
+</ol>
+</blockquote>
+<p>分片：主分片(primary)、副本分片(replica)</p>
+<blockquote>
+<p>主分片 ：一个文档只能被保存到一个主分片中，索引建立时主分片数已经确定。<br>副本分片 : 副本分片只是主分片的拷贝，副本分片数可以随时修改。它的作用是：冗余备份和提供读操作<br>分片：主分片和副分片不能在一个节点上</p>
+</blockquote>
+<h3 id="添加故障转移"><a href="#添加故障转移" class="headerlink" title="添加故障转移"></a>添加故障转移</h3><p>单个节点时由于没有冗余的副本分片，所以存在单点故障。启动第二节点时会存储所有的副本分片，不存在单点故障问题了，集群状态会变为’green’</p>
+<h3 id="水平扩容"><a href="#水平扩容" class="headerlink" title="水平扩容"></a>水平扩容</h3><p>分片配置如下：3个主分片，每个主分片对应一个1个副本分片，共3副分片</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"settings"</span> : &#123;</span><br><span class="line">		<span class="attr">"number_of_shards"</span> : <span class="number">3</span>,</span><br><span class="line">		<span class="attr">"number_of_replicas"</span> : <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3个主分片，3个副分片，分配图</p>
+<ol>
+<li>一个节点时，没有副本分片，状态为：yellow<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node1-master</span><br><span class="line">P1   </span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure></li>
+<li>2个节点时，node2 拷贝所有的副本分片<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node2</span><br><span class="line">R1</span><br><span class="line">R2</span><br><span class="line">R3</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">P1</span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure></li>
+<li>3个节点时，P1和R3重新分配到node3上<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line"></span><br><span class="line">subgraph Node3</span><br><span class="line">P1</span><br><span class="line">R3</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node2</span><br><span class="line">R1</span><br><span class="line">R2</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>3个主分片和3个副分片最大节点数是6，如果节点大于6，可以通过调整副本分片数量来达到负责平衡，副本增加可以增加数据冗余量和系统吞吐量。</p>
+<h3 id="应对故障"><a href="#应对故障" class="headerlink" title="应对故障"></a>应对故障</h3><p>3个节点，6个分片</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node3</span><br><span class="line">P0(P0)</span><br><span class="line">R1(R1)</span><br><span class="line">R2(R2)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node2</span><br><span class="line">R0(R0)</span><br><span class="line">R11(R1)</span><br><span class="line">R22(R2)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">R00(R0)</span><br><span class="line">P1(P1)</span><br><span class="line">P2(P2)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>应对故障步骤：</p>
+<ol>
+<li>节点1故障，节点1从集群中下线</li>
+<li>失去主分片P1和P2，此时集群状态为red</li>
+<li>马上节点2和节点3上R1、R2提升为主分片，集群状态变为yellow，集群对外正常提供服务</li>
+<li>节点1回复正常，集群中分片重新调整，状态变为 green</li>
+</ol>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>01 基础入门</title>
     <url>/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/01-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%8C%E4%B8%BA%E4%BA%86%E6%90%9C%E7%B4%A2/</url>
     <content><![CDATA[<h3 id="Elasticsearch-简介"><a href="#Elasticsearch-简介" class="headerlink" title="Elasticsearch 简介"></a>Elasticsearch 简介</h3><p>Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。<br>Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中.</p>
@@ -1003,102 +1099,6 @@
 <li>复制每个分片以支持数据冗余，防止硬件故障导致的数据丢失</li>
 <li>任意节点的请求都可以路由到相关数据的节点</li>
 <li>集群扩容时无缝整合新节点，重新分配分片以便从离群节点恢复</li>
-</ol>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>02 基础入门 - 集群内的原来</title>
-    <url>/2020/01/14/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/02-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h3 id="集群内的原理"><a href="#集群内的原理" class="headerlink" title="集群内的原理"></a>集群内的原理</h3><p>ES集群主旨：</p>
-<ol>
-<li>随时可用</li>
-<li>按需扩容</li>
-</ol>
-<p>集群两种扩容方式：</p>
-<ol>
-<li>垂直扩容(纵向扩容)：增强机器配置</li>
-<li>水平扩容(横向扩容): 增加机器数量</li>
-</ol>
-<p>ES天生支持分布式，可管理多节点来提高扩容性和可用性</p>
-<a id="more"></a>
-<h3 id="空集群"><a href="#空集群" class="headerlink" title="空集群"></a>空集群</h3><p>节点：</p>
-<blockquote>
-<p>一个运行中的Elasticsearch实例称为一个节点</p>
-</blockquote>
-<p>集群:</p>
-<blockquote>
-<p>拥有相同集群名(cluster.name)的多个节点组成了一个集群，共同承担数据和负载的压力。</p>
-</blockquote>
-<p>节点有变动时集群怎么处理？</p>
-<blockquote>
-<p>当集群中有节点加入或移除时，集群会重新平均分布所有的数据。</p>
-</blockquote>
-<p>master节点</p>
-<blockquote>
-<p>集群中节点会选举出一个节点做为master节点，master节点负责管理集群级别的所有变更，例如：增加索引、删除索引、增加节点、删除节点等。master节点并不负责文档级别的变更和搜索等操作。</p>
-</blockquote>
-<p>节点平等</p>
-<blockquote>
-<ol>
-<li>每个节点都可以成为master节点。</li>
-<li>每个节点都可以接受外部请求，节点接到请求后把请求转发到存储数据的节点，数据节点处理完返回给该节点，该节点再返回给客户端。也是说每个节点都知道数据存储的位置。</li>
-</ol>
-</blockquote>
-<h3 id="集群健康"><a href="#集群健康" class="headerlink" title="集群健康"></a>集群健康</h3><p>查询集群状态</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /_cluster/health</span><br></pre></td></tr></table></figure>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"cluster_name"</span>:          <span class="string">"elasticsearch"</span>,</span><br><span class="line">   <span class="attr">"status"</span>:                <span class="string">"green"</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>:             <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"number_of_nodes"</span>:       <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"number_of_data_nodes"</span>:  <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"active_primary_shards"</span>: <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"active_shards"</span>:         <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"relocating_shards"</span>:     <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"initializing_shards"</span>:   <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"unassigned_shards"</span>:     <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>status状态值：</p>
-<ol>
-<li>green : 所有的主片和副片都运行正常</li>
-<li>yellow : 所有的主片运行正常，有的副片都运行不正常</li>
-<li>red : 有主片运行不正常</li>
-</ol>
-<h3 id="添加索引"><a href="#添加索引" class="headerlink" title="添加索引"></a>添加索引</h3><p>索引(名词) :</p>
-<blockquote>
-<p>保存相关数据的地方，是指向一个或多个物理分片的逻辑命名空间。</p>
-</blockquote>
-<p>分片</p>
-<blockquote>
-<ol>
-<li>分片是一个底层的工作单元</li>
-<li>一个分片就是一个Lucene实例，本身是一个完整的索引引擎</li>
-<li>分片保存全部数据的一部分</li>
-<li>文档被存储到分片中，但应用程序直接与索引交互，而不是与分片交互。</li>
-<li>文档存储在分片内，分片又被分配到节点里，集群规模扩大或缩小时，ES会迁移节点中的分片是数据保持均衡</li>
-<li>一个节点可以包含多个分片，也可以理解为：一个ES实例包含多个Lucene实例</li>
-</ol>
-</blockquote>
-<p>分片：主分片(primary)、副本分片(replica)</p>
-<blockquote>
-<p>主分片 ：一个文档只能被保存到一个主分片中，索引建立时主分片数已经确定。<br>副本分片 : 副本分片只是主分片的拷贝，副本分片数可以随时修改。它的作用是：冗余备份和提供读操作<br>分片：主分片和副分片不能在一个节点上</p>
-</blockquote>
-<h3 id="添加故障转移"><a href="#添加故障转移" class="headerlink" title="添加故障转移"></a>添加故障转移</h3><p>单个节点时由于没有冗余的副本分片，所以存在单点故障。启动第二节点时会存储所有的副本分片，不存在单点故障问题了，集群状态会变为’green’</p>
-<h3 id="水平扩容"><a href="#水平扩容" class="headerlink" title="水平扩容"></a>水平扩容</h3><p>分片配置如下：3个主分片，每个主分片对应一个1个副本分片，共3副分片</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"settings"</span> : &#123;</span><br><span class="line">		<span class="attr">"number_of_shards"</span> : <span class="number">3</span>,</span><br><span class="line">		<span class="attr">"number_of_replicas"</span> : <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>3个主分片，3个副分片，分配图</p>
-<ol>
-<li>一个节点时，没有副本分片，状态为：yellow<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node1-master</span><br><span class="line">P1   </span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure></li>
-<li>2个节点时，node2 拷贝所有的副本分片<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node2</span><br><span class="line">R1</span><br><span class="line">R2</span><br><span class="line">R3</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">P1</span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure></li>
-<li>3个节点时，P1和R3重新分配到node3上<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line"></span><br><span class="line">subgraph Node3</span><br><span class="line">P1</span><br><span class="line">R3</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node2</span><br><span class="line">R1</span><br><span class="line">R2</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">P2</span><br><span class="line">P3</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<p>3个主分片和3个副分片最大节点数是6，如果节点大于6，可以通过调整副本分片数量来达到负责平衡，副本增加可以增加数据冗余量和系统吞吐量。</p>
-<h3 id="应对故障"><a href="#应对故障" class="headerlink" title="应对故障"></a>应对故障</h3><p>3个节点，6个分片</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph TB</span><br><span class="line">subgraph Node3</span><br><span class="line">P0(P0)</span><br><span class="line">R1(R1)</span><br><span class="line">R2(R2)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node2</span><br><span class="line">R0(R0)</span><br><span class="line">R11(R1)</span><br><span class="line">R22(R2)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">subgraph Node1-master</span><br><span class="line">R00(R0)</span><br><span class="line">P1(P1)</span><br><span class="line">P2(P2)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
-<p>应对故障步骤：</p>
-<ol>
-<li>节点1故障，节点1从集群中下线</li>
-<li>失去主分片P1和P2，此时集群状态为red</li>
-<li>马上节点2和节点3上R1、R2提升为主分片，集群状态变为yellow，集群对外正常提供服务</li>
-<li>节点1回复正常，集群中分片重新调整，状态变为 green</li>
 </ol>
 ]]></content>
       <categories>
@@ -2076,28 +2076,6 @@
       </tags>
   </entry>
   <entry>
-    <title>12-深入搜索-简介</title>
-    <url>/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/</url>
-    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
-<h3 id="本章主要内容"><a href="#本章主要内容" class="headerlink" title="本章主要内容"></a>本章主要内容</h3><ol>
-<li>理解数据以及如何搜索它们</li>
-<li>词的相似度(word proximity)</li>
-<li>部分匹配(partial matching)</li>
-<li>模糊匹配(fuzzy matching)</li>
-<li>语言感知(language awareeness)</li>
-<li>理解相关度评分，消除长尾(long tail)</li>
-<li>结构化搜索和全文搜索高效结合</li>
-</ol>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>11 基础入门-内部分片原理</title>
     <url>/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h3 id="使文本可被搜索"><a href="#使文本可被搜索" class="headerlink" title="使文本可被搜索"></a>使文本可被搜索</h3><ul>
@@ -2229,6 +2207,28 @@
 <p>###</p>
 <p>###</p>
 <p>###</p>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>12-深入搜索-简介</title>
+    <url>/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/</url>
+    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="本章主要内容"><a href="#本章主要内容" class="headerlink" title="本章主要内容"></a>本章主要内容</h3><ol>
+<li>理解数据以及如何搜索它们</li>
+<li>词的相似度(word proximity)</li>
+<li>部分匹配(partial matching)</li>
+<li>模糊匹配(fuzzy matching)</li>
+<li>语言感知(language awareeness)</li>
+<li>理解相关度评分，消除长尾(long tail)</li>
+<li>结构化搜索和全文搜索高效结合</li>
+</ol>
 ]]></content>
       <categories>
         <category>ELK</category>
@@ -3645,6 +3645,131 @@
       </tags>
   </entry>
   <entry>
+    <title>03-处理人类语言-同义词</title>
+    <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/25-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%90%8C%E4%B9%89%E8%AF%8D/</url>
+    <content><![CDATA[<h3 id="同义词-Synonyms"><a href="#同义词-Synonyms" class="headerlink" title="同义词(Synonyms)"></a>同义词(Synonyms)</h3><ul>
+<li>词干提取是通过简化他们的词根形式来扩大搜索的范围，同义词 通过相关的观念和概念来扩大搜索范围。</li>
+<li>同义词也应该只在必要的时候使用,大规模使用同义词会导致查询结果趋向于让人觉得是随机的.</li>
+<li>同义词似乎是一个简单的概念，但是正确的使用它们却是非常困难的。</li>
+<li>同义词的字段不应该被单独使用，而应该与一个针对主字段的查询操作一起使用，这个主字段应该包含纯净格式的原始文本。</li>
+</ul>
+<a id="more"></a>
+<h3 id="使用同义词-Using-Synonyms"><a href="#使用同义词-Using-Synonyms" class="headerlink" title="使用同义词(Using Synonyms)"></a>使用同义词(Using Synonyms)</h3><ul>
+<li>同义词替换 使用同义词过滤器<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-synonym-tokenfilter.html" target="_blank" rel="noopener">synonym token filter</a></li>
+<li>同义词可以使用synonyms或synonyms_path 指定</li>
+<li>在索引和搜索中使用相同的同义词语汇单元过滤器是多余的。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonym_filter"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"synonym"</span>,</span><br><span class="line">          <span class="attr">"synonyms"</span>: [</span><br><span class="line">            <span class="string">"british,english"</span>,</span><br><span class="line">            <span class="string">"queen,monarch"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonyms"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"my_synonym_filter"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用analyze API 来测试</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET &#x2F;my_index&#x2F;_analyze?analyzer&#x3D;my_synonyms</span><br><span class="line">Elizabeth is the English queen</span><br><span class="line"></span><br><span class="line">Pos 1: (elizabeth)</span><br><span class="line">Pos 2: (is)</span><br><span class="line">Pos 3: (the)</span><br><span class="line">Pos 4: (british,english)</span><br><span class="line">Pos 5: (queen,monarch)</span><br></pre></td></tr></table></figure>
+
+<h3 id="同义词格式-Formatting-Synonyms"><a href="#同义词格式-Formatting-Synonyms" class="headerlink" title="同义词格式(Formatting Synonyms)"></a>同义词格式(Formatting Synonyms)</h3><p>同义词表达式两种形式：</p>
+<ol>
+<li>用逗号分割，例如：”jump,leap,hop”</li>
+<li>用=&gt; 表示，例如： “u s a,united states,united states of america =&gt; usa”</li>
+</ol>
+<p>匹配规则：如果多个规则指定同一个同义词，它们将被合并在一起，且顺序无关，否则使用最长匹配。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;united states            &#x3D;&gt; usa&quot;,</span><br><span class="line">&quot;united states of america &#x3D;&gt; usa&quot;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>如果规则冲突 ，<code>united states of america</code>转换为<code>usa</code> <code>of</code> <code>america</code></li>
+<li>如果规则不冲突，<code>united states of america</code>转换为<code>usa</code></li>
+</ol>
+<h3 id="扩展或收缩-Expand-or-contract"><a href="#扩展或收缩-Expand-or-contract" class="headerlink" title="扩展或收缩(Expand or contract)"></a>扩展或收缩(Expand or contract)</h3><p>通过 简单扩展 、 简单收缩 、或 类型扩展 来指明同义词规则.<br>本节对三者进行比较。</p>
+<h5 id="简单扩展-Simple-Expansion"><a href="#简单扩展-Simple-Expansion" class="headerlink" title="简单扩展(Simple Expansion)"></a>简单扩展(Simple Expansion)</h5><ul>
+<li>简单扩展: 把同义词列表中的任意一个词扩展成同义词列表</li>
+<li>简单扩展可以应用在索引或查询阶段</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">特点</th>
+<th align="left">索引</th>
+<th align="left">查询</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">索引的大小</td>
+<td align="left">⬇︎ 大索引。因为所有的同义词都会被索引，所以索引的大小相对会变大一些。</td>
+<td align="left">正常大小</td>
+</tr>
+<tr>
+<td align="left">关联</td>
+<td align="left">⬇︎ 所有同义词都有相同的 IDF，这意味着通用的词和较常用的词都拥有着相同的权重。</td>
+<td align="left">每个同义词 IDF 都和原来一样。</td>
+</tr>
+<tr>
+<td align="left">性能</td>
+<td align="left">查询只需要找到查询字符串中指定单个词项。</td>
+<td align="left">⬇︎ 对一个词项的查询重写来查找所有的同义词，这样会降低性能。</td>
+</tr>
+<tr>
+<td align="left">灵活性</td>
+<td align="left">⬇︎ 同义词规则不能改变现有的文件。对于有影响的新规则，现有的文件都要重建</td>
+<td align="left">⬆︎ 同义词规则可以更新不需要索引文件。</td>
+</tr>
+</tbody></table>
+<h5 id="简单收缩"><a href="#简单收缩" class="headerlink" title="简单收缩"></a>简单收缩</h5><ul>
+<li>简单收缩 ，把左边的多个同义词映射到了右边的一个词。</li>
+<li>它必须同时应用于索引和查询阶段，以确保查询词项映射到索引中存在的同一个值。<br>例如：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;leap,hop &#x3D;&gt; jump&quot;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>优缺点：</p>
+<ul>
+<li>索引的大小 ： ⬆︎ 索引大小是正常的，因为只有单一词项被索引。</li>
+<li>关联 ： ⬇︎ 所有词项的 IDF 是一样的，所以你不能区分比较常用的词、不常用的单词。</li>
+<li>性能： ⬆︎ 查询只需要在索引中找到单词的出现。</li>
+<li>灵活性 ：⬆︎ 新同义词可以添加到规则的左侧并在查询阶段使用。例如：添加’bound’后：<code>&quot;leap,hop,bound =&gt; jump&quot;</code>,修改一下兼容旧数据<code>&quot;leap,hop,bound =&gt; jump,bound&quot;</code>。你需要重建索引文件，恢复到上面的规则（leap,hop,bound =&gt; jump ）来获得查询单个词项的性能优势。</li>
+</ul>
+<h5 id="类型扩展"><a href="#类型扩展" class="headerlink" title="类型扩展"></a>类型扩展</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;cat    &#x3D;&gt; cat,pet&quot;,</span><br><span class="line">&quot;kitten &#x3D;&gt; kitten,cat,pet&quot;,</span><br><span class="line">&quot;dog    &#x3D;&gt; dog,pet&quot;</span><br><span class="line">&quot;puppy  &#x3D;&gt; puppy,dog,pet&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>类型扩展：扩大了词的意义，使被拓展的词更为通用。</li>
+<li>类型扩展在索引阶段使用，例如：查询一个 cat 会找到关于 kittens 和 cats 的文档。</li>
+<li>类型扩展在查询阶段使用，例如：kitten 的查询结果就会被拓展成涉及到 kittens、cats、dogs。</li>
+<li>索引阶段应用类型扩展，查询阶段不采用同义词。</li>
+</ul>
+<h3 id="同义词和分析链"><a href="#同义词和分析链" class="headerlink" title="同义词和分析链"></a>同义词和分析链</h3><p>分析链如下： standard tokenizer –&gt; lowercase token filter –&gt; synonym token filter<br>例如’U.S.A’</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">original string（原始文本）                       → &quot;U.S.A.&quot;</span><br><span class="line">standard           tokenizer（分词器）            → (U),(S),(A)</span><br><span class="line">lowercase          token filter（语汇单元过滤器）  → (u),(s),(a)</span><br><span class="line">synonym            token filter（语汇单元过滤器）  → (usa)</span><br></pre></td></tr></table></figure>
+<p>将同义词过滤器放置在词根过滤器之后更简洁</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;leap &#x3D;&gt; jump&quot;</span><br></pre></td></tr></table></figure>
+
+<h5 id="大小写敏感的同义词"><a href="#大小写敏感的同义词" class="headerlink" title="大小写敏感的同义词"></a>大小写敏感的同义词</h5><p>对应对大小写敏感的同义词，定义特定的同义词规则。<br>大小写敏感的规则：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="string">"CAT,CAT scan           =&gt; cat_scan"</span></span><br><span class="line"><span class="string">"PET,PET scan           =&gt; pet_scan"</span></span><br><span class="line"><span class="string">"Johnny Little,J Little =&gt; johnny_little"</span></span><br><span class="line"><span class="string">"Johnny Small,J Small   =&gt; johnny_small"</span></span><br></pre></td></tr></table></figure>
+<p>大小写不敏感的规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;cat                    &#x3D;&gt; cat,pet&quot;</span><br><span class="line">&quot;dog                    &#x3D;&gt; dog,pet&quot;</span><br><span class="line">&quot;cat scan,cat_scan scan &#x3D;&gt; cat_scan&quot;</span><br><span class="line">&quot;pet scan,pet_scan scan &#x3D;&gt; pet_scan&quot;</span><br><span class="line">&quot;little,small&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="多词同义词和短语查询"><a href="#多词同义词和短语查询" class="headerlink" title="多词同义词和短语查询"></a>多词同义词和短语查询</h3><p>多词同义词会严重破坏词的位置信息，尤其当新增的同义词标记长度各不相同的时候。</p>
+<h5 id="使用简单收缩进行短语查询"><a href="#使用简单收缩进行短语查询" class="headerlink" title="使用简单收缩进行短语查询"></a>使用简单收缩进行短语查询</h5><p>使用简单收缩，把多个同义词用单个词表示，查询时需要针对单个词查询</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonym_filter"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"synonym"</span>,</span><br><span class="line">          <span class="attr">"synonyms"</span>: [</span><br><span class="line">            <span class="string">"united states,u s a,united states of america=&gt;usa"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonyms"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"my_synonym_filter"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_synonyms</span><br><span class="line">The United States is wealthy</span><br></pre></td></tr></table></figure>
+<h5 id="同义词与query-string查询"><a href="#同义词与query-string查询" class="headerlink" title="同义词与query_string查询"></a>同义词与query_string查询</h5><p>本书很少谈论到 query_string 查询，因为真心不推荐你用它。</p>
+<h3 id="符号同义词"><a href="#符号同义词" class="headerlink" title="符号同义词"></a>符号同义词</h3><ul>
+<li>符号同义词是用别名来表示这个符号，以防止它在分词过程中被误认为是不重要的标点符号而被移除。</li>
+<li>怎么处理符号同义词？分词之前替换符号成单词。</li>
+<li>映射mapping 字符过滤器是个非常有用的过滤器，它可以用来对一些已有的字词进行替换操作， 你如果想要采用更灵活的正则表达式去替换字词的话，那你可以使用 pattern_replace 字符过滤器。</li>
+</ul>
+<p>虽然绝大多数情况下，符号对于全文搜索而言都无关紧要，但是字符组合而成的表情，或许又会是很有意义的东西。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">我很高兴能在星期天工作 :( （注：难过的表情）</span><br></pre></td></tr></table></figure>
+<ol>
+<li>先使用 映射字符过滤器</li>
+<li>在文本被递交给分词器处理之前， 把字符表情替换成符号同义词 emoticon_happy 或者 emoticon_sad</li>
+</ol>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"char_filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"emoticons"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"mapping"</span>,</span><br><span class="line">          <span class="attr">"mappings"</span>: [</span><br><span class="line">            <span class="string">":)=&gt;emoticon_happy"</span>,</span><br><span class="line">            <span class="string">":(=&gt;emoticon_sad"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_emoticons"</span>: &#123;</span><br><span class="line">          <span class="attr">"char_filter"</span>: <span class="string">"emoticons"</span>,</span><br><span class="line">          <span class="attr">"tokenizer"</span>:   <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>:    [ <span class="string">"lowercase"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_emoticons</span><br><span class="line">I am :) not :(</span><br></pre></td></tr></table></figure>
+
+
+
+<p>###</p>
+<p>###</p>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>03-处理人类语言-停用词：性能与精度</title>
     <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/24-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%81%9C%E7%94%A8%E8%AF%8D-%E6%80%A7%E8%83%BD%E4%B8%8E%E7%B2%BE%E5%BA%A6/</url>
     <content><![CDATA[<h3 id="停用词：性能与精度-Stopwords-Performance-Versus-Precision"><a href="#停用词：性能与精度-Stopwords-Performance-Versus-Precision" class="headerlink" title="停用词：性能与精度(Stopwords: Performance Versus Precision)"></a>停用词：性能与精度(Stopwords: Performance Versus Precision)</h3><p>两组被过滤的词：</p>
@@ -3775,131 +3900,6 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Pos 1: the_quick</span><br><span class="line">Pos 2: quick_and</span><br><span class="line">Pos 3: and_brown</span><br><span class="line">Pos 4: brown</span><br><span class="line">Pos 5: fox</span><br></pre></td></tr></table></figure>
 
 <h5 id="两词短语（Two-Word-Phrases）"><a href="#两词短语（Two-Word-Phrases）" class="headerlink" title="两词短语（Two-Word Phrases）"></a>两词短语（Two-Word Phrases）</h5><h3 id="停用词与相关性-Stopwords-and-Relevance"><a href="#停用词与相关性-Stopwords-and-Relevance" class="headerlink" title="停用词与相关性(Stopwords and Relevance)"></a>停用词与相关性(Stopwords and Relevance)</h3><p>在索引中保留停用词会降低相关度计算的准确性，特别是当我们的文档非常长时。<br>如果一个长文档中停用很多，词频饱和度没有设置上限，则其他常用词的词频会降低。<br>考虑对包含停用词的较长字段使用使用Okapi BM25，设置词频饱和度。</p>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>03-处理人类语言-同义词</title>
-    <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/25-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%90%8C%E4%B9%89%E8%AF%8D/</url>
-    <content><![CDATA[<h3 id="同义词-Synonyms"><a href="#同义词-Synonyms" class="headerlink" title="同义词(Synonyms)"></a>同义词(Synonyms)</h3><ul>
-<li>词干提取是通过简化他们的词根形式来扩大搜索的范围，同义词 通过相关的观念和概念来扩大搜索范围。</li>
-<li>同义词也应该只在必要的时候使用,大规模使用同义词会导致查询结果趋向于让人觉得是随机的.</li>
-<li>同义词似乎是一个简单的概念，但是正确的使用它们却是非常困难的。</li>
-<li>同义词的字段不应该被单独使用，而应该与一个针对主字段的查询操作一起使用，这个主字段应该包含纯净格式的原始文本。</li>
-</ul>
-<a id="more"></a>
-<h3 id="使用同义词-Using-Synonyms"><a href="#使用同义词-Using-Synonyms" class="headerlink" title="使用同义词(Using Synonyms)"></a>使用同义词(Using Synonyms)</h3><ul>
-<li>同义词替换 使用同义词过滤器<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-synonym-tokenfilter.html" target="_blank" rel="noopener">synonym token filter</a></li>
-<li>同义词可以使用synonyms或synonyms_path 指定</li>
-<li>在索引和搜索中使用相同的同义词语汇单元过滤器是多余的。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonym_filter"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"synonym"</span>,</span><br><span class="line">          <span class="attr">"synonyms"</span>: [</span><br><span class="line">            <span class="string">"british,english"</span>,</span><br><span class="line">            <span class="string">"queen,monarch"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonyms"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"my_synonym_filter"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用analyze API 来测试</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET &#x2F;my_index&#x2F;_analyze?analyzer&#x3D;my_synonyms</span><br><span class="line">Elizabeth is the English queen</span><br><span class="line"></span><br><span class="line">Pos 1: (elizabeth)</span><br><span class="line">Pos 2: (is)</span><br><span class="line">Pos 3: (the)</span><br><span class="line">Pos 4: (british,english)</span><br><span class="line">Pos 5: (queen,monarch)</span><br></pre></td></tr></table></figure>
-
-<h3 id="同义词格式-Formatting-Synonyms"><a href="#同义词格式-Formatting-Synonyms" class="headerlink" title="同义词格式(Formatting Synonyms)"></a>同义词格式(Formatting Synonyms)</h3><p>同义词表达式两种形式：</p>
-<ol>
-<li>用逗号分割，例如：”jump,leap,hop”</li>
-<li>用=&gt; 表示，例如： “u s a,united states,united states of america =&gt; usa”</li>
-</ol>
-<p>匹配规则：如果多个规则指定同一个同义词，它们将被合并在一起，且顺序无关，否则使用最长匹配。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;united states            &#x3D;&gt; usa&quot;,</span><br><span class="line">&quot;united states of america &#x3D;&gt; usa&quot;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>如果规则冲突 ，<code>united states of america</code>转换为<code>usa</code> <code>of</code> <code>america</code></li>
-<li>如果规则不冲突，<code>united states of america</code>转换为<code>usa</code></li>
-</ol>
-<h3 id="扩展或收缩-Expand-or-contract"><a href="#扩展或收缩-Expand-or-contract" class="headerlink" title="扩展或收缩(Expand or contract)"></a>扩展或收缩(Expand or contract)</h3><p>通过 简单扩展 、 简单收缩 、或 类型扩展 来指明同义词规则.<br>本节对三者进行比较。</p>
-<h5 id="简单扩展-Simple-Expansion"><a href="#简单扩展-Simple-Expansion" class="headerlink" title="简单扩展(Simple Expansion)"></a>简单扩展(Simple Expansion)</h5><ul>
-<li>简单扩展: 把同义词列表中的任意一个词扩展成同义词列表</li>
-<li>简单扩展可以应用在索引或查询阶段</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">特点</th>
-<th align="left">索引</th>
-<th align="left">查询</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">索引的大小</td>
-<td align="left">⬇︎ 大索引。因为所有的同义词都会被索引，所以索引的大小相对会变大一些。</td>
-<td align="left">正常大小</td>
-</tr>
-<tr>
-<td align="left">关联</td>
-<td align="left">⬇︎ 所有同义词都有相同的 IDF，这意味着通用的词和较常用的词都拥有着相同的权重。</td>
-<td align="left">每个同义词 IDF 都和原来一样。</td>
-</tr>
-<tr>
-<td align="left">性能</td>
-<td align="left">查询只需要找到查询字符串中指定单个词项。</td>
-<td align="left">⬇︎ 对一个词项的查询重写来查找所有的同义词，这样会降低性能。</td>
-</tr>
-<tr>
-<td align="left">灵活性</td>
-<td align="left">⬇︎ 同义词规则不能改变现有的文件。对于有影响的新规则，现有的文件都要重建</td>
-<td align="left">⬆︎ 同义词规则可以更新不需要索引文件。</td>
-</tr>
-</tbody></table>
-<h5 id="简单收缩"><a href="#简单收缩" class="headerlink" title="简单收缩"></a>简单收缩</h5><ul>
-<li>简单收缩 ，把左边的多个同义词映射到了右边的一个词。</li>
-<li>它必须同时应用于索引和查询阶段，以确保查询词项映射到索引中存在的同一个值。<br>例如：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;leap,hop &#x3D;&gt; jump&quot;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<p>优缺点：</p>
-<ul>
-<li>索引的大小 ： ⬆︎ 索引大小是正常的，因为只有单一词项被索引。</li>
-<li>关联 ： ⬇︎ 所有词项的 IDF 是一样的，所以你不能区分比较常用的词、不常用的单词。</li>
-<li>性能： ⬆︎ 查询只需要在索引中找到单词的出现。</li>
-<li>灵活性 ：⬆︎ 新同义词可以添加到规则的左侧并在查询阶段使用。例如：添加’bound’后：<code>&quot;leap,hop,bound =&gt; jump&quot;</code>,修改一下兼容旧数据<code>&quot;leap,hop,bound =&gt; jump,bound&quot;</code>。你需要重建索引文件，恢复到上面的规则（leap,hop,bound =&gt; jump ）来获得查询单个词项的性能优势。</li>
-</ul>
-<h5 id="类型扩展"><a href="#类型扩展" class="headerlink" title="类型扩展"></a>类型扩展</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;cat    &#x3D;&gt; cat,pet&quot;,</span><br><span class="line">&quot;kitten &#x3D;&gt; kitten,cat,pet&quot;,</span><br><span class="line">&quot;dog    &#x3D;&gt; dog,pet&quot;</span><br><span class="line">&quot;puppy  &#x3D;&gt; puppy,dog,pet&quot;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>类型扩展：扩大了词的意义，使被拓展的词更为通用。</li>
-<li>类型扩展在索引阶段使用，例如：查询一个 cat 会找到关于 kittens 和 cats 的文档。</li>
-<li>类型扩展在查询阶段使用，例如：kitten 的查询结果就会被拓展成涉及到 kittens、cats、dogs。</li>
-<li>索引阶段应用类型扩展，查询阶段不采用同义词。</li>
-</ul>
-<h3 id="同义词和分析链"><a href="#同义词和分析链" class="headerlink" title="同义词和分析链"></a>同义词和分析链</h3><p>分析链如下： standard tokenizer –&gt; lowercase token filter –&gt; synonym token filter<br>例如’U.S.A’</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">original string（原始文本）                       → &quot;U.S.A.&quot;</span><br><span class="line">standard           tokenizer（分词器）            → (U),(S),(A)</span><br><span class="line">lowercase          token filter（语汇单元过滤器）  → (u),(s),(a)</span><br><span class="line">synonym            token filter（语汇单元过滤器）  → (usa)</span><br></pre></td></tr></table></figure>
-<p>将同义词过滤器放置在词根过滤器之后更简洁</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;leap &#x3D;&gt; jump&quot;</span><br></pre></td></tr></table></figure>
-
-<h5 id="大小写敏感的同义词"><a href="#大小写敏感的同义词" class="headerlink" title="大小写敏感的同义词"></a>大小写敏感的同义词</h5><p>对应对大小写敏感的同义词，定义特定的同义词规则。<br>大小写敏感的规则：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="string">"CAT,CAT scan           =&gt; cat_scan"</span></span><br><span class="line"><span class="string">"PET,PET scan           =&gt; pet_scan"</span></span><br><span class="line"><span class="string">"Johnny Little,J Little =&gt; johnny_little"</span></span><br><span class="line"><span class="string">"Johnny Small,J Small   =&gt; johnny_small"</span></span><br></pre></td></tr></table></figure>
-<p>大小写不敏感的规则：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;cat                    &#x3D;&gt; cat,pet&quot;</span><br><span class="line">&quot;dog                    &#x3D;&gt; dog,pet&quot;</span><br><span class="line">&quot;cat scan,cat_scan scan &#x3D;&gt; cat_scan&quot;</span><br><span class="line">&quot;pet scan,pet_scan scan &#x3D;&gt; pet_scan&quot;</span><br><span class="line">&quot;little,small&quot;</span><br></pre></td></tr></table></figure>
-
-<h3 id="多词同义词和短语查询"><a href="#多词同义词和短语查询" class="headerlink" title="多词同义词和短语查询"></a>多词同义词和短语查询</h3><p>多词同义词会严重破坏词的位置信息，尤其当新增的同义词标记长度各不相同的时候。</p>
-<h5 id="使用简单收缩进行短语查询"><a href="#使用简单收缩进行短语查询" class="headerlink" title="使用简单收缩进行短语查询"></a>使用简单收缩进行短语查询</h5><p>使用简单收缩，把多个同义词用单个词表示，查询时需要针对单个词查询</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonym_filter"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"synonym"</span>,</span><br><span class="line">          <span class="attr">"synonyms"</span>: [</span><br><span class="line">            <span class="string">"united states,u s a,united states of america=&gt;usa"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_synonyms"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"my_synonym_filter"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_synonyms</span><br><span class="line">The United States is wealthy</span><br></pre></td></tr></table></figure>
-<h5 id="同义词与query-string查询"><a href="#同义词与query-string查询" class="headerlink" title="同义词与query_string查询"></a>同义词与query_string查询</h5><p>本书很少谈论到 query_string 查询，因为真心不推荐你用它。</p>
-<h3 id="符号同义词"><a href="#符号同义词" class="headerlink" title="符号同义词"></a>符号同义词</h3><ul>
-<li>符号同义词是用别名来表示这个符号，以防止它在分词过程中被误认为是不重要的标点符号而被移除。</li>
-<li>怎么处理符号同义词？分词之前替换符号成单词。</li>
-<li>映射mapping 字符过滤器是个非常有用的过滤器，它可以用来对一些已有的字词进行替换操作， 你如果想要采用更灵活的正则表达式去替换字词的话，那你可以使用 pattern_replace 字符过滤器。</li>
-</ul>
-<p>虽然绝大多数情况下，符号对于全文搜索而言都无关紧要，但是字符组合而成的表情，或许又会是很有意义的东西。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">我很高兴能在星期天工作 :( （注：难过的表情）</span><br></pre></td></tr></table></figure>
-<ol>
-<li>先使用 映射字符过滤器</li>
-<li>在文本被递交给分词器处理之前， 把字符表情替换成符号同义词 emoticon_happy 或者 emoticon_sad</li>
-</ol>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"char_filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"emoticons"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"mapping"</span>,</span><br><span class="line">          <span class="attr">"mappings"</span>: [</span><br><span class="line">            <span class="string">":)=&gt;emoticon_happy"</span>,</span><br><span class="line">            <span class="string">":(=&gt;emoticon_sad"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_emoticons"</span>: &#123;</span><br><span class="line">          <span class="attr">"char_filter"</span>: <span class="string">"emoticons"</span>,</span><br><span class="line">          <span class="attr">"tokenizer"</span>:   <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>:    [ <span class="string">"lowercase"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_emoticons</span><br><span class="line">I am :) not :(</span><br></pre></td></tr></table></figure>
-
-
-
-<p>###</p>
-<p>###</p>
 ]]></content>
       <categories>
         <category>ELK</category>
@@ -4784,56 +4784,6 @@
       </tags>
   </entry>
   <entry>
-    <title>40-地理位置-地理位置聚合</title>
-    <url>/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/</url>
-    <content><![CDATA[<h3 id="地理位置聚合-Geo-Aggregations"><a href="#地理位置聚合-Geo-Aggregations" class="headerlink" title="地理位置聚合(Geo Aggregations)"></a>地理位置聚合(Geo Aggregations)</h3><p>地理位置聚合就是将地理坐标聚集到更容易管理的bucket是中。<br>处理geo_point类型字段的三种聚合:</p>
-<ul>
-<li>地理位置距离(geo_distance) : 将文档按照距离围绕一个中心点来分组。</li>
-<li>geohash网格(geohash_grid) : 将文档按照geohash范围来分组，用来显示在地图上。</li>
-<li>地理位置边界(geo_bounds) : 返回一个包含所有地理位置坐标点的边界的经纬度坐标，这对显示地图时缩放比例的选择非常有用。</li>
-</ul>
-<a id="more"></a>
-<h3 id="地理位置距离-geo-distance"><a href="#地理位置距离-geo-distance" class="headerlink" title="地理位置距离(geo_distance)"></a>地理位置距离(geo_distance)</h3><p>geo_distance 聚合 对一些搜索非常有用.</p>
-<p>例如： 找到所有距离我 1km 以内的披萨店。<br>搜索结果应该也的确被限制在用户指定 1km 范围内，但是我们可以添加在 2km 范围内找到的其他结果：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: <span class="string">"pizza"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"per_ring"</span>: &#123;</span><br><span class="line">      <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:    <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"unit"</span>:     <span class="string">"km"</span>,</span><br><span class="line">        <span class="attr">"origin"</span>: &#123;</span><br><span class="line">          <span class="attr">"lat"</span>:    <span class="number">40.712</span>,</span><br><span class="line">          <span class="attr">"lon"</span>:   <span class="number">-73.988</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"ranges"</span>: [</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">0</span>, <span class="attr">"to"</span>: <span class="number">1</span> &#125;,</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">1</span>, <span class="attr">"to"</span>: <span class="number">2</span> &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"post_filter"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">      <span class="attr">"distance"</span>:   <span class="string">"1km"</span>,</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"lat"</span>:      <span class="number">40.712</span>,</span><br><span class="line">        <span class="attr">"lon"</span>:     <span class="number">-73.988</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>主查询查找名称中含有 pizza 的饭店。</li>
-<li>geo_bounding_box 筛选那些只在纽约区域的结果。</li>
-<li>per_ring.geo_distance 聚合统计距离用户 1km 以内，1km 到 2km 的结果的数量。</li>
-<li>最后，post_filter 将结果缩小至那些在用户 1km 范围内的饭店</li>
-</ul>
-<h3 id="geohash网格-geohash-grid"><a href="#geohash网格-geohash-grid" class="headerlink" title="geohash网格(geohash_grid)"></a>geohash网格(geohash_grid)</h3><p>geohash_grid按照指定精度将附近的位置聚合成一个网格。<br>聚合是稀疏的—它 仅返回那些含有文档的单元。<br>如果 geohashes 太精确，将产生太多的 buckets，它将默认返回那些包含了大量文档、最密集的10000个单元。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"new_york"</span>: &#123;</span><br><span class="line">      <span class="attr">"geohash_grid"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:     <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"precision"</span>: <span class="number">5</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>geo_bounding_box 边界框将搜索限制在大纽约区的范围</li>
-<li>Geohashes 精度为 5 大约是 5km x 5km。</li>
-</ul>
-<p>如果绘制到地图上需要一个将 geohash 转换成同等边界框或中心点的库</p>
-<h3 id="地理位置边界-geo-bounds"><a href="#地理位置边界-geo-bounds" class="headerlink" title="地理位置边界(geo_bounds)"></a>地理位置边界(geo_bounds)</h3><p>geo_bounds 计算封装所有地理日志点需要的最小边界框。</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "map_zoom": &#123;</span><br><span class="line">      "geo_bounds": &#123;</span><br><span class="line">        "field":     "location"</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>返回结果即为结果集的最小边界框。</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">"aggregations": &#123;</span><br><span class="line">  "map_zoom": &#123;</span><br><span class="line">     "bounds": &#123;</span><br><span class="line">        "top_left": &#123;</span><br><span class="line">           "lat":  40.722,</span><br><span class="line">           "lon": -74.011</span><br><span class="line">        &#125;,</span><br><span class="line">        "bottom_right": &#123;</span><br><span class="line">           "lat":  40.715,</span><br><span class="line">           "lon": -73.983</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在每一个geohash 单元内部使用geo_bounds聚合， 以免一个单元内的地理位置点仅集中在单元的一部分上：</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;,</span><br><span class="line">      "aggs": &#123;</span><br><span class="line">        "cell": &#123;</span><br><span class="line">          "geo_bounds": &#123;</span><br><span class="line">            "field": "location"</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>cell_bounds 子聚合会为每个 geohash 单元计算边界框。<br>结果如下：<figure class="highlight"><table><tr><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "new_york": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"dr5rs"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">2</span>,</span><br><span class="line">           <span class="attr">"cell"</span>: &#123;</span><br><span class="line">              <span class="attr">"bounds"</span>: &#123;</span><br><span class="line">                 <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.722</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.989</span></span><br><span class="line">                 &#125;,</span><br><span class="line">                 <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.719</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.983</span></span><br><span class="line">                 &#125;</span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-aggs.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/330_Geo_aggs" target="_blank" rel="noopener">英文参考</a></p>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>41-地理位置-地理形状</title>
     <url>/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/</url>
     <content><![CDATA[<h3 id="地理形状"><a href="#地理形状" class="headerlink" title="地理形状"></a>地理形状</h3><p>geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。<br>Geo-shapes 不能用于计算距离、排序、打分以及聚合。</p>
@@ -4887,6 +4837,56 @@
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /attractions/neighborhood/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"indexed_shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"attractions"</span>,</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"landmark"</span>,</span><br><span class="line">          <span class="attr">"id"</span>:    <span class="string">"dam_square"</span>,</span><br><span class="line">          <span class="attr">"path"</span>:  <span class="string">"location"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-shapes.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/340_Geoshapes" target="_blank" rel="noopener">英文参考</a></p>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>40-地理位置-地理位置聚合</title>
+    <url>/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/</url>
+    <content><![CDATA[<h3 id="地理位置聚合-Geo-Aggregations"><a href="#地理位置聚合-Geo-Aggregations" class="headerlink" title="地理位置聚合(Geo Aggregations)"></a>地理位置聚合(Geo Aggregations)</h3><p>地理位置聚合就是将地理坐标聚集到更容易管理的bucket是中。<br>处理geo_point类型字段的三种聚合:</p>
+<ul>
+<li>地理位置距离(geo_distance) : 将文档按照距离围绕一个中心点来分组。</li>
+<li>geohash网格(geohash_grid) : 将文档按照geohash范围来分组，用来显示在地图上。</li>
+<li>地理位置边界(geo_bounds) : 返回一个包含所有地理位置坐标点的边界的经纬度坐标，这对显示地图时缩放比例的选择非常有用。</li>
+</ul>
+<a id="more"></a>
+<h3 id="地理位置距离-geo-distance"><a href="#地理位置距离-geo-distance" class="headerlink" title="地理位置距离(geo_distance)"></a>地理位置距离(geo_distance)</h3><p>geo_distance 聚合 对一些搜索非常有用.</p>
+<p>例如： 找到所有距离我 1km 以内的披萨店。<br>搜索结果应该也的确被限制在用户指定 1km 范围内，但是我们可以添加在 2km 范围内找到的其他结果：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: <span class="string">"pizza"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"per_ring"</span>: &#123;</span><br><span class="line">      <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:    <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"unit"</span>:     <span class="string">"km"</span>,</span><br><span class="line">        <span class="attr">"origin"</span>: &#123;</span><br><span class="line">          <span class="attr">"lat"</span>:    <span class="number">40.712</span>,</span><br><span class="line">          <span class="attr">"lon"</span>:   <span class="number">-73.988</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"ranges"</span>: [</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">0</span>, <span class="attr">"to"</span>: <span class="number">1</span> &#125;,</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">1</span>, <span class="attr">"to"</span>: <span class="number">2</span> &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"post_filter"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">      <span class="attr">"distance"</span>:   <span class="string">"1km"</span>,</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"lat"</span>:      <span class="number">40.712</span>,</span><br><span class="line">        <span class="attr">"lon"</span>:     <span class="number">-73.988</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>主查询查找名称中含有 pizza 的饭店。</li>
+<li>geo_bounding_box 筛选那些只在纽约区域的结果。</li>
+<li>per_ring.geo_distance 聚合统计距离用户 1km 以内，1km 到 2km 的结果的数量。</li>
+<li>最后，post_filter 将结果缩小至那些在用户 1km 范围内的饭店</li>
+</ul>
+<h3 id="geohash网格-geohash-grid"><a href="#geohash网格-geohash-grid" class="headerlink" title="geohash网格(geohash_grid)"></a>geohash网格(geohash_grid)</h3><p>geohash_grid按照指定精度将附近的位置聚合成一个网格。<br>聚合是稀疏的—它 仅返回那些含有文档的单元。<br>如果 geohashes 太精确，将产生太多的 buckets，它将默认返回那些包含了大量文档、最密集的10000个单元。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"new_york"</span>: &#123;</span><br><span class="line">      <span class="attr">"geohash_grid"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:     <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"precision"</span>: <span class="number">5</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>geo_bounding_box 边界框将搜索限制在大纽约区的范围</li>
+<li>Geohashes 精度为 5 大约是 5km x 5km。</li>
+</ul>
+<p>如果绘制到地图上需要一个将 geohash 转换成同等边界框或中心点的库</p>
+<h3 id="地理位置边界-geo-bounds"><a href="#地理位置边界-geo-bounds" class="headerlink" title="地理位置边界(geo_bounds)"></a>地理位置边界(geo_bounds)</h3><p>geo_bounds 计算封装所有地理日志点需要的最小边界框。</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "map_zoom": &#123;</span><br><span class="line">      "geo_bounds": &#123;</span><br><span class="line">        "field":     "location"</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回结果即为结果集的最小边界框。</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">"aggregations": &#123;</span><br><span class="line">  "map_zoom": &#123;</span><br><span class="line">     "bounds": &#123;</span><br><span class="line">        "top_left": &#123;</span><br><span class="line">           "lat":  40.722,</span><br><span class="line">           "lon": -74.011</span><br><span class="line">        &#125;,</span><br><span class="line">        "bottom_right": &#123;</span><br><span class="line">           "lat":  40.715,</span><br><span class="line">           "lon": -73.983</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在每一个geohash 单元内部使用geo_bounds聚合， 以免一个单元内的地理位置点仅集中在单元的一部分上：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;,</span><br><span class="line">      "aggs": &#123;</span><br><span class="line">        "cell": &#123;</span><br><span class="line">          "geo_bounds": &#123;</span><br><span class="line">            "field": "location"</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cell_bounds 子聚合会为每个 geohash 单元计算边界框。<br>结果如下：<figure class="highlight"><table><tr><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "new_york": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"dr5rs"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">2</span>,</span><br><span class="line">           <span class="attr">"cell"</span>: &#123;</span><br><span class="line">              <span class="attr">"bounds"</span>: &#123;</span><br><span class="line">                 <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.722</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.989</span></span><br><span class="line">                 &#125;,</span><br><span class="line">                 <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.719</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.983</span></span><br><span class="line">                 &#125;</span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-aggs.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/330_Geo_aggs" target="_blank" rel="noopener">英文参考</a></p>
 ]]></content>
       <categories>
         <category>ELK</category>
