@@ -2076,6 +2076,28 @@
       </tags>
   </entry>
   <entry>
+    <title>12-深入搜索-简介</title>
+    <url>/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/</url>
+    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="本章主要内容"><a href="#本章主要内容" class="headerlink" title="本章主要内容"></a>本章主要内容</h3><ol>
+<li>理解数据以及如何搜索它们</li>
+<li>词的相似度(word proximity)</li>
+<li>部分匹配(partial matching)</li>
+<li>模糊匹配(fuzzy matching)</li>
+<li>语言感知(language awareeness)</li>
+<li>理解相关度评分，消除长尾(long tail)</li>
+<li>结构化搜索和全文搜索高效结合</li>
+</ol>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>11 基础入门-内部分片原理</title>
     <url>/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h3 id="使文本可被搜索"><a href="#使文本可被搜索" class="headerlink" title="使文本可被搜索"></a>使文本可被搜索</h3><ul>
@@ -2207,28 +2229,6 @@
 <p>###</p>
 <p>###</p>
 <p>###</p>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>12-深入搜索-简介</title>
-    <url>/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/</url>
-    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
-<h3 id="本章主要内容"><a href="#本章主要内容" class="headerlink" title="本章主要内容"></a>本章主要内容</h3><ol>
-<li>理解数据以及如何搜索它们</li>
-<li>词的相似度(word proximity)</li>
-<li>部分匹配(partial matching)</li>
-<li>模糊匹配(fuzzy matching)</li>
-<li>语言感知(language awareeness)</li>
-<li>理解相关度评分，消除长尾(long tail)</li>
-<li>结构化搜索和全文搜索高效结合</li>
-</ol>
 ]]></content>
       <categories>
         <category>ELK</category>
@@ -3099,109 +3099,6 @@
       </tags>
   </entry>
   <entry>
-    <title>03-处理人类语言</title>
-    <url>/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/20-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%BC%80%E5%A7%8B%E5%A4%84%E7%90%86%E5%90%84%E7%A7%8D%E8%AF%AD%E8%A8%80/</url>
-    <content><![CDATA[<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>参考：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/languages.html" target="_blank" rel="noopener">处理人类语言</a></p>
-<ul>
-<li>全文检索是一场查准率与查全率之间的较量。</li>
-<li>查准率 即尽量返回较少的无关文档</li>
-<li>查全率 则尽量返回较多的相关文档</li>
-<li>我们希望去搜索那些和原文不是完全匹配但却相关的单词</li>
-</ul>
-<a id="more"></a>
-<p>可优化的地方</p>
-<ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/token-normalization.html" target="_blank" rel="noopener">归一化词元</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">将单词还原为词干</a></li>
-<li>清除常用词或停用词 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stopwords.html" target="_blank" rel="noopener">停用词: 性能与精度</a></li>
-<li>包含<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/synonyms.html" target="_blank" rel="noopener">同义词</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/fuzzy-matching.html" target="_blank" rel="noopener">检查拼写错误</a></li>
-</ul>
-<h3 id="开始处理各种语言"><a href="#开始处理各种语言" class="headerlink" title="开始处理各种语言"></a>开始处理各种语言</h3><p>Elasticsearch 为很多世界流行语言提供良好的、简单的、开箱即用的语言分析器集合。</p>
-<p>分析器主要功能：</p>
-<ul>
-<li>文本拆分为单词。The quick brown foxes → [ The, quick, brown, foxes]</li>
-<li>大写转小写。 The → the</li>
-<li>移除常用的 停用词。[ The, quick, brown, foxes] → [ quick, brown, foxes]</li>
-<li>将变型词(复数词，过去式)转化为词根。foxes → fox</li>
-<li>针对每种语言特有的功能。例如：法语去发音：l’église → eglis</li>
-</ul>
-<h3 id="使用语言分析器-Using-Language-Analyzers"><a href="#使用语言分析器-Using-Language-Analyzers" class="headerlink" title="使用语言分析器(Using Language Analyzers)"></a>使用语言分析器(Using Language Analyzers)</h3><ul>
-<li>默认分析器 standrad, Elasticsearch 的内置分析器都是全局可用的，不需要提前配置</li>
-<li>每个分析器各有所长，通过multiField设置多个字段指定多个分析器</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"blog"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"english"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用most_field搜索</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index/blog/1</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"I'm happy for this fox"</span> &#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/blog/2</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"I'm not happy about my fox problem"</span> &#125;</span><br><span class="line"></span><br><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:     <span class="string">"most_fields"</span>,</span><br><span class="line">      <span class="attr">"query"</span>:    <span class="string">"not happy foxes"</span>,</span><br><span class="line">      <span class="attr">"fields"</span>: [ <span class="string">"title"</span>, <span class="string">"title.english"</span> ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="配置语言分析器-Configuring-Language-Analyzers"><a href="#配置语言分析器-Configuring-Language-Analyzers" class="headerlink" title="配置语言分析器(Configuring Language Analyzers)"></a>配置语言分析器(Configuring Language Analyzers)</h3><p>根据自己需要配置语言分析器</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"english"</span>,</span><br><span class="line">          <span class="attr">"stem_exclusion"</span>: [ <span class="string">"organization"</span>, <span class="string">"organizations"</span> ],</span><br><span class="line">          <span class="attr">"stopwords"</span>: [</span><br><span class="line">            <span class="string">"a"</span>, <span class="string">"an"</span>, <span class="string">"and"</span>, <span class="string">"are"</span>, <span class="string">"as"</span>, <span class="string">"at"</span>, <span class="string">"be"</span>, <span class="string">"but"</span>, <span class="string">"by"</span>, <span class="string">"for"</span>,</span><br><span class="line">            <span class="string">"if"</span>, <span class="string">"in"</span>, <span class="string">"into"</span>, <span class="string">"is"</span>, <span class="string">"it"</span>, <span class="string">"of"</span>, <span class="string">"on"</span>, <span class="string">"or"</span>, <span class="string">"such"</span>, <span class="string">"that"</span>,</span><br><span class="line">            <span class="string">"the"</span>, <span class="string">"their"</span>, <span class="string">"then"</span>, <span class="string">"there"</span>, <span class="string">"these"</span>, <span class="string">"they"</span>, <span class="string">"this"</span>, <span class="string">"to"</span>,</span><br><span class="line">            <span class="string">"was"</span>, <span class="string">"will"</span>, <span class="string">"with"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">The World Health Organization does not sell organs.</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>防止 organization 和 organizations 被缩减为词干</li>
-<li>指定一个自定义停用词列表</li>
-<li>切词为 world 、 health 、 organization 、 does 、 not 、 sell 、 organ</li>
-</ul>
-<h3 id="混合语言的陷阱-Pitfalls-of-Mixing-Languages"><a href="#混合语言的陷阱-Pitfalls-of-Mixing-Languages" class="headerlink" title="混合语言的陷阱(Pitfalls of Mixing Languages)"></a>混合语言的陷阱(Pitfalls of Mixing Languages)</h3><p>多语言文档类型：</p>
-<ul>
-<li>每份document(文档)有自己的主语言，并包含一些其他语言的片断</li>
-<li>每个field(域)有自己的主语言，并包含一些其他语言的片断</li>
-<li>每个field(域)都是混合语言</li>
-</ul>
-<p>同一份倒排索引内混合多种语言可能造成一些问题</p>
-<ul>
-<li>不合理的词干提取，不同语言提取词干规则不同</li>
-<li>不正确的倒排文档频率，例如 英文文章中一个德语单词权重会变高</li>
-<li>在搜索时，需要指定特定的语言</li>
-<li>语言识别，通过语言识别工具包识别是哪一种语言</li>
-</ul>
-<h3 id="每份文档一种语言-One-Language-per-Document"><a href="#每份文档一种语言-One-Language-per-Document" class="headerlink" title="每份文档一种语言(One Language per Document)"></a>每份文档一种语言(One Language per Document)</h3><ul>
-<li>不同的索引存放不同的语言文档</li>
-<li>使用multi_match和indices_boost查询，可以指定不同语言的权重</li>
-</ul>
-<p>多语言的索引配置</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /blogs-en</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"stemmed"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;</span><br><span class="line">&#125;&#125;&#125;&#125;&#125;&#125;</span><br><span class="line"></span><br><span class="line">PUT /blogs-fr</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"stemmed"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"french"</span></span><br><span class="line">            &#125;</span><br><span class="line">&#125;&#125;&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用multi_match和indices_boost查询，可以指定不同语言的权重</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /blogs-*/post/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:   <span class="string">"deja vu"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>:  [ <span class="string">"title"</span>, <span class="string">"title.stemmed"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:    <span class="string">"most_fields"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"indices_boost"</span>: &#123;</span><br><span class="line">        <span class="attr">"blogs-en"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="attr">"blogs-fr"</span>: <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="每个域一种语言-One-Language-per-Field"><a href="#每个域一种语言-One-Language-per-Field" class="headerlink" title="每个域一种语言(One Language per Field)"></a>每个域一种语言(One Language per Field)</h3><p>每个字段对应一个语言类型</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"title"</span>:     <span class="string">"Fight club"</span>,</span><br><span class="line">   <span class="attr">"title_br"</span>:  <span class="string">"Clube de Luta"</span>,</span><br><span class="line">   <span class="attr">"title_cz"</span>:  <span class="string">"Klub rváčů"</span>,</span><br><span class="line">   <span class="attr">"title_en"</span>:  <span class="string">"Fight club"</span>,</span><br><span class="line">   <span class="attr">"title_es"</span>:  <span class="string">"El club de la lucha"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"movie"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_br"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"brazilian"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_cz"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"czech"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_en"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_es"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"spanish"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>field-per-language 可以维持干净的词频，不能像index-per-language 那样灵活地分开索引。</li>
-<li>field-per-language 可以方便添加新的field，先关闭索引再使用<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/indices-update-settings.html" target="_blank" rel="noopener">update-setting API</a>,重新打开索引。</li>
-</ul>
-<p>查询</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /movies/movie/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:    <span class="string">"club de la lucha"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>: [ <span class="string">"title*"</span>, <span class="string">"title_es^2"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"most_fields"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="混合语言域-Mixed-Language-Fields"><a href="#混合语言域-Mixed-Language-Fields" class="headerlink" title="混合语言域(Mixed-Language Fields)"></a>混合语言域(Mixed-Language Fields)</h3><ul>
-<li>词干提取器是由语言具体决定的，或 词干提取器是由语言和脚本所具体决定的</li>
-</ul>
-<p>假设你的混合语言使用的是一样的脚本，例如拉丁文，你有三个可用的选择：</p>
-<ul>
-<li>切分到不同的域(field),使用语言识别工具吧不同的语言存放到不同的字段中。</li>
-<li>进行多次分析，主字段存储一种语言，<code>子字段</code>存储其他多个语言到.</li>
-<li>使用 n-grams,通过将单词拆成 n-grams，你有很大的机会匹配到相似但不完全一样的单词,结合 analyze-multiple times （多次分析）方法.</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"title"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"de"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"german"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"en"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"fr"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"french"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"es"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"spanish"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>fields.general中使用n-grams</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    "analysis": &#123;...&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "mappings": &#123;</span><br><span class="line">    "title": &#123;</span><br><span class="line">      "properties": &#123;</span><br><span class="line">        "title": &#123;</span><br><span class="line">          "type": "string",</span><br><span class="line">          "fields": &#123;</span><br><span class="line">            "de": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "german"</span><br><span class="line">            &#125;,</span><br><span class="line">            "en": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "english"</span><br><span class="line">            &#125;,</span><br><span class="line">            "fr": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "french"</span><br><span class="line">            &#125;,</span><br><span class="line">            "es": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "spanish"</span><br><span class="line">            &#125;,</span><br><span class="line">            "general": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "trigrams"</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>查询</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /movies/movie/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:    <span class="string">"club de la lucha"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>: [ <span class="string">"title*^1.5"</span>, <span class="string">"title.general"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"most_fields"</span>,</span><br><span class="line">            <span class="attr">"minimum_should_match"</span>: <span class="string">"75%"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>19-深入搜索-控制相关度</title>
     <url>/2020/03/12/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/19-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A62/</url>
     <content><![CDATA[<h3 id="function-score-查询"><a href="#function-score-查询" class="headerlink" title="function_score 查询"></a>function_score 查询</h3><ul>
@@ -3349,6 +3246,109 @@
 <p>###</p>
 <p>###</p>
 <p>###</p>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>03-处理人类语言</title>
+    <url>/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/20-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%BC%80%E5%A7%8B%E5%A4%84%E7%90%86%E5%90%84%E7%A7%8D%E8%AF%AD%E8%A8%80/</url>
+    <content><![CDATA[<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>参考：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/languages.html" target="_blank" rel="noopener">处理人类语言</a></p>
+<ul>
+<li>全文检索是一场查准率与查全率之间的较量。</li>
+<li>查准率 即尽量返回较少的无关文档</li>
+<li>查全率 则尽量返回较多的相关文档</li>
+<li>我们希望去搜索那些和原文不是完全匹配但却相关的单词</li>
+</ul>
+<a id="more"></a>
+<p>可优化的地方</p>
+<ul>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/token-normalization.html" target="_blank" rel="noopener">归一化词元</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">将单词还原为词干</a></li>
+<li>清除常用词或停用词 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stopwords.html" target="_blank" rel="noopener">停用词: 性能与精度</a></li>
+<li>包含<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/synonyms.html" target="_blank" rel="noopener">同义词</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/fuzzy-matching.html" target="_blank" rel="noopener">检查拼写错误</a></li>
+</ul>
+<h3 id="开始处理各种语言"><a href="#开始处理各种语言" class="headerlink" title="开始处理各种语言"></a>开始处理各种语言</h3><p>Elasticsearch 为很多世界流行语言提供良好的、简单的、开箱即用的语言分析器集合。</p>
+<p>分析器主要功能：</p>
+<ul>
+<li>文本拆分为单词。The quick brown foxes → [ The, quick, brown, foxes]</li>
+<li>大写转小写。 The → the</li>
+<li>移除常用的 停用词。[ The, quick, brown, foxes] → [ quick, brown, foxes]</li>
+<li>将变型词(复数词，过去式)转化为词根。foxes → fox</li>
+<li>针对每种语言特有的功能。例如：法语去发音：l’église → eglis</li>
+</ul>
+<h3 id="使用语言分析器-Using-Language-Analyzers"><a href="#使用语言分析器-Using-Language-Analyzers" class="headerlink" title="使用语言分析器(Using Language Analyzers)"></a>使用语言分析器(Using Language Analyzers)</h3><ul>
+<li>默认分析器 standrad, Elasticsearch 的内置分析器都是全局可用的，不需要提前配置</li>
+<li>每个分析器各有所长，通过multiField设置多个字段指定多个分析器</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"blog"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"english"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用most_field搜索</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index/blog/1</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"I'm happy for this fox"</span> &#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/blog/2</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"I'm not happy about my fox problem"</span> &#125;</span><br><span class="line"></span><br><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:     <span class="string">"most_fields"</span>,</span><br><span class="line">      <span class="attr">"query"</span>:    <span class="string">"not happy foxes"</span>,</span><br><span class="line">      <span class="attr">"fields"</span>: [ <span class="string">"title"</span>, <span class="string">"title.english"</span> ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置语言分析器-Configuring-Language-Analyzers"><a href="#配置语言分析器-Configuring-Language-Analyzers" class="headerlink" title="配置语言分析器(Configuring Language Analyzers)"></a>配置语言分析器(Configuring Language Analyzers)</h3><p>根据自己需要配置语言分析器</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"english"</span>,</span><br><span class="line">          <span class="attr">"stem_exclusion"</span>: [ <span class="string">"organization"</span>, <span class="string">"organizations"</span> ],</span><br><span class="line">          <span class="attr">"stopwords"</span>: [</span><br><span class="line">            <span class="string">"a"</span>, <span class="string">"an"</span>, <span class="string">"and"</span>, <span class="string">"are"</span>, <span class="string">"as"</span>, <span class="string">"at"</span>, <span class="string">"be"</span>, <span class="string">"but"</span>, <span class="string">"by"</span>, <span class="string">"for"</span>,</span><br><span class="line">            <span class="string">"if"</span>, <span class="string">"in"</span>, <span class="string">"into"</span>, <span class="string">"is"</span>, <span class="string">"it"</span>, <span class="string">"of"</span>, <span class="string">"on"</span>, <span class="string">"or"</span>, <span class="string">"such"</span>, <span class="string">"that"</span>,</span><br><span class="line">            <span class="string">"the"</span>, <span class="string">"their"</span>, <span class="string">"then"</span>, <span class="string">"there"</span>, <span class="string">"these"</span>, <span class="string">"they"</span>, <span class="string">"this"</span>, <span class="string">"to"</span>,</span><br><span class="line">            <span class="string">"was"</span>, <span class="string">"will"</span>, <span class="string">"with"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">The World Health Organization does not sell organs.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>防止 organization 和 organizations 被缩减为词干</li>
+<li>指定一个自定义停用词列表</li>
+<li>切词为 world 、 health 、 organization 、 does 、 not 、 sell 、 organ</li>
+</ul>
+<h3 id="混合语言的陷阱-Pitfalls-of-Mixing-Languages"><a href="#混合语言的陷阱-Pitfalls-of-Mixing-Languages" class="headerlink" title="混合语言的陷阱(Pitfalls of Mixing Languages)"></a>混合语言的陷阱(Pitfalls of Mixing Languages)</h3><p>多语言文档类型：</p>
+<ul>
+<li>每份document(文档)有自己的主语言，并包含一些其他语言的片断</li>
+<li>每个field(域)有自己的主语言，并包含一些其他语言的片断</li>
+<li>每个field(域)都是混合语言</li>
+</ul>
+<p>同一份倒排索引内混合多种语言可能造成一些问题</p>
+<ul>
+<li>不合理的词干提取，不同语言提取词干规则不同</li>
+<li>不正确的倒排文档频率，例如 英文文章中一个德语单词权重会变高</li>
+<li>在搜索时，需要指定特定的语言</li>
+<li>语言识别，通过语言识别工具包识别是哪一种语言</li>
+</ul>
+<h3 id="每份文档一种语言-One-Language-per-Document"><a href="#每份文档一种语言-One-Language-per-Document" class="headerlink" title="每份文档一种语言(One Language per Document)"></a>每份文档一种语言(One Language per Document)</h3><ul>
+<li>不同的索引存放不同的语言文档</li>
+<li>使用multi_match和indices_boost查询，可以指定不同语言的权重</li>
+</ul>
+<p>多语言的索引配置</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /blogs-en</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"stemmed"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;</span><br><span class="line">&#125;&#125;&#125;&#125;&#125;&#125;</span><br><span class="line"></span><br><span class="line">PUT /blogs-fr</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"stemmed"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"french"</span></span><br><span class="line">            &#125;</span><br><span class="line">&#125;&#125;&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用multi_match和indices_boost查询，可以指定不同语言的权重</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /blogs-*/post/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:   <span class="string">"deja vu"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>:  [ <span class="string">"title"</span>, <span class="string">"title.stemmed"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:    <span class="string">"most_fields"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"indices_boost"</span>: &#123;</span><br><span class="line">        <span class="attr">"blogs-en"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="attr">"blogs-fr"</span>: <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="每个域一种语言-One-Language-per-Field"><a href="#每个域一种语言-One-Language-per-Field" class="headerlink" title="每个域一种语言(One Language per Field)"></a>每个域一种语言(One Language per Field)</h3><p>每个字段对应一个语言类型</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"title"</span>:     <span class="string">"Fight club"</span>,</span><br><span class="line">   <span class="attr">"title_br"</span>:  <span class="string">"Clube de Luta"</span>,</span><br><span class="line">   <span class="attr">"title_cz"</span>:  <span class="string">"Klub rváčů"</span>,</span><br><span class="line">   <span class="attr">"title_en"</span>:  <span class="string">"Fight club"</span>,</span><br><span class="line">   <span class="attr">"title_es"</span>:  <span class="string">"El club de la lucha"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"movie"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_br"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"brazilian"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_cz"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"czech"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_en"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"title_es"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"analyzer"</span>: <span class="string">"spanish"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>field-per-language 可以维持干净的词频，不能像index-per-language 那样灵活地分开索引。</li>
+<li>field-per-language 可以方便添加新的field，先关闭索引再使用<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/indices-update-settings.html" target="_blank" rel="noopener">update-setting API</a>,重新打开索引。</li>
+</ul>
+<p>查询</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /movies/movie/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:    <span class="string">"club de la lucha"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>: [ <span class="string">"title*"</span>, <span class="string">"title_es^2"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"most_fields"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="混合语言域-Mixed-Language-Fields"><a href="#混合语言域-Mixed-Language-Fields" class="headerlink" title="混合语言域(Mixed-Language Fields)"></a>混合语言域(Mixed-Language Fields)</h3><ul>
+<li>词干提取器是由语言具体决定的，或 词干提取器是由语言和脚本所具体决定的</li>
+</ul>
+<p>假设你的混合语言使用的是一样的脚本，例如拉丁文，你有三个可用的选择：</p>
+<ul>
+<li>切分到不同的域(field),使用语言识别工具吧不同的语言存放到不同的字段中。</li>
+<li>进行多次分析，主字段存储一种语言，<code>子字段</code>存储其他多个语言到.</li>
+<li>使用 n-grams,通过将单词拆成 n-grams，你有很大的机会匹配到相似但不完全一样的单词,结合 analyze-multiple times （多次分析）方法.</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"title"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"de"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"german"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"en"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"english"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"fr"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"french"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"es"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"spanish"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>fields.general中使用n-grams</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /movies</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    "analysis": &#123;...&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "mappings": &#123;</span><br><span class="line">    "title": &#123;</span><br><span class="line">      "properties": &#123;</span><br><span class="line">        "title": &#123;</span><br><span class="line">          "type": "string",</span><br><span class="line">          "fields": &#123;</span><br><span class="line">            "de": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "german"</span><br><span class="line">            &#125;,</span><br><span class="line">            "en": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "english"</span><br><span class="line">            &#125;,</span><br><span class="line">            "fr": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "french"</span><br><span class="line">            &#125;,</span><br><span class="line">            "es": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "spanish"</span><br><span class="line">            &#125;,</span><br><span class="line">            "general": &#123;</span><br><span class="line">              "type":     "string",</span><br><span class="line">              "analyzer": "trigrams"</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查询</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /movies/movie/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:    <span class="string">"club de la lucha"</span>,</span><br><span class="line">            <span class="attr">"fields"</span>: [ <span class="string">"title*^1.5"</span>, <span class="string">"title.general"</span> ],</span><br><span class="line">            <span class="attr">"type"</span>:     <span class="string">"most_fields"</span>,</span><br><span class="line">            <span class="attr">"minimum_should_match"</span>: <span class="string">"75%"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>ELK</category>
@@ -3518,6 +3518,133 @@
       </tags>
   </entry>
   <entry>
+    <title>03-处理人类语言-将单词还原为词根</title>
+    <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/23-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%B0%86%E5%8D%95%E8%AF%8D%E8%BF%98%E5%8E%9F%E4%B8%BA%E8%AF%8D%E6%A0%B9/</url>
+    <content><![CDATA[<h3 id="将单词还原为词根-Reducing-Words-to-Their-Root-Form"><a href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form" class="headerlink" title="将单词还原为词根(Reducing Words to Their Root Form)"></a>将单词还原为词根(Reducing Words to Their Root Form)</h3><ul>
+<li>大多数语言的单词都可以 词形变化。</li>
+<li>词根提取(Stemming) ：试图移除单词的变化形式之间的差别，将每个单词都提取为它的词根形式。有的词根不是一个真的单词.</li>
+<li>词根提取遇到的两个问题：词干弱提取(understemming)，词干过度提取(overstemming)</li>
+<li>词干弱提取(understemming): 无法将同样意思的单词缩减为同一个词根。弱词干提取会导致搜索时无法返回相关文档。</li>
+<li>词根过渡提取(overstemming):无法将不同含义的单词分开。词干过度提取会降低精准度：不相干的文档会在不需要他们返回的时候返回。</li>
+<li>ES提供两个经典词干提取器：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/algorithmic-stemmers.html" target="_blank" rel="noopener">词干提取算法</a>,<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/dictionary-stemmers.html" target="_blank" rel="noopener">字典词干提取器</a></li>
+<li>词形还原：</li>
+</ul>
+<a id="more"></a>
+<p>词形变化：</p>
+<ul>
+<li>单复数变化(Number) ： fox 、foxes</li>
+<li>时态变化(Tense) ： pay 、 paid 、 paying</li>
+<li>性别变化(Gender) ： waiter 、 waitress</li>
+<li>动词人称变化(Person) ： hear 、 hears</li>
+<li>代词变化(Case) ： I 、 me 、 my</li>
+<li>不规则变化(Aspect) ： ate 、 eaten</li>
+<li>情景变化(Mood) ： so be it 、 were it so</li>
+</ul>
+<h3 id="词干提取算法-Algorithmic-Stemmers"><a href="#词干提取算法-Algorithmic-Stemmers" class="headerlink" title="词干提取算法(Algorithmic Stemmers)"></a>词干提取算法(Algorithmic Stemmers)</h3><p>词干提取器(stemmer) : 大部分词干提取器是基于算法的，提供一系列规则将词提取为词干。<br>基于算法的提取器<br>优点：作为插件使用，速度快，占用内存少，有规律的单词处理效果好。<br>缺点：没规律的单词效果不好</p>
+<p>最早的英文词干提取器是 Porter stemmer. 现在仍然推荐。<br>kstem token filter 是一款合并了词干提取算法和内置词典的英语分词过滤器。<br>所有基于算法的词干提取器都暴露了用来接受 语言 参数的统一接口： stemmer token filter 。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"english_stop"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stop"</span>,</span><br><span class="line">          <span class="attr">"stopwords"</span>:  <span class="string">"_english_"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"light_english_stemmer"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stemmer"</span>,</span><br><span class="line">          <span class="attr">"language"</span>:   <span class="string">"light_english"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"english_possessive_stemmer"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stemmer"</span>,</span><br><span class="line">          <span class="attr">"language"</span>:   <span class="string">"possessive_english"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>:  <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"english_possessive_stemmer"</span>,</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"english_stop"</span>,</span><br><span class="line">            <span class="string">"light_english_stemmer"</span>,</span><br><span class="line">            <span class="string">"asciifolding"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>english 分析器使用了两个词干提取器： possessive_english 词干提取器和 english 词干提取器。 所有格词干提取器会在任何词传递到 english_stop 、 english_keywords 和 english_stemmer 之前去除 ‘s 。</li>
+<li>light_english 词干提取器: 非激进的 kstem 分词过滤器的映射</li>
+<li>asciifolding 分词过滤器用以移除外语的附加符号。</li>
+</ul>
+<h3 id="字典词干提取器-Dictionary-Stemmers"><a href="#字典词干提取器-Dictionary-Stemmers" class="headerlink" title="字典词干提取器(Dictionary Stemmers)"></a>字典词干提取器(Dictionary Stemmers)</h3><ul>
+<li>字典词干提取器只是简单地在字典里查找词</li>
+<li>字典词干提取器可以：<ul>
+<li>返回不规则形式如 feet 和 mice 的正确词干</li>
+<li>区分出词形相似但词义不同的情形，比如 organ and organization</li>
+</ul>
+</li>
+</ul>
+<p>实践中一个好的算法化词干提取器一般优于一个字典词干提取器。<br>原因如下：</p>
+<ol>
+<li>字典质量。词的含义随时光变迁，字典需要保持最新，对于字典中不存在的词无能为力。</li>
+<li>大小与性能。字典词干提取器需要加载所有词汇、前缀、后缀到内存中。</li>
+</ol>
+<h3 id="Hunspell词干提取器-Hunspell-Stemmer"><a href="#Hunspell词干提取器-Hunspell-Stemmer" class="headerlink" title="Hunspell词干提取器(Hunspell Stemmer)"></a>Hunspell词干提取器(Hunspell Stemmer)</h3><p>Hunspell词干提取器是基于词典的，众多其它开源项目都在使用的拼写检查器。地址：hunspell.github.io</p>
+<p>Hunspell 词典由两个文件：</p>
+<ul>
+<li>.dic : 包含所有词根，采用字母顺序，再加上一个代表所有可能前缀和后缀的代码表 【集体称之为词缀( affixes 】</li>
+<li>.aff : 包含实际 .dic 文件每一行代码表对应的前缀和后缀转换</li>
+</ul>
+<h5 id="安装一个字典"><a href="#安装一个字典" class="headerlink" title="安装一个字典"></a>安装一个字典</h5><figure class="highlight"><table><tr><td class="code"><pre><span class="line">config/</span><br><span class="line">  └ hunspell/</span><br><span class="line">      └ en_US/</span><br><span class="line">          ├ en_US.dic</span><br><span class="line">          ├ en_US.aff</span><br><span class="line">          └ settings.yml</span><br></pre></td></tr></table></figure>
+
+<h5 id="按语言设置"><a href="#按语言设置" class="headerlink" title="按语言设置"></a>按语言设置</h5><figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">ignore_case</span>:          <span class="string">true //Hunspell 目录默认是区分大小写的</span></span><br><span class="line"><span class="attr">strict_affix_parsing</span>: <span class="string">true //strict_affix_parsing 为 false 来告诉 Lucene 忽略错误的规则</span></span><br></pre></td></tr></table></figure>
+
+<p>添加自定义词典 custom.dic</p>
+<h5 id="创建一个Humspell语汇单元过滤器"><a href="#创建一个Humspell语汇单元过滤器" class="headerlink" title="创建一个Humspell语汇单元过滤器"></a>创建一个Humspell语汇单元过滤器</h5><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"en_US"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:     <span class="string">"hunspell"</span>,</span><br><span class="line">          <span class="attr">"language"</span>: <span class="string">"en_US"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"en_US"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>:  <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>:   [ <span class="string">"lowercase"</span>, <span class="string">"en_US"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=en_US</span><br><span class="line">reorganizes</span><br><span class="line"></span><br><span class="line">GET /_analyze?analyzer=english</span><br><span class="line">reorganizes</span><br></pre></td></tr></table></figure>
+
+<h5 id="Hunspell-词典格式"><a href="#Hunspell-词典格式" class="headerlink" title="Hunspell 词典格式"></a>Hunspell 词典格式</h5><h3 id="选择一个词干提取器"><a href="#选择一个词干提取器" class="headerlink" title="选择一个词干提取器"></a>选择一个词干提取器</h3><p>英语词干提取器：</p>
+<ul>
+<li>english: porter_stem​ 语汇单元过滤器（token filter）。</li>
+<li>light_english : kstem 语汇单元过滤器（token filter）。</li>
+<li>minimal_english : Lucene 里面的 EnglishMinimalStemmer ，用来移除复数。</li>
+<li>lovins : 基于 Snowball 的 Lovins 提取器, 第一个词干提取器。</li>
+<li>porter : 基于 Snowball 的 Porter 提取器。</li>
+<li>porter2 : 基于 Snowball 的 Porter2 提取器。</li>
+<li>possessive_english : Lucene 里面的 EnglishPossessiveFilter ，移除 ‘s</li>
+<li>Hunspell : 基于词典的提取器</li>
+</ul>
+<p>词干提取问题：弱提取，过度提取</p>
+<p>考虑词干提取器3个因素：</p>
+<ul>
+<li>性能：例如：算法提取器一般来说比 Hunspell 提取器快4到5倍。</li>
+<li>质量：提取器各有优缺点，词典提取器取决于词典好坏，对词典中没有的词无法识别，可以精确识别不规则词语；算法提取器优点：性能好，可以识别新词，但无法精确识别不规则词语。</li>
+<li>程度：不同的词干提取器会将词弱提取或过度提取到一定的程度。需要什么程度的提取要取决你的场景。比如：聚类算法需要提前力度更大点，匹配更广泛一点；面向最终用户，轻量提取会产生更好结果；文档大小，文档小力度大些，匹配的文档会多，反之文档大轻量的弱提取，匹配更准确。</li>
+</ul>
+<h3 id="控制词干提取"><a href="#控制词干提取" class="headerlink" title="控制词干提取"></a>控制词干提取</h3><ul>
+<li>通过 keyword_marker和stemmer_override 自定义词干提取过程</li>
+</ul>
+<h5 id="阻止词干提取"><a href="#阻止词干提取" class="headerlink" title="阻止词干提取"></a>阻止词干提取</h5><p>两种方法：</p>
+<ol>
+<li>语言分析器中 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/configuring-language-analyzers.html#stem-exclusion" target="_blank" rel="noopener">stem_exclusion</a> 指定词语列表，让他们不被词干提取。</li>
+<li>语言分析器使用 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-keyword-marker-tokenfilter.html" target="_blank" rel="noopener">keyword_marker 语汇单元过滤器</a> 来标记这些词语列表为 keywords ，用来阻止后续的词干提取过滤器来触碰这些词语。</li>
+</ol>
+<p>配置keyword_marker</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">UT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"no_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"keyword_marker"</span>,</span><br><span class="line">          <span class="attr">"keywords"</span>: [ <span class="string">"skies"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"no_stem"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>keywords_path 参数允许我们将所有的关键字存在一个文件。 这个文件应该是每行一个字，并且存在于集群的每个节点。</p>
+<p>使用 analyze API 来测试</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">sky skies skiing skis</span><br></pre></td></tr></table></figure>
+
+<h5 id="自定义提取"><a href="#自定义提取" class="headerlink" title="自定义提取"></a>自定义提取</h5><p>使用<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-stemmer-override-tokenfilter.html" target="_blank" rel="noopener">stemmer_override</a> 语汇单元过滤器允许我们指定自定义的提取规则。</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"custom_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"stemmer_override"</span>,</span><br><span class="line">          <span class="attr">"rules"</span>: [</span><br><span class="line">            <span class="string">"skies=&gt;sky"</span>,</span><br><span class="line">            <span class="string">"mice=&gt;mouse"</span>,</span><br><span class="line">            <span class="string">"feet=&gt;foot"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"custom_stem"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">The mice came down from the skies and ran over my feet</span><br></pre></td></tr></table></figure>
+<ul>
+<li>rules 规则来自 original=&gt;stem 。</li>
+<li>custom_stem : stemmer_override 过滤器必须放置在词干提取器之前。</li>
+<li>规则可以被存放在一个文件中，参数 rules_path来指定位置。</li>
+</ul>
+<h3 id="原形词干提取"><a href="#原形词干提取" class="headerlink" title="原形词干提取"></a>原形词干提取</h3><p>如何将已提取词干的词和原词索引到同一个字段中。</p>
+<ol>
+<li>使用keyword_repeat过滤器提去词干的原形词</li>
+<li>使用unique 语汇单元过滤器 去除重复原形词</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"unique_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"unique"</span>,</span><br><span class="line">          <span class="attr">"only_on_same_position"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"in_situ"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"keyword_repeat"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span>,</span><br><span class="line">            <span class="string">"unique_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Pos 1: (the)</span><br><span class="line">Pos 2: (quick)</span><br><span class="line">Pos 3: (foxes,fox)</span><br><span class="line">Pos 4: (jumped,jump)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置 unique 类型语汇单元过滤器，是为了只有当重复语汇单元出现在相同位置时，移除它们。</li>
+<li>语汇单元过滤器必须出现在词干提取器之前。</li>
+<li>unique_stem 过滤器是在词干提取器完成之后移除重复词项。</li>
+</ul>
+<h5 id="原形词干提取是个好主意吗"><a href="#原形词干提取是个好主意吗" class="headerlink" title="原形词干提取是个好主意吗"></a>原形词干提取是个好主意吗</h5><p>答案：原形词干提取不是个好主意。原因有两个：</p>
+<ol>
+<li>无法区分精准匹配和非精准匹配。</li>
+<li>与提取词干的形式相比，降低了的IDF值。</li>
+</ol>
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p>230_Stemming<br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming" target="_blank" rel="noopener">https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming</a></p>
+]]></content>
+      <categories>
+        <category>ELK</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>03-处理人类语言-停用词：性能与精度</title>
     <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/24-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%81%9C%E7%94%A8%E8%AF%8D-%E6%80%A7%E8%83%BD%E4%B8%8E%E7%B2%BE%E5%BA%A6/</url>
     <content><![CDATA[<h3 id="停用词：性能与精度-Stopwords-Performance-Versus-Precision"><a href="#停用词：性能与精度-Stopwords-Performance-Versus-Precision" class="headerlink" title="停用词：性能与精度(Stopwords: Performance Versus Precision)"></a>停用词：性能与精度(Stopwords: Performance Versus Precision)</h3><p>两组被过滤的词：</p>
@@ -3660,8 +3787,7 @@
   <entry>
     <title>03-处理人类语言-同义词</title>
     <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/25-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%90%8C%E4%B9%89%E8%AF%8D/</url>
-    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
-<h3 id="同义词-Synonyms"><a href="#同义词-Synonyms" class="headerlink" title="同义词(Synonyms)"></a>同义词(Synonyms)</h3><ul>
+    <content><![CDATA[<h3 id="同义词-Synonyms"><a href="#同义词-Synonyms" class="headerlink" title="同义词(Synonyms)"></a>同义词(Synonyms)</h3><ul>
 <li>词干提取是通过简化他们的词根形式来扩大搜索的范围，同义词 通过相关的观念和概念来扩大搜索范围。</li>
 <li>同义词也应该只在必要的时候使用,大规模使用同义词会导致查询结果趋向于让人觉得是随机的.</li>
 <li>同义词似乎是一个简单的概念，但是正确的使用它们却是非常困难的。</li>
@@ -3786,8 +3912,7 @@
   <entry>
     <title>26-处理人类语言-拼写错误</title>
     <url>/2020/03/15/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/26-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E6%8B%BC%E5%86%99%E9%94%99%E8%AF%AF/</url>
-    <content><![CDATA[<p><a href="">中文参考</a>，<a href="">英文参考</a></p>
-<h3 id="拼写错误-Typoes-and-Mispelings"><a href="#拼写错误-Typoes-and-Mispelings" class="headerlink" title="拼写错误(Typoes and Mispelings)"></a>拼写错误(Typoes and Mispelings)</h3><p>Fuzzy matching 允许查询时匹配错误拼写的单词，<br>而语音语汇单元过滤器(phonetic token filters)可以在索引时用来进行 近似读音 匹配。</p>
+    <content><![CDATA[<h3 id="拼写错误-Typoes-and-Mispelings"><a href="#拼写错误-Typoes-and-Mispelings" class="headerlink" title="拼写错误(Typoes and Mispelings)"></a>拼写错误(Typoes and Mispelings)</h3><p>Fuzzy matching 允许查询时匹配错误拼写的单词，<br>而语音语汇单元过滤器(phonetic token filters)可以在索引时用来进行 近似读音 匹配。</p>
 <a id="more"></a>
 <h3 id="模糊性"><a href="#模糊性" class="headerlink" title="模糊性"></a>模糊性</h3><p>3中操作：</p>
 <ul>
@@ -3959,133 +4084,6 @@
 <p>###</p>
 <p>###</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_aggregation_test_drive.html#_aggregation_test_drive" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/20_basic_example.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/21_add_metric.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
-]]></content>
-      <categories>
-        <category>ELK</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>03-处理人类语言-将单词还原为词根</title>
-    <url>/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/23-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%B0%86%E5%8D%95%E8%AF%8D%E8%BF%98%E5%8E%9F%E4%B8%BA%E8%AF%8D%E6%A0%B9/</url>
-    <content><![CDATA[<h3 id="将单词还原为词根-Reducing-Words-to-Their-Root-Form"><a href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form" class="headerlink" title="将单词还原为词根(Reducing Words to Their Root Form)"></a>将单词还原为词根(Reducing Words to Their Root Form)</h3><ul>
-<li>大多数语言的单词都可以 词形变化。</li>
-<li>词根提取(Stemming) ：试图移除单词的变化形式之间的差别，将每个单词都提取为它的词根形式。有的词根不是一个真的单词.</li>
-<li>词根提取遇到的两个问题：词干弱提取(understemming)，词干过度提取(overstemming)</li>
-<li>词干弱提取(understemming): 无法将同样意思的单词缩减为同一个词根。弱词干提取会导致搜索时无法返回相关文档。</li>
-<li>词根过渡提取(overstemming):无法将不同含义的单词分开。词干过度提取会降低精准度：不相干的文档会在不需要他们返回的时候返回。</li>
-<li>ES提供两个经典词干提取器：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/algorithmic-stemmers.html" target="_blank" rel="noopener">词干提取算法</a>,<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/dictionary-stemmers.html" target="_blank" rel="noopener">字典词干提取器</a></li>
-<li>词形还原：</li>
-</ul>
-<a id="more"></a>
-<p>词形变化：</p>
-<ul>
-<li>单复数变化(Number) ： fox 、foxes</li>
-<li>时态变化(Tense) ： pay 、 paid 、 paying</li>
-<li>性别变化(Gender) ： waiter 、 waitress</li>
-<li>动词人称变化(Person) ： hear 、 hears</li>
-<li>代词变化(Case) ： I 、 me 、 my</li>
-<li>不规则变化(Aspect) ： ate 、 eaten</li>
-<li>情景变化(Mood) ： so be it 、 were it so</li>
-</ul>
-<h3 id="词干提取算法-Algorithmic-Stemmers"><a href="#词干提取算法-Algorithmic-Stemmers" class="headerlink" title="词干提取算法(Algorithmic Stemmers)"></a>词干提取算法(Algorithmic Stemmers)</h3><p>词干提取器(stemmer) : 大部分词干提取器是基于算法的，提供一系列规则将词提取为词干。<br>基于算法的提取器<br>优点：作为插件使用，速度快，占用内存少，有规律的单词处理效果好。<br>缺点：没规律的单词效果不好</p>
-<p>最早的英文词干提取器是 Porter stemmer. 现在仍然推荐。<br>kstem token filter 是一款合并了词干提取算法和内置词典的英语分词过滤器。<br>所有基于算法的词干提取器都暴露了用来接受 语言 参数的统一接口： stemmer token filter 。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"english_stop"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stop"</span>,</span><br><span class="line">          <span class="attr">"stopwords"</span>:  <span class="string">"_english_"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"light_english_stemmer"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stemmer"</span>,</span><br><span class="line">          <span class="attr">"language"</span>:   <span class="string">"light_english"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"english_possessive_stemmer"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"stemmer"</span>,</span><br><span class="line">          <span class="attr">"language"</span>:   <span class="string">"possessive_english"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>:  <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"english_possessive_stemmer"</span>,</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"english_stop"</span>,</span><br><span class="line">            <span class="string">"light_english_stemmer"</span>,</span><br><span class="line">            <span class="string">"asciifolding"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>english 分析器使用了两个词干提取器： possessive_english 词干提取器和 english 词干提取器。 所有格词干提取器会在任何词传递到 english_stop 、 english_keywords 和 english_stemmer 之前去除 ‘s 。</li>
-<li>light_english 词干提取器: 非激进的 kstem 分词过滤器的映射</li>
-<li>asciifolding 分词过滤器用以移除外语的附加符号。</li>
-</ul>
-<h3 id="字典词干提取器-Dictionary-Stemmers"><a href="#字典词干提取器-Dictionary-Stemmers" class="headerlink" title="字典词干提取器(Dictionary Stemmers)"></a>字典词干提取器(Dictionary Stemmers)</h3><ul>
-<li>字典词干提取器只是简单地在字典里查找词</li>
-<li>字典词干提取器可以：<ul>
-<li>返回不规则形式如 feet 和 mice 的正确词干</li>
-<li>区分出词形相似但词义不同的情形，比如 organ and organization</li>
-</ul>
-</li>
-</ul>
-<p>实践中一个好的算法化词干提取器一般优于一个字典词干提取器。<br>原因如下：</p>
-<ol>
-<li>字典质量。词的含义随时光变迁，字典需要保持最新，对于字典中不存在的词无能为力。</li>
-<li>大小与性能。字典词干提取器需要加载所有词汇、前缀、后缀到内存中。</li>
-</ol>
-<h3 id="Hunspell词干提取器-Hunspell-Stemmer"><a href="#Hunspell词干提取器-Hunspell-Stemmer" class="headerlink" title="Hunspell词干提取器(Hunspell Stemmer)"></a>Hunspell词干提取器(Hunspell Stemmer)</h3><p>Hunspell词干提取器是基于词典的，众多其它开源项目都在使用的拼写检查器。地址：hunspell.github.io</p>
-<p>Hunspell 词典由两个文件：</p>
-<ul>
-<li>.dic : 包含所有词根，采用字母顺序，再加上一个代表所有可能前缀和后缀的代码表 【集体称之为词缀( affixes 】</li>
-<li>.aff : 包含实际 .dic 文件每一行代码表对应的前缀和后缀转换</li>
-</ul>
-<h5 id="安装一个字典"><a href="#安装一个字典" class="headerlink" title="安装一个字典"></a>安装一个字典</h5><figure class="highlight"><table><tr><td class="code"><pre><span class="line">config/</span><br><span class="line">  └ hunspell/</span><br><span class="line">      └ en_US/</span><br><span class="line">          ├ en_US.dic</span><br><span class="line">          ├ en_US.aff</span><br><span class="line">          └ settings.yml</span><br></pre></td></tr></table></figure>
-
-<h5 id="按语言设置"><a href="#按语言设置" class="headerlink" title="按语言设置"></a>按语言设置</h5><figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">ignore_case</span>:          <span class="string">true //Hunspell 目录默认是区分大小写的</span></span><br><span class="line"><span class="attr">strict_affix_parsing</span>: <span class="string">true //strict_affix_parsing 为 false 来告诉 Lucene 忽略错误的规则</span></span><br></pre></td></tr></table></figure>
-
-<p>添加自定义词典 custom.dic</p>
-<h5 id="创建一个Humspell语汇单元过滤器"><a href="#创建一个Humspell语汇单元过滤器" class="headerlink" title="创建一个Humspell语汇单元过滤器"></a>创建一个Humspell语汇单元过滤器</h5><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"en_US"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:     <span class="string">"hunspell"</span>,</span><br><span class="line">          <span class="attr">"language"</span>: <span class="string">"en_US"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"en_US"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>:  <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>:   [ <span class="string">"lowercase"</span>, <span class="string">"en_US"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=en_US</span><br><span class="line">reorganizes</span><br><span class="line"></span><br><span class="line">GET /_analyze?analyzer=english</span><br><span class="line">reorganizes</span><br></pre></td></tr></table></figure>
-
-<h5 id="Hunspell-词典格式"><a href="#Hunspell-词典格式" class="headerlink" title="Hunspell 词典格式"></a>Hunspell 词典格式</h5><h3 id="选择一个词干提取器"><a href="#选择一个词干提取器" class="headerlink" title="选择一个词干提取器"></a>选择一个词干提取器</h3><p>英语词干提取器：</p>
-<ul>
-<li>english: porter_stem​ 语汇单元过滤器（token filter）。</li>
-<li>light_english : kstem 语汇单元过滤器（token filter）。</li>
-<li>minimal_english : Lucene 里面的 EnglishMinimalStemmer ，用来移除复数。</li>
-<li>lovins : 基于 Snowball 的 Lovins 提取器, 第一个词干提取器。</li>
-<li>porter : 基于 Snowball 的 Porter 提取器。</li>
-<li>porter2 : 基于 Snowball 的 Porter2 提取器。</li>
-<li>possessive_english : Lucene 里面的 EnglishPossessiveFilter ，移除 ‘s</li>
-<li>Hunspell : 基于词典的提取器</li>
-</ul>
-<p>词干提取问题：弱提取，过度提取</p>
-<p>考虑词干提取器3个因素：</p>
-<ul>
-<li>性能：例如：算法提取器一般来说比 Hunspell 提取器快4到5倍。</li>
-<li>质量：提取器各有优缺点，词典提取器取决于词典好坏，对词典中没有的词无法识别，可以精确识别不规则词语；算法提取器优点：性能好，可以识别新词，但无法精确识别不规则词语。</li>
-<li>程度：不同的词干提取器会将词弱提取或过度提取到一定的程度。需要什么程度的提取要取决你的场景。比如：聚类算法需要提前力度更大点，匹配更广泛一点；面向最终用户，轻量提取会产生更好结果；文档大小，文档小力度大些，匹配的文档会多，反之文档大轻量的弱提取，匹配更准确。</li>
-</ul>
-<h3 id="控制词干提取"><a href="#控制词干提取" class="headerlink" title="控制词干提取"></a>控制词干提取</h3><ul>
-<li>通过 keyword_marker和stemmer_override 自定义词干提取过程</li>
-</ul>
-<h5 id="阻止词干提取"><a href="#阻止词干提取" class="headerlink" title="阻止词干提取"></a>阻止词干提取</h5><p>两种方法：</p>
-<ol>
-<li>语言分析器中 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/configuring-language-analyzers.html#stem-exclusion" target="_blank" rel="noopener">stem_exclusion</a> 指定词语列表，让他们不被词干提取。</li>
-<li>语言分析器使用 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-keyword-marker-tokenfilter.html" target="_blank" rel="noopener">keyword_marker 语汇单元过滤器</a> 来标记这些词语列表为 keywords ，用来阻止后续的词干提取过滤器来触碰这些词语。</li>
-</ol>
-<p>配置keyword_marker</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">UT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"no_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"keyword_marker"</span>,</span><br><span class="line">          <span class="attr">"keywords"</span>: [ <span class="string">"skies"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"no_stem"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>keywords_path 参数允许我们将所有的关键字存在一个文件。 这个文件应该是每行一个字，并且存在于集群的每个节点。</p>
-<p>使用 analyze API 来测试</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">sky skies skiing skis</span><br></pre></td></tr></table></figure>
-
-<h5 id="自定义提取"><a href="#自定义提取" class="headerlink" title="自定义提取"></a>自定义提取</h5><p>使用<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-stemmer-override-tokenfilter.html" target="_blank" rel="noopener">stemmer_override</a> 语汇单元过滤器允许我们指定自定义的提取规则。</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"custom_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"stemmer_override"</span>,</span><br><span class="line">          <span class="attr">"rules"</span>: [</span><br><span class="line">            <span class="string">"skies=&gt;sky"</span>,</span><br><span class="line">            <span class="string">"mice=&gt;mouse"</span>,</span><br><span class="line">            <span class="string">"feet=&gt;foot"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_english"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"custom_stem"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /my_index/_analyze?analyzer=my_english</span><br><span class="line">The mice came down from the skies and ran over my feet</span><br></pre></td></tr></table></figure>
-<ul>
-<li>rules 规则来自 original=&gt;stem 。</li>
-<li>custom_stem : stemmer_override 过滤器必须放置在词干提取器之前。</li>
-<li>规则可以被存放在一个文件中，参数 rules_path来指定位置。</li>
-</ul>
-<h3 id="原形词干提取"><a href="#原形词干提取" class="headerlink" title="原形词干提取"></a>原形词干提取</h3><p>如何将已提取词干的词和原词索引到同一个字段中。</p>
-<ol>
-<li>使用keyword_repeat过滤器提去词干的原形词</li>
-<li>使用unique 语汇单元过滤器 去除重复原形词</li>
-</ol>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"unique_stem"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"unique"</span>,</span><br><span class="line">          <span class="attr">"only_on_same_position"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"in_situ"</span>: &#123;</span><br><span class="line">          <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"keyword_repeat"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span>,</span><br><span class="line">            <span class="string">"unique_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>结果：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Pos 1: (the)</span><br><span class="line">Pos 2: (quick)</span><br><span class="line">Pos 3: (foxes,fox)</span><br><span class="line">Pos 4: (jumped,jump)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>设置 unique 类型语汇单元过滤器，是为了只有当重复语汇单元出现在相同位置时，移除它们。</li>
-<li>语汇单元过滤器必须出现在词干提取器之前。</li>
-<li>unique_stem 过滤器是在词干提取器完成之后移除重复词项。</li>
-</ul>
-<h5 id="原形词干提取是个好主意吗"><a href="#原形词干提取是个好主意吗" class="headerlink" title="原形词干提取是个好主意吗"></a>原形词干提取是个好主意吗</h5><p>答案：原形词干提取不是个好主意。原因有两个：</p>
-<ol>
-<li>无法区分精准匹配和非精准匹配。</li>
-<li>与提取词干的形式相比，降低了的IDF值。</li>
-</ol>
-<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p>230_Stemming<br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming" target="_blank" rel="noopener">https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming</a></p>
 ]]></content>
       <categories>
         <category>ELK</category>
