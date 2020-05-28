@@ -22,16 +22,16 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Class 和 Object  * Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。  * 所有java类都继承了Object类，Class是类，那么Class也继承自Object。  * Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。">
+  <meta name="description" content="简介 了解Class、Object、Type类型之间的关系。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Class和Object关系">
+<meta property="og:title" content="Class和Object关系,以及Type类型">
 <meta property="og:url" content="http://blog.fwbo.me/2020/05/26/java/Class%E5%92%8CObject%E5%85%B3%E7%B3%BB/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="Class 和 Object  * Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。  * 所有java类都继承了Object类，Class是类，那么Class也继承自Object。  * Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。">
+<meta property="og:description" content="简介 了解Class、Object、Type类型之间的关系。">
 <meta property="og:image" content="http://qax2cai8x.bkt.clouddn.com/Class-Object-relationship.png">
 <meta property="og:image" content="http://qax2cai8x.bkt.clouddn.com/java-Type.png">
 <meta property="article:published_time" content="2020-05-26T03:00:20.000Z">
-<meta property="article:modified_time" content="2020-05-26T05:44:14.997Z">
+<meta property="article:modified_time" content="2020-05-28T13:57:31.883Z">
 <meta property="article:author" content="细数星辰">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
@@ -50,7 +50,7 @@
   };
 </script>
 
-  <title>Class和Object关系 | 细数星辰</title>
+  <title>Class和Object关系,以及Type类型 | 细数星辰</title>
   
 
 
@@ -214,7 +214,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Class和Object关系
+          Class和Object关系,以及Type类型
         </h1>
 
         <div class="post-meta">
@@ -223,10 +223,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-05-26 11:00:20 / Modified: 13:44:14" itemprop="dateCreated datePublished" datetime="2020-05-26T11:00:20+08:00">2020-05-26</time>
+              <time title="Created: 2020-05-26 11:00:20" itemprop="dateCreated datePublished" datetime="2020-05-26T11:00:20+08:00">2020-05-26</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-28 21:57:31" itemprop="dateModified" datetime="2020-05-28T21:57:31+08:00">2020-05-28</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -243,7 +249,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>764</span>
+              <span>793</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -262,7 +268,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="Class-和-Object"><a href="#Class-和-Object" class="headerlink" title="Class 和 Object"></a>Class 和 Object</h3><ul>
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p> 了解Class、Object、Type类型之间的关系。</p>
+ <a id="more"></a>
+
+<h3 id="Class-和-Object"><a href="#Class-和-Object" class="headerlink" title="Class 和 Object"></a>Class 和 Object</h3><ul>
 <li>Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。</li>
 <li>所有java类都继承了Object类，Class是类，那么Class也继承自Object。</li>
 <li>Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。<br>类图如下：<img data-src="http://qax2cai8x.bkt.clouddn.com/Class-Object-relationship.png" alt="Class-Object-relationship"></li>
@@ -368,7 +377,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Class-和-Object"><span class="nav-number">1.</span> <span class="nav-text">Class 和 Object</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bootstrap-自举过程"><span class="nav-number">2.</span> <span class="nav-text">bootstrap(自举过程)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Type类型"><span class="nav-number">3.</span> <span class="nav-text">Type类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#参考："><span class="nav-number">3.1.</span> <span class="nav-text">参考：</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class-和-Object"><span class="nav-number">2.</span> <span class="nav-text">Class 和 Object</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bootstrap-自举过程"><span class="nav-number">3.</span> <span class="nav-text">bootstrap(自举过程)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Type类型"><span class="nav-number">4.</span> <span class="nav-text">Type类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#参考："><span class="nav-number">4.1.</span> <span class="nav-text">参考：</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -383,7 +392,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -431,7 +440,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

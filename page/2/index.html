@@ -192,7 +192,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
@@ -206,7 +206,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/" class="post-title-link" itemprop="url">40-地理位置-地理位置聚合</a>
+            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/" class="post-title-link" itemprop="url">41-地理位置-地理形状</a>
         </h2>
 
         <div class="post-meta">
@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:58" itemprop="dateModified" datetime="2020-05-26T13:54:58+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:06:05" itemprop="dateModified" datetime="2020-05-28T22:06:05+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.5k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -260,21 +260,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-地理位置聚合(Geo Aggregations)
-地理位置聚合就是将地理坐标聚集到更容易管理的bucket是中。
-处理geo_point类型字段的三种聚合:
-
- * 地理位置距离(geo_distance) : 将文档按照距离围绕一个中心点来分组。
- * geohash网格(geohash_grid) : 将文档按照geohash范围来分组，用来显示在地图上。
- * 地理位置边界(geo_bounds) : 返回一个包含所有地理位置坐标点的边界的经纬度坐标，这对显示地图时缩放比例的选择非常有用。
-
-地理位置距离(geo_distance)
-geo_distance 聚合 
+          <h3 id="地理形状"><a href="#地理形状" class="headerlink" title="地理形状"></a>地理形状</h3><p>geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。<br>Geo-shapes 不能用于计算距离、排序、打分以及聚合。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/#more" rel="contents">
+              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -329,7 +318,7 @@ geo_distance 聚合
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:37" itemprop="dateModified" datetime="2020-05-26T13:54:37+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:04:47" itemprop="dateModified" datetime="2020-05-28T22:04:47+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -347,7 +336,7 @@ geo_distance 聚合
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>288</span>
+              <span>275</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -366,20 +355,10 @@ geo_distance 聚合
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-(Significant Terms)
- * significant_terms （SigTerms）聚合分析统计你的数据并通过对比正常数据找到可能有异常频次的指标。
- * （SigTerms）聚合不同于其他聚合，它有着不同的工作机制，它不是简单的数学计算，有点像机器学习。
-
-应用场景：
-
- * 对于信用卡数据，我们可能会想找出信用卡欺诈。
- * 对于电商数据，我们可能会想找出未被识别的人口信息，从而进行更高效的市场推广。
- * 如果我们正在分析日志，我们可能会发现一个服务器会抛出比它本应抛出的更多异常。
-
-significant_terms演示
-无法下载demo数据。略
+          <h3 id="Significant-Terms"><a href="#Significant-Terms" class="headerlink" title="(Significant Terms)"></a>(Significant Terms)</h3><ul>
+<li>significant_terms （SigTerms）聚合分析统计你的数据并通过对比正常数据找到可能有异常频次的指标。</li>
+<li>（SigTerms）聚合不同于其他聚合，它有着不同的工作机制，它不是简单的数学计算，有点像机器学习。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/18/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/35-%E8%81%9A%E5%90%88-%E9%80%9A%E8%BF%87%E8%81%9A%E5%90%88%E5%8F%91%E7%8E%B0%E5%BC%82%E5%B8%B8%E6%8C%87%E6%A0%87/#more" rel="contents">
@@ -437,7 +416,7 @@ significant_terms演示
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:33" itemprop="dateModified" datetime="2020-05-26T13:54:33+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:04:29" itemprop="dateModified" datetime="2020-05-28T22:04:29+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -474,20 +453,7 @@ significant_terms演示
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-英文参考2
-
-近似聚合(Approximate Aggregations)
-在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。
-
-三角因子模型：大数据、精确性和实时性。
-选择其中两项：
-
- * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。
- * 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级的数据并且为提供精确答案，但响应不够及时。
- * 大数据 + 实时 ：近似算法为我们提供准确但不精确的结果。
-
-Elasticsearch 目前支持两种近似算法：cardinal
+          <h3 id="近似聚合-Approximate-Aggregations"><a href="#近似聚合-Approximate-Aggregations" class="headerlink" title="近似聚合(Approximate Aggregations)"></a>近似聚合(Approximate Aggregations)</h3><p>在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/#more" rel="contents">
@@ -545,7 +511,7 @@ Elasticsearch 目前支持两种近似算法：cardinal
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:29" itemprop="dateModified" datetime="2020-05-26T13:54:29+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:03:56" itemprop="dateModified" datetime="2020-05-28T22:03:56+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -582,44 +548,11 @@ Elasticsearch 目前支持两种近似算法：cardinal
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-过滤和聚合(Filtering Queries and Aggregations)
- * 过滤器对查询范围做限定
- * 过滤器对聚合结果进行过滤
- * 任何可以适用于查询的过滤器也可以应用在聚合上。
-
-过滤
- 1. 售价在 $10,000 美元之上的所有汽车
- 2. 同时也为这些车计算平均售价
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-
-
-GET /cars/transactions/_search
-{
-    "size" : 0,
-    "query" : {
-        "constant_scor
+          <h3 id="过滤和聚合-Filtering-Queries-and-Aggregations"><a href="#过滤和聚合-Filtering-Queries-and-Aggregations" class="headerlink" title="过滤和聚合(Filtering Queries and Aggregations)"></a>过滤和聚合(Filtering Queries and Aggregations)</h3><ul>
+<li>过滤器对查询范围做限定</li>
+<li>过滤器对聚合结果进行过滤</li>
+<li>任何可以适用于查询的过滤器也可以应用在聚合上。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/32-%E8%81%9A%E5%90%88-%E8%BF%87%E6%BB%A4%E5%92%8C%E8%81%9A%E5%90%88/#more" rel="contents">
@@ -677,7 +610,7 @@ GET /cars/transactions/_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:18" itemprop="dateModified" datetime="2020-05-26T13:54:18+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:03:34" itemprop="dateModified" datetime="2020-05-28T22:03:34+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -695,7 +628,7 @@ GET /cars/transactions/_search
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>796</span>
+              <span>780</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -714,37 +647,13 @@ GET /cars/transactions/_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-范围限定的聚合(Scoping Aggregations)
- * 聚合与搜索同时执行时，聚合是基于查询匹配的文件集合进行计算的。
- * 过滤器也可以进行范围限定
- * ‘没有指定查询’ 和 ‘查询所有文档’ 是等价的。
- * 聚合总是对查询范围内的结果进行操作的，所以一个单独的聚合实际上是在对 match_all 的结果范围操作，即所有的文档
- * 利用查询来限定聚合的范围(scope)
-
-例如：福特汽车有多少中颜色
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-
-
-GET /cars/transactions/_search
-{
-    "q
+          <h3 id="范围限定的聚合-Scoping-Aggregations"><a href="#范围限定的聚合-Scoping-Aggregations" class="headerlink" title="范围限定的聚合(Scoping Aggregations)"></a>范围限定的聚合(Scoping Aggregations)</h3><ul>
+<li>聚合与搜索同时执行时，聚合是基于查询匹配的文件集合进行计算的。</li>
+<li>过滤器也可以进行范围限定</li>
+<li>‘没有指定查询’ 和 ‘查询所有文档’ 是等价的。</li>
+<li>聚合总是对查询范围内的结果进行操作的，所以一个单独的聚合实际上是在对 match_all 的结果范围操作，即所有的文档</li>
+<li>利用查询来限定聚合的范围(scope)</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/31-%E8%81%9A%E5%90%88-%E8%8C%83%E5%9B%B4%E9%99%90%E5%AE%9A%E7%9A%84%E8%81%9A%E5%90%88/#more" rel="contents">
@@ -802,7 +711,7 @@ GET /cars/transactions/_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:14" itemprop="dateModified" datetime="2020-05-26T13:54:14+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:03:16" itemprop="dateModified" datetime="2020-05-28T22:03:16+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -839,35 +748,11 @@ GET /cars/transactions/_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-按时间统计(Looking at Time)
- * 使用 date_histogram 按时间统计，能自动识别时间数据，还可以处理时区。
- * date_histogram 经常为线装图以展示时间序列。
- * date_histogram 是以时间范围上构建buckets，每个bucket被定义为一特定的日期大小(比如： 1个月，3天)
-
-查询每月汽车销量
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-
-
-GET /cars/transactions/_search
-{
-   "size" : 0,
-   "aggs": {
-      "sales": 
+          <h3 id="按时间统计-Looking-at-Time"><a href="#按时间统计-Looking-at-Time" class="headerlink" title="按时间统计(Looking at Time)"></a>按时间统计(Looking at Time)</h3><ul>
+<li>使用 date_histogram 按时间统计，能自动识别时间数据，还可以处理时区。</li>
+<li>date_histogram 经常为线装图以展示时间序列。</li>
+<li>date_histogram 是以时间范围上构建buckets，每个bucket被定义为一特定的日期大小(比如： 1个月，3天)</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/30-%E8%81%9A%E5%90%88-%E6%8C%89%E6%97%B6%E9%97%B4%E7%BB%9F%E8%AE%A1/#more" rel="contents">
@@ -925,7 +810,7 @@ GET /cars/transactions/_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:11" itemprop="dateModified" datetime="2020-05-26T13:54:11+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:03:01" itemprop="dateModified" datetime="2020-05-28T22:03:01+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -943,7 +828,7 @@ GET /cars/transactions/_search
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>991</span>
+              <span>975</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -962,13 +847,11 @@ GET /cars/transactions/_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-构建条形图(Building Bar Charts)
- * 聚合还有一个令人激动的特性就是能够十分容易地将它们转换成图表(charts)和图形(graphs)。
- * 直方图(histogram) 特别有用,它本质是一个条形图(Bar Charts)
- * 直方图(histogram) 需要指定一个区间，在区间内进行计算统计。
- * 关键字：histogram-直方图， interval-区间间隔， extended_stats-统计count,min,max,avg,sum,sum_of_squares,variance,std_deviation,std_deviat
+          <h3 id="构建条形图-Building-Bar-Charts"><a href="#构建条形图-Building-Bar-Charts" class="headerlink" title="构建条形图(Building Bar Charts)"></a>构建条形图(Building Bar Charts)</h3><ul>
+<li>聚合还有一个令人激动的特性就是能够十分容易地将它们转换成图表(charts)和图形(graphs)。</li>
+<li>直方图(histogram) 特别有用,它本质是一个条形图(Bar Charts)</li>
+<li>直方图(histogram) 需要指定一个区间，在区间内进行计算统计。</li>
+<li>关键字：histogram-直方图， interval-区间间隔， extended_stats-统计count,min,max,avg,sum,sum_of_squares,variance,std_deviation,std_deviation_bounds
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/29-%E8%81%9A%E5%90%88-%E6%9D%A1%E5%BD%A2%E5%9B%BE/#more" rel="contents">
@@ -1026,7 +909,7 @@ GET /cars/transactions/_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:03" itemprop="dateModified" datetime="2020-05-26T13:54:03+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:02:26" itemprop="dateModified" datetime="2020-05-28T22:02:26+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1044,7 +927,7 @@ GET /cars/transactions/_search
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>480</span>
+              <span>476</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -1063,25 +946,13 @@ GET /cars/transactions/_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-聚合简介
- * 聚合会得到一个数据的概览。
- * 聚合是分析和总结全套的数据。
- * 聚合可以回答更加细微的问题
- * 聚合使用相同的数据结构，所以它的执行速度很快并且就像搜索一样几乎是实时的
- * 聚合和搜索结合使用。
-
-高阶概念(High-Level Concepts)
- * 两个主要概念: * 桶(Buckets): 满足特定条件文档的集合。
-    * 指标(Metrics): 对桶内的文档进行统计计算。
-   
-   
- * 聚合也是可混合的语法，每个聚合是一个或多个桶和指标的组合。学习很少基本概念可以无尽组合。
-
-桶
- * 桶：满足特定条件文档的集合。
- * 
+          <h3 id="聚合简介"><a href="#聚合简介" class="headerlink" title="聚合简介"></a>聚合简介</h3><ul>
+<li>聚合会得到一个数据的概览。</li>
+<li>聚合是分析和总结全套的数据。</li>
+<li>聚合可以回答更加细微的问题</li>
+<li>聚合使用相同的数据结构，所以它的执行速度很快并且就像搜索一样几乎是实时的</li>
+<li>聚合和搜索结合使用。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/27-%E8%81%9A%E5%90%88-%E9%AB%98%E9%98%B6%E6%A6%82%E5%BF%B5/#more" rel="contents">
@@ -1139,7 +1010,7 @@ GET /cars/transactions/_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:07" itemprop="dateModified" datetime="2020-05-26T13:54:07+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:02:42" itemprop="dateModified" datetime="2020-05-28T22:02:42+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1176,38 +1047,7 @@ GET /cars/transactions/_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-英文参考2
-
-尝试聚合
-聚合的桶操作和度量的完整用法可以在 Elasticsearch 参考 中找到。
-
-添加数据
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-
-
-POST /cars/transactions/_bulk
-{ "index": {}}
-{ "price" : 10000, "color" : "red", "make" : "honda", "sold" : "2014-10-28" }
-{ "index": {}}
-{ "price" : 20000, "color" : "red", "make" : "hon
+          <h3 id="尝试聚合"><a href="#尝试聚合" class="headerlink" title="尝试聚合"></a>尝试聚合</h3><p>聚合的桶操作和度量的完整用法可以在 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html" target="_blank" rel="noopener">Elasticsearch 参考</a> 中找到。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/28-%E8%81%9A%E5%90%88-%E5%B0%9D%E8%AF%95%E8%81%9A%E5%90%88/#more" rel="contents">
@@ -1265,7 +1105,7 @@ POST /cars/transactions/_bulk
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:26" itemprop="dateModified" datetime="2020-05-26T13:54:26+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:04:12" itemprop="dateModified" datetime="2020-05-28T22:04:12+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1302,16 +1142,10 @@ POST /cars/transactions/_bulk
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-多桶排序(Sorting Multivalue Buckets)
- * 多值桶（ terms 、 histogram 和 date_histogram ）动态生成很多桶。
- * 默认情况，桶根据doc_count降序排列。
-
-内置排序(Intrinsic Sorts)
- * 内置排序(Intrinsic Sorts)：利用桶内置的属性进行排序，桶内置的属性是操作桶时产生的数据。
- * 内置排序字段： * _count ：按文档数排序，默认：文档数降序。对terms、histogram、date_histogram有效
-    * _term ： 按词项的字符串值的字母顺序
+          <h3 id="多桶排序-Sorting-Multivalue-Buckets"><a href="#多桶排序-Sorting-Multivalue-Buckets" class="headerlink" title="多桶排序(Sorting Multivalue Buckets)"></a>多桶排序(Sorting Multivalue Buckets)</h3><ul>
+<li>多值桶（ terms 、 histogram 和 date_histogram ）动态生成很多桶。</li>
+<li>默认情况，桶根据doc_count降序排列。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/33-%E8%81%9A%E5%90%88-%E5%A4%9A%E6%A1%B6%E6%8E%92%E5%BA%8F/#more" rel="contents">
@@ -1404,7 +1238,7 @@ POST /cars/transactions/_bulk
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1452,7 +1286,7 @@ POST /cars/transactions/_bulk
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

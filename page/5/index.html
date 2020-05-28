@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:52:05" itemprop="dateModified" datetime="2020-05-26T13:52:05+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:59:49" itemprop="dateModified" datetime="2020-05-28T21:59:49+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,62 +260,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-开篇
-ES存储功能：1. 存储文档 2. 为文档添加索引。
-ES搜索功能：1. 全文检索 3. 结构化查询 
-
-搜索相关的3个概念：
-映射(Mapping)
-
-描述数据在字段内如果被存储。
-
-分析(Analysis)
-
-全文是如果处理使之能被搜索。
-
-领域特定查询语言(Query DSL)
-ES中强大灵活的查询语
-
-空查询
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-
-
-GET /_search
-返回：
-{
-   "hits" : {
-      "tot
+          <h3 id="开篇"><a href="#开篇" class="headerlink" title="开篇"></a>开篇</h3><p>ES存储功能：1. 存储文档 2. 为文档添加索引。<br>ES搜索功能：1. 全文检索 3. 结构化查询   </p>
+<p>搜索相关的3个概念：<br><strong>映射(Mapping)</strong></p>
+<blockquote>
+<p>描述数据在字段内如果被存储。</p>
+</blockquote>
+<p><strong>分析(Analysis)</strong></p>
+<blockquote>
+<p>全文是如果处理使之能被搜索。</p>
+</blockquote>
+<p><strong>领域特定查询语言(Query DSL)</strong><br>ES中强大灵活的查询语</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/05-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%9C%E7%B4%A2-%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%B7%A5%E5%85%B7/#more" rel="contents">
@@ -373,7 +327,7 @@ GET /_search
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:52:09" itemprop="dateModified" datetime="2020-05-26T13:52:09+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:59:57" itemprop="dateModified" datetime="2020-05-28T21:59:57+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -410,47 +364,7 @@ GET /_search
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-映射和分析
-映射设置方式：1. 手动设置映射 2. 动态生成映射
-查看映射：
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-
-
-GET /gb/_mapping/tweet
-{
-   "gb": {
-      "mappings": {
-         "tweet": {
-            "properties": {
-               "date": {
-                  "type": "date",
-                  "
+          <h3 id="映射和分析"><a href="#映射和分析" class="headerlink" title="映射和分析"></a>映射和分析</h3><p>映射设置方式：1. 手动设置映射 2. 动态生成映射</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/06-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%98%A0%E5%B0%84%E5%92%8C%E5%88%86%E6%9E%90/#more" rel="contents">
@@ -508,7 +422,7 @@ GET /gb/_mapping/tweet
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:51:36" itemprop="dateModified" datetime="2020-05-26T13:51:36+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:47:21" itemprop="dateModified" datetime="2020-05-28T21:47:21+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -545,25 +459,7 @@ GET /gb/_mapping/tweet
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-输入和输出
-Elasticsearch是分布式的文档存储系统，它能存储和检索复杂的数据结构(JSON)。
-ES每个字段数据默认被索引，查询时使用倒排索引可以快速返回结果。
-在本章中，我们展示了用来创建，检索，更新和删除文档的 API
-
-什么是文档？
-文档：是把最顶层或根对象序列号为JSON并存储到ES中，并指定唯一ID。
-
-文档元数据
-文档元数据: 记录有关文档的信息。
-必须的三个元数据：
-
- 1. _index
-    
-    索引表示文档在那存放。索引是因有共同特性被分到一起的文档集合。
-    一个索引是逻辑上的命名空间，这个命名空间由一个或多个分片组合在一起。
-
+          <h3 id="输入和输出"><a href="#输入和输出" class="headerlink" title="输入和输出"></a>输入和输出</h3><p>Elasticsearch是分布式的文档存储系统，它能存储和检索复杂的数据结构(JSON)。<br>ES每个字段数据默认被索引，查询时使用倒排索引可以快速返回结果。<br>在本章中，我们展示了用来创建，检索，更新和删除文档的 API</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/03-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E8%BE%93%E5%85%A5%E5%92%8C%E8%BE%93%E5%87%BA/#more" rel="contents">
@@ -621,7 +517,7 @@ ES每个字段数据默认被索引，查询时使用倒排索引可以快速返
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:51:26" itemprop="dateModified" datetime="2020-05-26T13:51:26+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:46:05" itemprop="dateModified" datetime="2020-05-28T21:46:05+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -639,7 +535,7 @@ ES每个字段数据默认被索引，查询时使用倒排索引可以快速返
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2k</span>
+              <span>1.9k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -658,37 +554,17 @@ ES每个字段数据默认被索引，查询时使用倒排索引可以快速返
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-集群内的原理
-ES集群主旨：
-
- 1. 随时可用
- 2. 按需扩容
-
-集群两种扩容方式：
-
- 1. 垂直扩容(纵向扩容)：增强机器配置
- 2. 水平扩容(横向扩容): 增加机器数量
-
-ES天生支持分布式，可管理多节点来提高扩容性和可用性
-
-空集群
-节点：
-
-一个运行中的Elasticsearch实例称为一个节点
-
-集群:
-
-拥有相同集群名(cluster.name)的多个节点组成了一个集群，共同承担数据和负载的压力。
-
-节点有变动时集群怎么处理？
-
-当集群中有节点加入或移除时，集群会重新平均分布所有的数据。
-
-master节点
-
-集群中节点会选举出一个节点做为master
+          <h3 id="集群内的原理"><a href="#集群内的原理" class="headerlink" title="集群内的原理"></a>集群内的原理</h3><p>ES集群主旨：</p>
+<ol>
+<li>随时可用</li>
+<li>按需扩容</li>
+</ol>
+<p>集群两种扩容方式：</p>
+<ol>
+<li>垂直扩容(纵向扩容)：增强机器配置</li>
+<li>水平扩容(横向扩容): 增加机器数量</li>
+</ol>
+<p>ES天生支持分布式，可管理多节点来提高扩容性和可用性</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/14/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/02-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%8E%9F%E7%90%86/#more" rel="contents">
@@ -746,7 +622,7 @@ master节点
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:50:50" itemprop="dateModified" datetime="2020-05-26T13:50:50+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:46:09" itemprop="dateModified" datetime="2020-05-28T21:46:09+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -764,7 +640,7 @@ master节点
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>563</span>
+              <span>554</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -783,19 +659,7 @@ master节点
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-前言
-数据大爆炸时代，需要更好的根据处理这些大数据。
-ElasticSearch 是一个分布式、可扩展、实时搜索和数据分析的引擎。
-ElasticSearch两个功能：全文检索和结构化数据实时统计，具体内容：全文检索、结构化数据搜索、数据分析、
-复杂的人类语言处理、地址位置和对象关系等。还会讨论如何建立模型、如何配置和监控集群。
-
-为什么写这本书
-参考文档是教你如何使用这些功能，本书基于问题求解的方式：遇到什么问题？该怎么解决？如何对方案权衡取舍？从基础开始，循序渐进，理论结合实例进行解释。
-
-Elasticsearch 版本
-本书针对的是Elasticsearch 2.
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>数据大爆炸时代，需要更好的根据处理这些大数据。<br>ElasticSearch 是一个分布式、可扩展、实时搜索和数据分析的引擎。<br>ElasticSearch两个功能：全文检索和结构化数据实时统计，具体内容：全文检索、结构化数据搜索、数据分析、<br>复杂的人类语言处理、地址位置和对象关系等。还会讨论如何建立模型、如何配置和监控集群。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/00-%E5%89%8D%E8%A8%80/#more" rel="contents">
@@ -853,7 +717,7 @@ Elasticsearch 版本
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:51:05" itemprop="dateModified" datetime="2020-05-26T13:51:05+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:46:11" itemprop="dateModified" datetime="2020-05-28T21:46:11+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -890,17 +754,7 @@ Elasticsearch 版本
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-Elasticsearch 简介
-Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。
-Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中.
-
-1. 你知道，为了搜索
-1.1 Elasticsearch简介
-Apache Lucene是当下最先进，高性能，全功能的搜索引擎库。
-Elasticsearch 是一个开源搜索引擎，建立在Apache Lucene基础之上。
-ES隐藏了Lucene的复杂性，对外提供统一的RESTful API，使得全文检索变
+          <h3 id="Elasticsearch-简介"><a href="#Elasticsearch-简介" class="headerlink" title="Elasticsearch 简介"></a>Elasticsearch 简介</h3><p>Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。<br>Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中.</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/01-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%8C%E4%B8%BA%E4%BA%86%E6%90%9C%E7%B4%A2/#more" rel="contents">
@@ -958,7 +812,7 @@ ES隐藏了Lucene的复杂性，对外提供统一的RESTful API，使得全文�
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:52:00" itemprop="dateModified" datetime="2020-05-26T13:52:00+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 21:48:19" itemprop="dateModified" datetime="2020-05-28T21:48:19+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -995,27 +849,7 @@ ES隐藏了Lucene的复杂性，对外提供统一的RESTful API，使得全文�
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-分布式文档存储
-此章节主要介绍文件是如果分布到集群的，又如何从集群中获取的。
-
-路由一个文档到一个分片
-分片位置计算公式：
-
-1
-
-
-shard = hash(routing) % number_of_primary_shards
-
-
-routing : 一个可变值，默认是_id,也可以自己指定。
-hash函数 ： 生成一个数字
-number_of_primary_shards : 主分片数量
-公式计算后的结果值分布在[0, number_of_primary_shards-1],检索时也是使用这个公式。
-
-主分片和副本分片如何交互
-每个节点都有能力处理任何请
+          <h3 id="分布式文档存储"><a href="#分布式文档存储" class="headerlink" title="分布式文档存储"></a>分布式文档存储</h3><p>此章节主要介绍文件是如果分布到集群的，又如何从集群中获取的。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/04-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E6%A1%A3%E5%AD%98%E5%82%A8/#more" rel="contents">
@@ -1073,7 +907,7 @@ number_of_primary_shards : 主分片数量
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:53:30" itemprop="dateModified" datetime="2020-05-26T13:53:30+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:00:39" itemprop="dateModified" datetime="2020-05-28T22:00:39+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1110,30 +944,13 @@ number_of_primary_shards : 主分片数量
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-简介
-参考：处理人类语言
-
- * 全文检索是一场查准率与查全率之间的较量。
- * 查准率 即尽量返回较少的无关文档
- * 查全率 则尽量返回较多的相关文档
- * 我们希望去搜索那些和原文不是完全匹配但却相关的单词
-
-可优化的地方
-
- * 归一化词元
- * 将单词还原为词干
- * 清除常用词或停用词 停用词: 性能与精度
- * 包含同义词
- * 检查拼写错误
-
-开始处理各种语言
-Elasticsearch 为很多世界流行语言提供良好的、简单的、开箱即用的语言分析器集合。
-
-分析器主要功能：
-
- * 文本拆分为单词。The quick brown foxes → [ The,
+          <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>参考：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/languages.html" target="_blank" rel="noopener">处理人类语言</a></p>
+<ul>
+<li>全文检索是一场查准率与查全率之间的较量。</li>
+<li>查准率 即尽量返回较少的无关文档</li>
+<li>查全率 则尽量返回较多的相关文档</li>
+<li>我们希望去搜索那些和原文不是完全匹配但却相关的单词</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/20-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%BC%80%E5%A7%8B%E5%A4%84%E7%90%86%E5%90%84%E7%A7%8D%E8%AF%AD%E8%A8%80/#more" rel="contents">
@@ -1191,7 +1008,7 @@ Elasticsearch 为很多世界流行语言提供良好的、简单的、开箱即
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 16:56:40" itemprop="dateModified" datetime="2020-05-26T16:56:40+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:00:42" itemprop="dateModified" datetime="2020-05-28T22:00:42+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1228,31 +1045,7 @@ Elasticsearch 为很多世界流行语言提供良好的、简单的、开箱即
     <div class="post-body" itemprop="articleBody">
 
       
-          中文参考，英文参考
-
-Identifying_words 介绍
-没有处理所有人类语言的万能分析器，Elasticsearch 为很多语言提供了专用的分析器， 其他特殊语言的分析器以插件的形式提供。
-
-标准分析器(standard Analyzer)
-标准分析器是字段(field)的默认分析器。
-
-自定义分析器,tokenizer(标准分词器)
-
-1
-2
-3
-4
-5
-
-
-{
-    "type":      "custom",
-    "tokenizer": "standard",
-    "filter":  [ "lowercase", "stop" ]
-}
-
-
-标准分词器(standar
+          <h3 id="Identifying-words-介绍"><a href="#Identifying-words-介绍" class="headerlink" title="Identifying_words 介绍"></a>Identifying_words 介绍</h3><p>没有处理所有人类语言的万能分析器，Elasticsearch 为很多语言提供了专用的分析器， 其他特殊语言的分析器以插件的形式提供。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/21-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E8%AF%8D%E6%B1%87%E8%AF%86%E5%88%AB/#more" rel="contents">
@@ -1279,7 +1072,7 @@ Identifying_words 介绍
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/50%20%E7%AE%A1%E7%90%86%E3%80%81%E7%9B%91%E6%8E%A7%E5%92%8C%E9%83%A8%E7%BD%B2/">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
@@ -1293,7 +1086,7 @@ Identifying_words 介绍
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/50%20%E7%AE%A1%E7%90%86%E3%80%81%E7%9B%91%E6%8E%A7%E5%92%8C%E9%83%A8%E7%BD%B2/" class="post-title-link" itemprop="url">50 管理、监控和部署</a>
+            <a href="/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">mysql中的锁详解</a>
         </h2>
 
         <div class="post-meta">
@@ -1303,14 +1096,14 @@ Identifying_words 介绍
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-01-13 09:52:57" itemprop="dateCreated datePublished" datetime="2020-01-13T09:52:57+08:00">2020-01-13</time>
+              <time title="Created: 2020-01-03 10:06:57" itemprop="dateCreated datePublished" datetime="2020-01-03T10:06:57+08:00">2020-01-03</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:55:17" itemprop="dateModified" datetime="2020-05-26T13:55:17+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-26 13:47:23" itemprop="dateModified" datetime="2020-05-26T13:47:23+08:00">2020-05-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1318,7 +1111,7 @@ Identifying_words 介绍
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                  <a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a>
                 </span>
             </span>
 
@@ -1328,14 +1121,14 @@ Identifying_words 介绍
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>21</span>
+              <span>6.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>6 mins.</span>
             </span>
 
         </div>
@@ -1347,22 +1140,10 @@ Identifying_words 介绍
     <div class="post-body" itemprop="articleBody">
 
       
-          ###
-
-###
-
-###
-
-###
-
-###
-
-###
-
-###
+          <h4 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h4><p>了解mysql中的各种锁</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/50%20%E7%AE%A1%E7%90%86%E3%80%81%E7%9B%91%E6%8E%A7%E5%92%8C%E9%83%A8%E7%BD%B2/#more" rel="contents">
+              <a class="btn" href="/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1452,7 +1233,7 @@ Identifying_words 介绍
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1500,7 +1281,7 @@ Identifying_words 介绍
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

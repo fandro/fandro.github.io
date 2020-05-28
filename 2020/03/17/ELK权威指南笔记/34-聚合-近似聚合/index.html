@@ -22,14 +22,14 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考，英文参考 英文参考2  近似聚合(Approximate Aggregations) 在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。  三角因子模型：大数据、精确性和实时性。 选择其中两项：   * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。  * 大数据 + 精确 ：传统的 Hado">
+  <meta name="description" content="近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="34-聚合-近似聚合">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考，英文参考 英文参考2  近似聚合(Approximate Aggregations) 在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。  三角因子模型：大数据、精确性和实时性。 选择其中两项：   * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。  * 大数据 + 精确 ：传统的 Hado">
+<meta property="og:description" content="近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。">
 <meta property="article:published_time" content="2020-03-17T07:25:57.000Z">
-<meta property="article:modified_time" content="2020-05-26T05:54:33.678Z">
+<meta property="article:modified_time" content="2020-05-28T14:04:29.524Z">
 <meta property="article:author" content="细数星辰">
 <meta property="article:tag" content="ES">
 <meta property="article:tag" content="ElasticSearch">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:33" itemprop="dateModified" datetime="2020-05-26T13:54:33+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:04:29" itemprop="dateModified" datetime="2020-05-28T22:04:29+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,8 +266,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_approximate_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/55_approx_intro.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/60_cardinality.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
-<h3 id="近似聚合-Approximate-Aggregations"><a href="#近似聚合-Approximate-Aggregations" class="headerlink" title="近似聚合(Approximate Aggregations)"></a>近似聚合(Approximate Aggregations)</h3><p>在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。</p>
+        <h3 id="近似聚合-Approximate-Aggregations"><a href="#近似聚合-Approximate-Aggregations" class="headerlink" title="近似聚合(Approximate Aggregations)"></a>近似聚合(Approximate Aggregations)</h3><p>在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。</p>
+<a id="more"></a>
 <p>三角因子模型：大数据、精确性和实时性。<br>选择其中两项：</p>
 <ul>
 <li>精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。</li>
@@ -351,10 +351,7 @@
 <li>TDigest 算法用节点近似计算百分比：节点越多，准确度越高（同时内存消耗也越大），这都与数据量成正比。 compression 参数限制节点的最大数目为 20 * compression 。</li>
 <li>压缩比值：默认的压缩比值是 100，通过增加压缩比值，可以以消耗更多内存为代价提高百分位数准确性。更大的压缩比值会使算法运行更慢，因为底层的树形数据结构的存储也会增长，也导致操作的代价更高。</li>
 </ul>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_approximate_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/55_approx_intro.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/60_cardinality.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
 
     </div>
 
@@ -439,7 +436,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#近似聚合-Approximate-Aggregations"><span class="nav-number">1.</span> <span class="nav-text">近似聚合(Approximate Aggregations)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#近似算法：cardinality"><span class="nav-number"></span> <span class="nav-text">近似算法：cardinality</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#统计去重后的数量-Finding-Distinct-Counts"><span class="nav-number">1.</span> <span class="nav-text">统计去重后的数量(Finding Distinct Counts)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#学会权衡-Understanding-the-Trade-offs"><span class="nav-number">1.0.1.</span> <span class="nav-text">学会权衡(Understanding the Trade-offs)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#速度优化-Optimizing-for-Speed"><span class="nav-number">1.0.2.</span> <span class="nav-text">速度优化(Optimizing for Speed)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#百分位数-计算-Calculating-Percentiles"><span class="nav-number">2.</span> <span class="nav-text">百分位数 计算(Calculating Percentiles)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#百分位数-排行-Percentile-Ranks"><span class="nav-number">2.0.1.</span> <span class="nav-text">百分位数 排行(Percentile Ranks)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#学会平衡-Understanding-the-Trade-offs"><span class="nav-number">2.0.2.</span> <span class="nav-text">学会平衡(Understanding the Trade-offs)</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#近似聚合-Approximate-Aggregations"><span class="nav-number">1.</span> <span class="nav-text">近似聚合(Approximate Aggregations)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#近似算法：cardinality"><span class="nav-number"></span> <span class="nav-text">近似算法：cardinality</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#统计去重后的数量-Finding-Distinct-Counts"><span class="nav-number">1.</span> <span class="nav-text">统计去重后的数量(Finding Distinct Counts)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#学会权衡-Understanding-the-Trade-offs"><span class="nav-number">1.0.1.</span> <span class="nav-text">学会权衡(Understanding the Trade-offs)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#速度优化-Optimizing-for-Speed"><span class="nav-number">1.0.2.</span> <span class="nav-text">速度优化(Optimizing for Speed)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#百分位数-计算-Calculating-Percentiles"><span class="nav-number">2.</span> <span class="nav-text">百分位数 计算(Calculating Percentiles)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#百分位数-排行-Percentile-Ranks"><span class="nav-number">2.0.1.</span> <span class="nav-text">百分位数 排行(Percentile Ranks)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#学会平衡-Understanding-the-Trade-offs"><span class="nav-number">2.0.2.</span> <span class="nav-text">学会平衡(Understanding the Trade-offs)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -454,7 +451,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -502,7 +499,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

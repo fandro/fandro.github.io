@@ -192,111 +192,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
-      <meta itemprop="name" content="细数星辰">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="细数星辰">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">mysql中的锁详解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-01-03 10:06:57" itemprop="dateCreated datePublished" datetime="2020-01-03T10:06:57+08:00">2020-01-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:47:23" itemprop="dateModified" datetime="2020-05-26T13:47:23+08:00">2020-05-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>6.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          本文简介
-了解mysql中的各种锁
-
-事务ACID四大特性
- * Atomicity 原子性：要么成功，要么失败，不允许部分成功或失败。
- * Consistency 一致性：事务操作之后数据库状态和业务规则一致。AB转账，A减少并且B增加。
- * Isolation 隔离性：多个事务并发执行，相互之间不干扰，和独立执行事务一样。
- * Durability 持久性：事务提交后被持久化到数据库.
-
-并发访问面临的问题
-英文名中文名问题描述缺点mysql解决方式Dirty Read脏读事务A未提交的数据被其他事务B读取，如果事务A回滚，事务B的数据就是错误。会读到未提交的数据(脏数据)没加锁时会
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/01/03/mysql%E4%B8%AD%E7%9A%84%E9%94%81%E8%AF%A6%E8%A7%A3/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2019/12/26/spring/spring%E4%BA%8B%E5%8A%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -365,17 +260,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          本文简介
-快速理解 spring 隔离级别和传播机制
-
-事务ACID四大特性
- * Atomicity 原子性：要么成功，要么失败，不允许部分成功或失败。
- * Consistency 一致性：事务操作之后数据库状态和业务规则一致。AB转账，A减少并且B增加。
- * Isolation 隔离性：多个事务并发执行，相互之间不干扰，和独立执行事务一样。
- * Durability 持久性：事务提交后被持久化到数据库.
-
-spring事务知识点
- 1. spring有两种事务管理方式：编程式和声明式 * 编程式：在代码中显示调用beginTransaction(),commit(),rollback
+          <h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>快速理解 spring 隔离级别和传播机制</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/12/26/spring/spring%E4%BA%8B%E5%8A%A1/#more" rel="contents">
@@ -470,31 +355,8 @@ spring事务知识点
     <div class="post-body" itemprop="articleBody">
 
       
-          克隆仓库
-git clone https://github.com/libgit2/libgit2 mylibgit # 克隆仓库并重新命名目录
-
-初始化项目
-git init
-
-跟踪文件和修改
-git add . # 添加当前目录中文件
-git add 文件名 # 添加指定文件
-git add *.txt # 使用通配符
-
-查看修改文件
-查看详情的信息
-git status
-查看简短信息
-git status –short 或 git status -s
-
-查看文件的修改内容
-git diff fileName
-
-提交
-git commit -m “提交注释”
-
-push
- 1. git p
+          <h4 id="克隆仓库"><a href="#克隆仓库" class="headerlink" title="克隆仓库"></a>克隆仓库</h4><p>git clone <a href="https://github.com/libgit2/libgit2" target="_blank" rel="noopener">https://github.com/libgit2/libgit2</a> mylibgit # 克隆仓库并重新命名目录</p>
+<h4 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h4><p>git init</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/08/19/git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/#more" rel="contents">
@@ -589,72 +451,7 @@ push
     <div class="post-body" itemprop="articleBody">
 
       
-          markdown常用的语法
-
-> 标题
-第一种方法：#
-
-1
-2
-3
-4
-5
-6
-
-
-# h1
-## h2
-### h3
-#### h4
-##### h5
-###### h6
-
-
-一般#作为文章大标题，只有一个，### 作为段落标题。 
-
-第二种方式：上下文标题
-
-1
-2
-3
-4
-
-
-一级标题
-===
-二级标题
----
-
-
-> 段落
- 换行方式：
-1. 行尾加两个空格
-2. 段落后加一个空行，表示新起一行
-3. 行尾使用<br> 换行 
-
-> 区块引用
- 段落开头使用 > 并紧跟一个空格
-1
-2
-
-
-> 区块  
-> 区块2
-
-
-
-
-区块
-区块2
-
- 区块嵌套
-1
-2
-3
-
-
-> 区块
-> >
+          <p>markdown常用的语法</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/07/31/markdown%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95/#more" rel="contents">
@@ -749,21 +546,7 @@ push
     <div class="post-body" itemprop="articleBody">
 
       
-          本文简介
-node常用到的一些命令
-
-node简介
-官方地址： https://nodejs.org/en/
-nodejs中文：http://nodejs.cn/
-Node.js 是一个基于 Chrome V8 引擎的 JavaScript 运行环境。
-Node.js 使用了一个事件驱动、非阻塞式 I/O 的模型，使其轻量又高效。
-
-node 常用命令
- 1. node ##进入 REPL 环境
- 2. node -e ‘console.log(“Hello World”)’ ##执行脚本字符串
- 3. 运行脚本文件
-    $ node index.js
-    $ node path/in
+          <h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>node常用到的一些命令</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/07/31/node%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/#more" rel="contents">
@@ -821,7 +604,7 @@ node 常用命令
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-28 09:21:38" itemprop="dateModified" datetime="2020-05-28T09:21:38+08:00">2020-05-28</time>
+                <time title="Modified: 2020-05-28 21:57:52" itemprop="dateModified" datetime="2020-05-28T21:57:52+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -839,14 +622,14 @@ node 常用命令
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -858,23 +641,7 @@ node 常用命令
     <div class="post-body" itemprop="articleBody">
 
       
-          本文简介
-博客框架hexo 常用到的一些命令
-
-hexo简介
-主页： https://hexo.io/zh-cn/
-Hexo 是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。
-
-hexo常用命令
-hexo version
-显示 Hexo 版本
-
-hexo new [layout] <title>
-hexo new “我的第一篇文章”
-hexo new post “我的第一篇文章”
-hexo new draft “我的草稿”
-hexo new page “tags”
-hexo new page “tags” 
+          <h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>博客框架hexo 常用到的一些命令</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/07/31/hexo%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/#more" rel="contents">
@@ -969,24 +736,7 @@ hexo new page “tags”
     <div class="post-body" itemprop="articleBody">
 
       
-          本文简介
-在mac osx系统上安装配置博客框架hexo，并配置发布到github page上。
-
-hexo简介
-主页： https://hexo.io/zh-cn/
-Hexo 是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。
-
-环境准备
-安装homebrew
-1
-
-
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-
-安装git
-$git –version
-
+          <h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>&ensp;&ensp;在mac osx系统上安装配置博客框架hexo，并配置发布到github page上。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/07/24/mac%E4%B8%8A%E6%90%AD%E5%BB%BAhexo/#more" rel="contents">
@@ -1079,7 +829,7 @@ $git –version
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1127,7 +877,7 @@ $git –version
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

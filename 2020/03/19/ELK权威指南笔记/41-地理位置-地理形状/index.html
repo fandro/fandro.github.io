@@ -22,14 +22,14 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考，英文参考  地理形状 geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。 Geo-shapes 不能用于计算距离、排序、打分以及聚合。  3种关系：   * inersects : 相交，查询形状 与 索引形状 有重叠。默认值  * disjoint : 不相交，查询形状 与 索引形状 完全不重叠。  * within : 索引形状 完全被包含在 查询形状 中。  你">
+  <meta name="description" content="地理形状geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。Geo-shapes 不能用于计算距离、排序、打分以及聚合。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="41-地理位置-地理形状">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考，英文参考  地理形状 geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。 Geo-shapes 不能用于计算距离、排序、打分以及聚合。  3种关系：   * inersects : 相交，查询形状 与 索引形状 有重叠。默认值  * disjoint : 不相交，查询形状 与 索引形状 完全不重叠。  * within : 索引形状 完全被包含在 查询形状 中。  你">
+<meta property="og:description" content="地理形状geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。Geo-shapes 不能用于计算距离、排序、打分以及聚合。">
 <meta property="article:published_time" content="2020-03-18T23:52:57.000Z">
-<meta property="article:modified_time" content="2020-05-26T05:55:01.925Z">
+<meta property="article:modified_time" content="2020-05-28T14:06:05.158Z">
 <meta property="article:author" content="细数星辰">
 <meta property="article:tag" content="ES">
 <meta property="article:tag" content="ElasticSearch">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:55:01" itemprop="dateModified" datetime="2020-05-26T13:55:01+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:06:05" itemprop="dateModified" datetime="2020-05-28T22:06:05+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,8 +266,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-shapes.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/340_Geoshapes" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="地理形状"><a href="#地理形状" class="headerlink" title="地理形状"></a>地理形状</h3><p>geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。<br>Geo-shapes 不能用于计算距离、排序、打分以及聚合。</p>
+        <h3 id="地理形状"><a href="#地理形状" class="headerlink" title="地理形状"></a>地理形状</h3><p>geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。<br>Geo-shapes 不能用于计算距离、排序、打分以及聚合。</p>
+<a id="more"></a>
 <p>3种关系：</p>
 <ul>
 <li>inersects : 相交，查询形状 与 索引形状 有重叠。默认值</li>
@@ -316,7 +316,7 @@
 </ul>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/neighborhood/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"indexed_shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"attractions"</span>,</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"landmark"</span>,</span><br><span class="line">          <span class="attr">"id"</span>:    <span class="string">"dam_square"</span>,</span><br><span class="line">          <span class="attr">"path"</span>:  <span class="string">"location"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>###</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-shapes.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/340_Geoshapes" target="_blank" rel="noopener">英文参考</a></p>
 
     </div>
 
@@ -336,12 +336,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/" rel="prev" title="40-地理位置-地理位置聚合">
-      <i class="fa fa-chevron-left"></i> 40-地理位置-地理位置聚合
+    <a href="/2020/03/18/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/35-%E8%81%9A%E5%90%88-%E9%80%9A%E8%BF%87%E8%81%9A%E5%90%88%E5%8F%91%E7%8E%B0%E5%BC%82%E5%B8%B8%E6%8C%87%E6%A0%87/" rel="prev" title="35-聚合-通过聚合发现异常指标">
+      <i class="fa fa-chevron-left"></i> 35-聚合-通过聚合发现异常指标
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/39-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-Geohashes/" rel="next" title="39-地理位置-Geohashes">
-      39-地理位置-Geohashes <i class="fa fa-chevron-right"></i>
+    <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/" rel="next" title="40-地理位置-地理位置聚合">
+      40-地理位置-地理位置聚合 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -401,7 +401,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#地理形状"><span class="nav-number">1.</span> <span class="nav-text">地理形状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精度-precision"><span class="nav-number">2.</span> <span class="nav-text">精度(precision)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#距离误差-distance-error-pct"><span class="nav-number">3.</span> <span class="nav-text">距离误差(distance_error_pct)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引地理形状-Indexing-Geo-Shapes"><span class="nav-number">4.</span> <span class="nav-text">索引地理形状(Indexing Geo Shapes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询地理形状-Querying-Geo-Shapes"><span class="nav-number">5.</span> <span class="nav-text">查询地理形状(Querying Geo Shapes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在查询中使用已索引的形状-Querying-with-Indexed-Shapes"><span class="nav-number">6.</span> <span class="nav-text">在查询中使用已索引的形状(Querying with Indexed Shapes)</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#地理形状"><span class="nav-number">1.</span> <span class="nav-text">地理形状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精度-precision"><span class="nav-number">2.</span> <span class="nav-text">精度(precision)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#距离误差-distance-error-pct"><span class="nav-number">3.</span> <span class="nav-text">距离误差(distance_error_pct)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引地理形状-Indexing-Geo-Shapes"><span class="nav-number">4.</span> <span class="nav-text">索引地理形状(Indexing Geo Shapes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询地理形状-Querying-Geo-Shapes"><span class="nav-number">5.</span> <span class="nav-text">查询地理形状(Querying Geo Shapes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在查询中使用已索引的形状-Querying-with-Indexed-Shapes"><span class="nav-number">6.</span> <span class="nav-text">在查询中使用已索引的形状(Querying with Indexed Shapes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -416,7 +416,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -464,7 +464,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

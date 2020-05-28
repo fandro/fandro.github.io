@@ -22,14 +22,14 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考1 中文参考2 英文参考1 英文参考2  地理位置 (Geolocation) Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。  Elasticsearch两种表示地理位置的方式：   1. geo_point : 用经度-纬度表示坐标点，计算两点间距离来排序或相关性打分、或聚合到地图上一个网格。  2. geo_shape : 以GeoJSON格式定义">
+  <meta name="description" content="地理位置 (Geolocation)Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="38-地理位置-地理坐标点">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/38-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%9D%90%E6%A0%87%E7%82%B9/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考1 中文参考2 英文参考1 英文参考2  地理位置 (Geolocation) Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。  Elasticsearch两种表示地理位置的方式：   1. geo_point : 用经度-纬度表示坐标点，计算两点间距离来排序或相关性打分、或聚合到地图上一个网格。  2. geo_shape : 以GeoJSON格式定义">
+<meta property="og:description" content="地理位置 (Geolocation)Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。">
 <meta property="article:published_time" content="2020-03-18T23:52:57.000Z">
-<meta property="article:modified_time" content="2020-05-26T05:54:50.167Z">
+<meta property="article:modified_time" content="2020-05-28T14:05:24.893Z">
 <meta property="article:author" content="细数星辰">
 <meta property="article:tag" content="ES">
 <meta property="article:tag" content="ElasticSearch">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:50" itemprop="dateModified" datetime="2020-05-26T13:54:50+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:05:24" itemprop="dateModified" datetime="2020-05-28T22:05:24+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,8 +266,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geoloc.html" target="_blank" rel="noopener">中文参考1</a><br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geopoints.html" target="_blank" rel="noopener">中文参考2</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/eb0004640922da772be5ccb61060642a23b67e6b/04_Geolocation.asciidoc" target="_blank" rel="noopener">英文参考1</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/310_Geopoints" target="_blank" rel="noopener">英文参考2</a></p>
-<h3 id="地理位置-Geolocation"><a href="#地理位置-Geolocation" class="headerlink" title="地理位置 (Geolocation)"></a>地理位置 (Geolocation)</h3><p>Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。</p>
+        <h3 id="地理位置-Geolocation"><a href="#地理位置-Geolocation" class="headerlink" title="地理位置 (Geolocation)"></a>地理位置 (Geolocation)</h3><p>Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。</p>
+<a id="more"></a>
 <p>Elasticsearch两种表示地理位置的方式：</p>
 <ol>
 <li>geo_point : 用经度-纬度表示坐标点，计算两点间距离来排序或相关性打分、或聚合到地图上一个网格。</li>
@@ -356,6 +356,7 @@
 <li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/decay-functions.html" target="_blank" rel="noopener">越近越好</a> 中有个一个例子就是介绍地理距离影响排序得分的。</li>
 <li>按距离排序还有个缺点就是性能：需要对每一个匹配到的文档都进行距离计算。而 function_score 查询，在 rescore 语句 中可以限制只对前 n 个结果进行计算。</li>
 </ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geoloc.html" target="_blank" rel="noopener">中文参考1</a><br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geopoints.html" target="_blank" rel="noopener">中文参考2</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/eb0004640922da772be5ccb61060642a23b67e6b/04_Geolocation.asciidoc" target="_blank" rel="noopener">英文参考1</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/310_Geopoints" target="_blank" rel="noopener">英文参考2</a></p>
 
     </div>
 
@@ -440,7 +441,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#地理位置-Geolocation"><span class="nav-number">1.</span> <span class="nav-text">地理位置 (Geolocation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理坐标点-Geo-Points"><span class="nav-number">2.</span> <span class="nav-text">地理坐标点(Geo Points)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#经纬度坐标格式"><span class="nav-number">3.</span> <span class="nav-text">经纬度坐标格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过地理坐标点过滤"><span class="nav-number">4.</span> <span class="nav-text">通过地理坐标点过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理坐标盒模型过滤器-Geo-Bounding-Box-Filter"><span class="nav-number">5.</span> <span class="nav-text">地理坐标盒模型过滤器(Geo Bounding Box Filter)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#优化盒模型-Optimizing-Bounding-Boxes"><span class="nav-number">5.0.1.</span> <span class="nav-text">优化盒模型(Optimizing Bounding Boxes)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理距离过滤器-Geo-Distance-Filter"><span class="nav-number">6.</span> <span class="nav-text">地理距离过滤器(Geo Distance Filter)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#更快的地理距离计算"><span class="nav-number">6.0.1.</span> <span class="nav-text">更快的地理距离计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#地理距离区间过滤器-geo-distance-range-Filter"><span class="nav-number">6.0.2.</span> <span class="nav-text">地理距离区间过滤器(geo_distance_range Filter)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按距离排序-Sorting-by-Distance"><span class="nav-number">7.</span> <span class="nav-text">按距离排序(Sorting by Distance)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#按照距离打分-Scoring-by-Distance"><span class="nav-number">7.0.1.</span> <span class="nav-text">按照距离打分(Scoring by Distance)</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#地理位置-Geolocation"><span class="nav-number">1.</span> <span class="nav-text">地理位置 (Geolocation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理坐标点-Geo-Points"><span class="nav-number">2.</span> <span class="nav-text">地理坐标点(Geo Points)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#经纬度坐标格式"><span class="nav-number">3.</span> <span class="nav-text">经纬度坐标格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过地理坐标点过滤"><span class="nav-number">4.</span> <span class="nav-text">通过地理坐标点过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理坐标盒模型过滤器-Geo-Bounding-Box-Filter"><span class="nav-number">5.</span> <span class="nav-text">地理坐标盒模型过滤器(Geo Bounding Box Filter)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#优化盒模型-Optimizing-Bounding-Boxes"><span class="nav-number">5.0.1.</span> <span class="nav-text">优化盒模型(Optimizing Bounding Boxes)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地理距离过滤器-Geo-Distance-Filter"><span class="nav-number">6.</span> <span class="nav-text">地理距离过滤器(Geo Distance Filter)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#更快的地理距离计算"><span class="nav-number">6.0.1.</span> <span class="nav-text">更快的地理距离计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#地理距离区间过滤器-geo-distance-range-Filter"><span class="nav-number">6.0.2.</span> <span class="nav-text">地理距离区间过滤器(geo_distance_range Filter)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按距离排序-Sorting-by-Distance"><span class="nav-number">7.</span> <span class="nav-text">按距离排序(Sorting by Distance)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#按照距离打分-Scoring-by-Distance"><span class="nav-number">7.0.1.</span> <span class="nav-text">按照距离打分(Scoring by Distance)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -455,7 +456,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -503,7 +504,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

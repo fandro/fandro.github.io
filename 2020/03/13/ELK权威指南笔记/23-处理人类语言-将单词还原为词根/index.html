@@ -22,14 +22,14 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考，英文参考 参考： 230_Stemming https:&#x2F;&#x2F;www.elastic.co&#x2F;guide&#x2F;cn&#x2F;elasticsearch&#x2F;guide&#x2F;current&#x2F;stemming.html https:&#x2F;&#x2F;github.com&#x2F;elastic&#x2F;elasticsearch-definitive-guide&#x2F;tree&#x2F;master&#x2F;230_Stemming  将单词还原为词根(Reduci">
+  <meta name="description" content="将单词还原为词根(Reducing Words to Their Root Form) 大多数语言的单词都可以 词形变化。 词根提取(Stemming) ：试图移除单词的变化形式之间的差别，将每个单词都提取为它的词根形式。有的词根不是一个真的单词. 词根提取遇到的两个问题：词干弱提取(understemming)，词干过度提取(overstemming) 词干弱提取(understemming):">
 <meta property="og:type" content="article">
 <meta property="og:title" content="03-处理人类语言-将单词还原为词根">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/23-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%B0%86%E5%8D%95%E8%AF%8D%E8%BF%98%E5%8E%9F%E4%B8%BA%E8%AF%8D%E6%A0%B9/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考，英文参考 参考： 230_Stemming https:&#x2F;&#x2F;www.elastic.co&#x2F;guide&#x2F;cn&#x2F;elasticsearch&#x2F;guide&#x2F;current&#x2F;stemming.html https:&#x2F;&#x2F;github.com&#x2F;elastic&#x2F;elasticsearch-definitive-guide&#x2F;tree&#x2F;master&#x2F;230_Stemming  将单词还原为词根(Reduci">
+<meta property="og:description" content="将单词还原为词根(Reducing Words to Their Root Form) 大多数语言的单词都可以 词形变化。 词根提取(Stemming) ：试图移除单词的变化形式之间的差别，将每个单词都提取为它的词根形式。有的词根不是一个真的单词. 词根提取遇到的两个问题：词干弱提取(understemming)，词干过度提取(overstemming) 词干弱提取(understemming):">
 <meta property="article:published_time" content="2020-03-13T03:00:57.000Z">
-<meta property="article:modified_time" content="2020-05-26T05:53:51.955Z">
+<meta property="article:modified_time" content="2020-05-28T14:01:50.635Z">
 <meta property="article:author" content="细数星辰">
 <meta property="article:tag" content="ES">
 <meta property="article:tag" content="ElasticSearch">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:53:51" itemprop="dateModified" datetime="2020-05-26T13:53:51+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-28 22:01:50" itemprop="dateModified" datetime="2020-05-28T22:01:50+08:00">2020-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.2k</span>
+              <span>5.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -266,8 +266,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="">中文参考</a>，<a href="">英文参考</a><br>参考：<br>230_Stemming<br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming" target="_blank" rel="noopener">https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming</a></p>
-<h3 id="将单词还原为词根-Reducing-Words-to-Their-Root-Form"><a href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form" class="headerlink" title="将单词还原为词根(Reducing Words to Their Root Form)"></a>将单词还原为词根(Reducing Words to Their Root Form)</h3><ul>
+        <h3 id="将单词还原为词根-Reducing-Words-to-Their-Root-Form"><a href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form" class="headerlink" title="将单词还原为词根(Reducing Words to Their Root Form)"></a>将单词还原为词根(Reducing Words to Their Root Form)</h3><ul>
 <li>大多数语言的单词都可以 词形变化。</li>
 <li>词根提取(Stemming) ：试图移除单词的变化形式之间的差别，将每个单词都提取为它的词根形式。有的词根不是一个真的单词.</li>
 <li>词根提取遇到的两个问题：词干弱提取(understemming)，词干过度提取(overstemming)</li>
@@ -276,6 +275,7 @@
 <li>ES提供两个经典词干提取器：<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/algorithmic-stemmers.html" target="_blank" rel="noopener">词干提取算法</a>,<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/dictionary-stemmers.html" target="_blank" rel="noopener">字典词干提取器</a></li>
 <li>词形还原：</li>
 </ul>
+<a id="more"></a>
 <p>词形变化：</p>
 <ul>
 <li>单复数变化(Number) ： fox 、foxes</li>
@@ -380,6 +380,7 @@
 <li>无法区分精准匹配和非精准匹配。</li>
 <li>与提取词干的形式相比，降低了的IDF值。</li>
 </ol>
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p>230_Stemming<br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html" target="_blank" rel="noopener">https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming.html</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming" target="_blank" rel="noopener">https://github.com/elastic/elasticsearch-definitive-guide/tree/master/230_Stemming</a></p>
 
     </div>
 
@@ -464,7 +465,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form"><span class="nav-number">1.</span> <span class="nav-text">将单词还原为词根(Reducing Words to Their Root Form)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#词干提取算法-Algorithmic-Stemmers"><span class="nav-number">2.</span> <span class="nav-text">词干提取算法(Algorithmic Stemmers)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字典词干提取器-Dictionary-Stemmers"><span class="nav-number">3.</span> <span class="nav-text">字典词干提取器(Dictionary Stemmers)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hunspell词干提取器-Hunspell-Stemmer"><span class="nav-number">4.</span> <span class="nav-text">Hunspell词干提取器(Hunspell Stemmer)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#安装一个字典"><span class="nav-number">4.0.1.</span> <span class="nav-text">安装一个字典</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#按语言设置"><span class="nav-number">4.0.2.</span> <span class="nav-text">按语言设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建一个Humspell语汇单元过滤器"><span class="nav-number">4.0.3.</span> <span class="nav-text">创建一个Humspell语汇单元过滤器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Hunspell-词典格式"><span class="nav-number">4.0.4.</span> <span class="nav-text">Hunspell 词典格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选择一个词干提取器"><span class="nav-number">5.</span> <span class="nav-text">选择一个词干提取器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制词干提取"><span class="nav-number">6.</span> <span class="nav-text">控制词干提取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#阻止词干提取"><span class="nav-number">6.0.1.</span> <span class="nav-text">阻止词干提取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自定义提取"><span class="nav-number">6.0.2.</span> <span class="nav-text">自定义提取</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原形词干提取"><span class="nav-number">7.</span> <span class="nav-text">原形词干提取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原形词干提取是个好主意吗"><span class="nav-number">7.0.1.</span> <span class="nav-text">原形词干提取是个好主意吗</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#将单词还原为词根-Reducing-Words-to-Their-Root-Form"><span class="nav-number">1.</span> <span class="nav-text">将单词还原为词根(Reducing Words to Their Root Form)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#词干提取算法-Algorithmic-Stemmers"><span class="nav-number">2.</span> <span class="nav-text">词干提取算法(Algorithmic Stemmers)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字典词干提取器-Dictionary-Stemmers"><span class="nav-number">3.</span> <span class="nav-text">字典词干提取器(Dictionary Stemmers)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hunspell词干提取器-Hunspell-Stemmer"><span class="nav-number">4.</span> <span class="nav-text">Hunspell词干提取器(Hunspell Stemmer)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#安装一个字典"><span class="nav-number">4.0.1.</span> <span class="nav-text">安装一个字典</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#按语言设置"><span class="nav-number">4.0.2.</span> <span class="nav-text">按语言设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建一个Humspell语汇单元过滤器"><span class="nav-number">4.0.3.</span> <span class="nav-text">创建一个Humspell语汇单元过滤器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Hunspell-词典格式"><span class="nav-number">4.0.4.</span> <span class="nav-text">Hunspell 词典格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选择一个词干提取器"><span class="nav-number">5.</span> <span class="nav-text">选择一个词干提取器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制词干提取"><span class="nav-number">6.</span> <span class="nav-text">控制词干提取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#阻止词干提取"><span class="nav-number">6.0.1.</span> <span class="nav-text">阻止词干提取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自定义提取"><span class="nav-number">6.0.2.</span> <span class="nav-text">自定义提取</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原形词干提取"><span class="nav-number">7.</span> <span class="nav-text">原形词干提取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原形词干提取是个好主意吗"><span class="nav-number">7.0.1.</span> <span class="nav-text">原形词干提取是个好主意吗</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考："><span class="nav-number">8.</span> <span class="nav-text">参考：</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -479,7 +480,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -527,7 +528,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">199k</span>
+    <span title="Symbols count total">198k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
