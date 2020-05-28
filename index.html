@@ -254,110 +254,45 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>navi 是一个命令快速查找工具，官网地址：<a href="https://github.com/denisidoro/navi。" target="_blank" rel="noopener">https://github.com/denisidoro/navi。</a><br>navi中文本查找使用的是fzf(<a href="https://github.com/junegunn/fzf" target="_blank" rel="noopener">https://github.com/junegunn/fzf</a>) 。</p>
-<h3 id="安装navi"><a href="#安装navi" class="headerlink" title="安装navi"></a>安装navi</h3><p>使用Homebrew 或 Linuxbrew安装navi<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> brew install navi</span></span><br></pre></td></tr></table></figure><br>其他方式参考官方文档</p>
-<h3 id="配置navi"><a href="#配置navi" class="headerlink" title="配置navi"></a>配置navi</h3><ul>
-<li><p>配置Shell widget<br>添加下面信息到 .bashrc中</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> bash</span></span><br><span class="line">source &lt;(navi widget bash)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> zsh</span></span><br><span class="line">source &lt;(navi widget zsh)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> fish</span></span><br><span class="line">navi widget fish | source</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置heatsheets</p>
-<ol>
-<li><p>引入官方cheatsheets</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi repo add https://github.com/denisidoro/cheats</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加自定义 cheatsheets</p>
-<ul>
-<li>navi自带的cheatsheets目录是 $(navi_home)/libexec/cheats, 远程仓库地址为：<a href="https://github.com/denisidoro/cheats" target="_blank" rel="noopener">https://github.com/denisidoro/cheats</a></li>
-<li>在 .bashrc或 .zshrc中添加NAVI_PATH<br>export NAVI_PATH=/usr/local/opt/navi/libexec/cheats:/Users/myhome/navi-command-cheat/cheats</li>
-<li>在命令中指定路径<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi --dir <span class="string">"/folder/with/cheats"</span></span></span><br></pre></td></tr></table></figure>
+          简介
+navi 是一个命令快速查找工具，官网地址：https://github.com/denisidoro/navi。
+navi中文本查找使用的是fzf(https://github.com/junegunn/fzf) 。
+
+安装navi
+使用Homebrew 或 Linuxbrew安装navi
+1
 
 
-</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-<ul>
-<li><p>cheatsheets(.cheats)文件编辑</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> % 表示文件中命令所属tag标签，多个用逗号分割</span></span><br><span class="line"><span class="meta">%</span><span class="bash"> git, code</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="comment">#表示注释, &lt;branch&gt; 表示需要收到输入的变量，如果不输入则使用 $ branch对应的值(git branch | awk '&#123;print $NF&#125;')</span></span></span><br><span class="line">git checkout &lt;branch&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;branch&gt; 变量的默认值，&lt;branch&gt;不输入时使用 <span class="string">"git branch | awk '&#123;print <span class="variable">$NF</span>&#125;'"</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> branch: git branch | awk <span class="string">'&#123;print $NF&#125;'</span></span></span><br></pre></td></tr></table></figure>
+# brew install navi
 
-</li>
-</ul>
-<h3 id="开始使用navi"><a href="#开始使用navi" class="headerlink" title="开始使用navi"></a>开始使用navi</h3><ul>
-<li><p>查看navi帮助文档</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi --<span class="built_in">help</span></span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查找命令并执行该命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi</span></span><br></pre></td></tr></table></figure>
-<p>输入navi回车，进入navi中开始查找命令, 选择命令退出执行，如果想直接退出按下ESC。  </p>
-</li>
-<li><p>查找命令不执行只打印<br>如果不想执行命令，只想打印命令，使用–print参数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi --<span class="built_in">print</span></span></span><br></pre></td></tr></table></figure>
-<p>一直想使用此模式，可以使用alias做个别名简化, 添加到 .bashrc或 .zshrc</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">alias</span> navi=<span class="string">'navi --print'</span></span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用在线文档<br>使用search命令从在线仓库下载对应cheatsheets</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> navi search &lt;cmd&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>navi查找模式中使用的是fzf的搜索语法</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">Token</th>
-<th align="left">Match type</th>
-<th align="left">Description</th>
-<th align="left">解释</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">sbtrkt</td>
-<td align="left">fuzzy-match</td>
-<td align="left">Items that match sbtrkt</td>
-<td align="left">模糊匹配</td>
-</tr>
-<tr>
-<td align="left">‘wild</td>
-<td align="left">exact-match (quoted)</td>
-<td align="left">Items that include wild</td>
-<td align="left">精准匹配</td>
-</tr>
-<tr>
-<td align="left">^music</td>
-<td align="left">prefix-exact-match</td>
-<td align="left">Items that start with music</td>
-<td align="left">前缀匹配</td>
-</tr>
-<tr>
-<td align="left">.mp3$</td>
-<td align="left">suffix-exact-match</td>
-<td align="left">Items that end with .mp3</td>
-<td align="left">结尾匹配</td>
-</tr>
-<tr>
-<td align="left">!fire</td>
-<td align="left">inverse-exact-match</td>
-<td align="left">Items that do not include fire</td>
-<td align="left">不包含</td>
-</tr>
-<tr>
-<td align="left">!^music</td>
-<td align="left">inverse-prefix-exact-match</td>
-<td align="left">Items that do not start with music</td>
-<td align="left">不包含开头</td>
-</tr>
-<tr>
-<td align="left">!.mp3$</td>
-<td align="left">inverse-suffix-exact-match</td>
-<td align="left">Items that do not end with .mp3</td>
-<td align="left">不包含结尾</td>
-</tr>
-</tbody></table>
-<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p>navi官网<br><a href="https://github.com/denisidoro/navi" target="_blank" rel="noopener">https://github.com/denisidoro/navi</a></p>
-<p>命令行提示工具 navi<br><a href="https://www.jianshu.com/p/dce764d2835e" target="_blank" rel="noopener">https://www.jianshu.com/p/dce764d2835e</a></p>
 
+
+其他方式参考官方文档
+
+配置navi
+ * 配置Shell widget
+   添加下面信息到 .bashrc中
+   
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   
+   
+   # bash
+   s
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/26/%E5%91%BD%E4%BB%A4%E6%8F%90%E7%A4%BA%E5%B7%A5%E5%85%B7navi/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -438,46 +373,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="类间关系"><a href="#类间关系" class="headerlink" title="类间关系"></a>类间关系</h3><p>表示类之间的关系有： 继承(泛化)、实现、依赖、关联、聚合、组合<br>耦合强度依次从弱到强：依赖&lt;关联&lt;聚合&lt;组合&lt;实现=继承(泛化)</p>
-<p>纵向关系 ：继承(泛化)、实现<br>横向关系 ：依赖、关联、聚合、组合</p>
-<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>是一种’使用’关系，不在实例作用域内的一个类或对象的引用。<br>A类中使用了B类。这种使用关系是偶然性的(例如：方法不是每次都使用)，临时的(方法中的引用结束后就失效)，很弱的，但B的变化会影响A。<br>具体表现为：1. 方法的参数和返回值 2. 方法中的局部变量 3. 类的静态方法的引用</p>
-<h3 id="关联"><a href="#关联" class="headerlink" title="关联"></a>关联</h3><p>是一种’连接’关系，是一个实例作用域的变量。关系是长期的，平等的，关联可以是单向、双向。<br>具体表现： 1. 类B是类A的成员属性 2. 类B的全局变量被类A引用</p>
-<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><ul>
-<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
-<li>聚合是has-a关系，提现的是整体和部分、拥有的关系。</li>
-<li>整体和部分有各自的生命周期，他们是可以分离。部分可以属于多个整体，也可以被多个整体共享。<br>例子：公司和员工的关系，雁群和大雁的关系</li>
-</ul>
-<h3 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h3><ul>
-<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
-<li>组合是contain-a的关系，部分的存活在整体生命周期中，整体生命周期结束部分生命周期也结束。<br>例子： 你和你的胳膊，</li>
-</ul>
-<p>如果通过常识无法区分聚合和组合，那么可以按照自己的需求去定义是聚合还是组合。</p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>实例如图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/class-diagram.png" alt=""></p>
-<p>源码如下：</p>
-<p>公司:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Company</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String companyName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，语义上是公司拥有打印机，has-a的关系，所以是聚合关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Printer&gt; printers;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+          类间关系
+表示类之间的关系有： 继承(泛化)、实现、依赖、关联、聚合、组合
+耦合强度依次从弱到强：依赖<关联<聚合<组合<实现=继承(泛化)
 
-<p>部门:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Department</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门名称.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String deptName;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 雇员.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Employee&gt; employees;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+纵向关系 ：继承(泛化)、实现
+横向关系 ：依赖、关联、聚合、组合
 
-<p>普通人：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String gender;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>雇员：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 岗位.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String position;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门编号.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> departmentId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>打印机:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Printer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>dao接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeDao</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 保存雇员信息.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>dao实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeDaoImpl</span> <span class="keyword">extends</span> <span class="title">Employee</span> <span class="keyword">implements</span> <span class="title">EmployeeDao</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>service接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>service实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeServiceImpl</span> <span class="keyword">implements</span> <span class="title">EmployeeService</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，关联关系, new EmployeeDaoImpl 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> EmployeeDao employeeDao = <span class="keyword">new</span> EmployeeDaoImpl();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法参数，依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line">        employeeDao.save(employee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回类型, 依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法中使用Department, 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Department department = <span class="keyword">new</span> Department();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+依赖
+是一种’使用’关系，不在实例作用域内的一个类或对象的引用。
+A类中使用了B类。这种使用关系是偶然性的(例如：方法不是每次都使用)，临时的(方法中的引用结束后就失效)，很弱的，但B的变化会影响A。
+具体表现为：1. 方法的参数和返回值 2. 方法中的局部变量 3. 类的静态方法的引用
 
-
-<h5 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h5><p>继承、实现、依赖、关联、聚合、组合的联系与区别<br><a href="https://www.cnblogs.com/jiqing9006/p/5915023.html" target="_blank" rel="noopener">https://www.cnblogs.com/jiqing9006/p/5915023.html</a></p>
-
+关联
+是一种’连接’关系，是一个实例作用域的变量。关系是长期的，平等的，关联可以是单向、双向。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/26/java/%E7%B1%BB%E5%9B%BE%E4%B8%AD%E5%87%A0%E7%A7%8D%E5%85%B3%E7%B3%BB/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -558,30 +475,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="Class-和-Object"><a href="#Class-和-Object" class="headerlink" title="Class 和 Object"></a>Class 和 Object</h3><ul>
-<li>Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。</li>
-<li>所有java类都继承了Object类，Class是类，那么Class也继承自Object。</li>
-<li>Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。<br>类图如下：<img data-src="http://qax2cai8x.bkt.clouddn.com/Class-Object-relationship.png" alt="Class-Object-relationship"></li>
-</ul>
-<h3 id="bootstrap-自举过程"><a href="#bootstrap-自举过程" class="headerlink" title="bootstrap(自举过程)"></a>bootstrap(自举过程)</h3><ol>
-<li>JVM先对核心类型分配好内存空间，这时的状态是[已分配空间]但[未完成初始化]，状态不完整还不能使用。</li>
-<li>串联好核心类型的引用关系</li>
-<li>核心类型进入[完全初始化]状态，开始执行java字节码完成java系统的初始化。</li>
-</ol>
-<h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>Type是所有类的父接口，是所有类型的抽象。java 5 引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type。<br>Type类图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/java-Type.png" alt=""></p>
-<h4 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h4><ul>
-<li><p>先有Class还是先有Object？ - RednaxelaFX的回答 - 知乎<br><a href="https://www.zhihu.com/question/30301819/answer/47539163" target="_blank" rel="noopener">https://www.zhihu.com/question/30301819/answer/47539163</a></p>
-</li>
-<li><p>详解Java中的Object.getClass()方法<br><a href="https://www.bbsmax.com/A/MAzADeo8d9/" target="_blank" rel="noopener">https://www.bbsmax.com/A/MAzADeo8d9/</a></p>
-</li>
-<li><p>秒懂Java类型（Type）系统<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/89520530" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/89520530</a></p>
-</li>
-<li><p>Java中的Type知多少？(上）<br><a href="https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ</a></p>
-</li>
-<li><p>Java中的Type知多少？(下）<br><a href="https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ</a></p>
-</li>
-</ul>
+          Class 和 Object
+ * Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。
+ * 所有java类都继承了Object类，Class是类，那么Class也继承自Object。
+ * Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。
+   类图如下：
 
+bootstrap(自举过程)
+ 1. JVM先对核心类型分配好内存空间，这时的状态是[已分配空间]但[未完成初始化]，状态不完整还不能使用。
+ 2. 串联好核心类型的引用关系
+ 3. 
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/26/java/Class%E5%92%8CObject%E5%85%B3%E7%B3%BB/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -668,82 +579,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/nested-objects.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/402_Nested" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="嵌套对象-Nested-Objects"><a href="#嵌套对象-Nested-Objects" class="headerlink" title="嵌套对象(Nested Objects)"></a>嵌套对象(Nested Objects)</h3><ul>
-<li>设置嵌套对象 字段类型 type: nested</li>
-<li>将相关试题数据都存储在同一个文档中。例如：订单和明细，博客和评论。</li>
-<li>在独立索引每一个嵌套对象后,对象中每个字段的相关性得以保留。</li>
-<li>由于嵌套文档直接存储在文档内部,查询时嵌套文档和根文档联合成本很低,速度和单独存储几乎一样。</li>
-<li>嵌套文档是隐藏存储的,我们不能直接获取。</li>
-</ul>
-<p>添加数据</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/blogpost/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"Nest eggs"</span>,</span><br><span class="line">  <span class="attr">"body"</span>:  <span class="string">"Making your money work..."</span>,</span><br><span class="line">  <span class="attr">"tags"</span>:  [ <span class="string">"cash"</span>, <span class="string">"shares"</span> ],</span><br><span class="line">  <span class="attr">"comments"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"name"</span>:    <span class="string">"John Smith"</span>,</span><br><span class="line">      <span class="attr">"comment"</span>: <span class="string">"Great article"</span>,</span><br><span class="line">      <span class="attr">"age"</span>:     <span class="number">28</span>,</span><br><span class="line">      <span class="attr">"stars"</span>:   <span class="number">4</span>,</span><br><span class="line">      <span class="attr">"date"</span>:    <span class="string">"2014-09-01"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"name"</span>:    <span class="string">"Alice White"</span>,</span><br><span class="line">      <span class="attr">"comment"</span>: <span class="string">"More like this please"</span>,</span><br><span class="line">      <span class="attr">"age"</span>:     <span class="number">31</span>,</span><br><span class="line">      <span class="attr">"stars"</span>:   <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"date"</span>:    <span class="string">"2014-10-22"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>如果我们依赖字段自动映射,那么 comments 字段会自动映射为 object 类型。</li>
-</ul>
-<p>查询：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"name"</span>: <span class="string">"Alice"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"age"</span>:  <span class="number">28</span>      &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<p>JSON 格式的文档被处理成如下的扁平式键值对的结构。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;title&quot;:            [ eggs, nest ],</span><br><span class="line">  &quot;body&quot;:             [ making, money, work, your ],</span><br><span class="line">  &quot;tags&quot;:             [ cash, shares ],</span><br><span class="line">  &quot;comments.name&quot;:    [ alice, john, smith, white ],</span><br><span class="line">  &quot;comments.comment&quot;: [ article, great, like, more, please, this ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 28, 31 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 4, 5 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-09-01, 2014-10-22 ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>Alice 和 31 、 John 和 2014-09-01 之间的相关性信息不再存在。</li>
-<li>虽然 object 类型 (参见 内部对象) 在存储 单一对象 时非常有用,但对于对象数组的搜索而言,毫无用处。</li>
-</ul>
-<p>嵌套对象(nested objects) 就是来解决这个问题的。将 comments 字段类型设置为 nested 而不是 object 后,每一个嵌套对象都会被索引为一个 隐藏的独立文档 ,举例如下:</p>
-<p>字段类型设置为nested(而不是object)后,每一个嵌套对象都会被索引为一个隐藏的独立文档。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;comments.name&quot;:    [ john, smith ],</span><br><span class="line">  &quot;comments.comment&quot;: [ article, great ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 28 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 4 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-09-01 ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;comments.name&quot;:    [ alice, white ],</span><br><span class="line">  &quot;comments.comment&quot;: [ like, more, please, this ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 31 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 5 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-10-22 ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;title&quot;:            [ eggs, nest ],</span><br><span class="line">  &quot;body&quot;:             [ making, money, work, your ],</span><br><span class="line">  &quot;tags&quot;:             [ cash, shares ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+嵌套对象(Nested Objects)
+ * 设置嵌套对象 字段类型 type: nested
+ * 将相关试题数据都存储在同一个文档中。例如：订单和明细，博客和评论。
+ * 在独立索引每一个嵌套对象后,对象中每个字段的相关性得以保留。
+ * 由于嵌套文档直接存储在文档内部,查询时嵌套文档和根文档联合成本很低,速度和单独存储几乎一样。
+ * 嵌套文档是隐藏存储的,我们不能直接获取。
+
+添加数据
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
 
 
-<h3 id="嵌套对象映射-Nested-Object-Mapping"><a href="#嵌套对象映射-Nested-Object-Mapping" class="headerlink" title="嵌套对象映射(Nested Object Mapping)"></a>嵌套对象映射(Nested Object Mapping)</h3><ul>
-<li>字段类型设置为nested.</li>
-<li>nested 字段可以包含其他的 nested 字段。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"blogpost"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"comments"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"nested"</span>,</span><br><span class="line">          <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>:    &#123; <span class="attr">"type"</span>: <span class="string">"string"</span>  &#125;,</span><br><span class="line">            <span class="attr">"comment"</span>: &#123; <span class="attr">"type"</span>: <span class="string">"string"</span>  &#125;,</span><br><span class="line">            <span class="attr">"age"</span>:     &#123; <span class="attr">"type"</span>: <span class="string">"short"</span>   &#125;,</span><br><span class="line">            <span class="attr">"stars"</span>:   &#123; <span class="attr">"type"</span>: <span class="string">"short"</span>   &#125;,</span><br><span class="line">            <span class="attr">"date"</span>:    &#123; <span class="attr">"type"</span>: <span class="string">"date"</span>    &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="嵌套对象查询-Querying-a-Nested-Object"><a href="#嵌套对象查询-Querying-a-Nested-Object" class="headerlink" title="嵌套对象查询(Querying a Nested Object)"></a>嵌套对象查询(Querying a Nested Object)</h3><ul>
-<li>嵌套对象需要使用nested 查询(nested query),因为嵌套对象被索引在独立隐藏的文档中，无法直接查询。</li>
-<li>nested 字段可以包含其他的 nested 字段。同样地，nested 查询也可以包含其他的 nested 查询。而嵌套的层次会按照你所期待的被应用。</li>
-<li>nested 查询匹配到的多个嵌套文档，他们的得分汇总一个分数可供根文档使用。</li>
-<li>默认情况下，根文档的分数是这些嵌套文档分数的平均值。可以通过设置 score_mode 参数来控制这个得分策略，相关策略有 avg (平均值), max (最大值), sum (加和) 和 none (直接返回 1.0 常数值分数)。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"eggs"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"nested"</span>: &#123;</span><br><span class="line">            <span class="attr">"path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">            <span class="attr">"score_mode"</span>: <span class="string">"max"</span>,</span><br><span class="line">            <span class="attr">"query"</span>: &#123;</span><br><span class="line">              <span class="attr">"bool"</span>: &#123;</span><br><span class="line">                <span class="attr">"must"</span>: [</span><br><span class="line">                  &#123;</span><br><span class="line">                    <span class="attr">"match"</span>: &#123;</span><br><span class="line">                      <span class="attr">"comments.name"</span>: <span class="string">"john"</span></span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;,</span><br><span class="line">                  &#123;</span><br><span class="line">                    <span class="attr">"match"</span>: &#123;</span><br><span class="line">                      <span class="attr">"comments.age"</span>: <span class="number">28</span></span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">                ]</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>“title”: “eggs”, title 子句是查询根文档的。</li>
-<li>“path”: “comments”, nested 子句作用于嵌套字段 comments 。在此查询中，既不能查询根文档字段，也不能查询其他嵌套文档。</li>
-<li>comments.name 和 comments.age 子句操作在同一个嵌套文档中。</li>
-<li>“score_mode”: “max”, 设置 score_mode 参数来控制这个得分策略，相关策略有 avg (平均值), max (最大值), sum (加和) 和 none (直接返回 1.0 常数值分数)。</li>
-</ul>
-<blockquote>
-<p>如果 nested 查询放在一个布尔查询的 filter 子句中，其表现就像一个 nested 查询，只是 score_mode 参数不再生效。因为它被用于不打分的查询中 — 只是符合或不符合条件，不必打分 — 那么 score_mode 就没有任何意义，因为根本就没有要打分的地方。</p>
-</blockquote>
-<h3 id="使用嵌套字段排序-Sorting-by-Nested-Fields"><a href="#使用嵌套字段排序-Sorting-by-Nested-Fields" class="headerlink" title="使用嵌套字段排序(Sorting by Nested Fields)"></a>使用嵌套字段排序(Sorting by Nested Fields)</h3><p>假如我们想要查询在10月份收到评论的博客文章，并且按照 stars 数的最小值来由小到大排序，那么查询语句如下：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"nested"</span>: &#123;</span><br><span class="line">      <span class="attr">"path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"comments.date"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"2014-10-01"</span>,</span><br><span class="line">            <span class="attr">"lt"</span>:  <span class="string">"2014-11-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"sort"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments.stars"</span>: &#123;</span><br><span class="line">      <span class="attr">"order"</span>: <span class="string">"asc"</span>,   </span><br><span class="line">      <span class="attr">"mode"</span>:  <span class="string">"min"</span>,   </span><br><span class="line">      <span class="attr">"nested_path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">      <span class="attr">"nested_filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"comments.date"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"2014-10-01"</span>,</span><br><span class="line">            <span class="attr">"lt"</span>:  <span class="string">"2014-11-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>“nested” 此处的 nested 查询将结果限定为在10月份收到过评论的博客文章。</li>
-<li>“sort” 结果按照匹配的评论中 comment.stars 字段的最小值 (min) 来由小到大 (asc) 排序。</li>
-</ul>
-<blockquote>
-<p>我们为什么要用 nested_path 和 nested_filter 重复查询条件呢？原因在于，排序发生在查询执行之后。 查询条件限定了在10月份收到评论的博客文档，但返回的是博客文档。如果我们不在排序子句中加入 nested_filter ， 那么我们对博客文档的排序将基于博客文档的所有评论，而不是仅仅在10月份接收到的评论。</p>
-</blockquote>
-<h3 id="嵌套聚合-Nested-Aggregations"><a href="#嵌套聚合-Nested-Aggregations" class="headerlink" title="嵌套聚合(Nested Aggregations)"></a>嵌套聚合(Nested Aggregations)</h3><p>nested 聚合允许我们对嵌套对象里的字段进行聚合操作。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments"</span>: &#123;</span><br><span class="line">      <span class="attr">"nested"</span>: &#123;</span><br><span class="line">        <span class="attr">"path"</span>: <span class="string">"comments"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"by_month"</span>: &#123;</span><br><span class="line">          <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>:    <span class="string">"comments.date"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="string">"month"</span>,</span><br><span class="line">            <span class="attr">"format"</span>:   <span class="string">"yyyy-MM"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg_stars"</span>: &#123;</span><br><span class="line">              <span class="attr">"avg"</span>: &#123;</span><br><span class="line">                <span class="attr">"field"</span>: <span class="string">"comments.stars"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="逆向嵌套聚合-reverse-nested-Aggregation"><a href="#逆向嵌套聚合-reverse-nested-Aggregation" class="headerlink" title="逆向嵌套聚合(reverse_nested Aggregation)"></a>逆向嵌套聚合(reverse_nested Aggregation)</h5><p>nested聚合只能对嵌套文档的字段进行操作，通过reverse_nested聚合可以操作父级文档进行操作。<br>例如，我们要基于评论者的年龄找出评论者感兴趣 tags 的分布。 comment.age 是一个嵌套字段，但 tags 在根文档中：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments"</span>: &#123;</span><br><span class="line">      <span class="attr">"nested"</span>: &#123;</span><br><span class="line">        <span class="attr">"path"</span>: <span class="string">"comments"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"age_group"</span>: &#123;</span><br><span class="line">          <span class="attr">"histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>:    <span class="string">"comments.age"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="number">10</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"blogposts"</span>: &#123;</span><br><span class="line">              <span class="attr">"reverse_nested"</span>: &#123;&#125;,</span><br><span class="line">              <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                <span class="attr">"tags"</span>: &#123;</span><br><span class="line">                  <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                    <span class="attr">"field"</span>: <span class="string">"tags"</span></span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>nested 聚合进入 comments 对象。</li>
-<li>histogram 聚合基于 comments.age 做分组，每10年一个分组。</li>
-<li>reverse_nested 聚合退回根文档。</li>
-<li>terms 聚合计算每个分组年龄段的评论者最常用的标签词。</li>
-</ul>
-<h5 id="嵌套对象的使用时机"><a href="#嵌套对象的使用时机" class="headerlink" title="嵌套对象的使用时机"></a>嵌套对象的使用时机</h5><p>嵌套对象 在只有一个主要实体时非常有用，这个主要实体包含有限个紧密关联但又不是很重要的实体。<br>例如：主要实体 blogpost，blogpost包含评论对象，在基于评论的内容查找博客文章时， nested 查询有很大的用处，并且可以提供更快的查询效率。</p>
-<p>嵌套模型的缺点：</p>
-<ul>
-<li>当对嵌套文档做增加、修改或删除时，整个文档都要重新被索引。嵌套文档越多成本就越大。</li>
-<li>查询结果返回的是整个文档，而不仅仅是匹配嵌套文档。尽管目前有计划支持只返回根文档中最佳匹配的嵌套文档，但目前还不支持。</li>
-</ul>
-
+PUT /my_index/blogpost/1
+{
+  
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/43-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%B5%8C%E5%A5%97%E5%AF%B9%E8%B1%A1/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -830,155 +711,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/modeling-your-data.html" target="_blank" rel="noopener">中文参考</a>，<a href="">英文参考</a></p>
-<h3 id="数据建模-modling-your-data"><a href="#数据建模-modling-your-data" class="headerlink" title="数据建模(modling your data)"></a>数据建模(modling your data)</h3><p>Elasticsearch不同于关系型数据库，它没有范式，对于处理实体间的关系它没有直接给出方法。</p>
-<p>三种方式：</p>
-<ul>
-<li>关联关系处理</li>
-<li>嵌套对象</li>
-<li>父-子关系文档</li>
-</ul>
-<p>扩容设计：根据你的模型制定不同的扩容设计。</p>
-<h3 id="关联关系处理"><a href="#关联关系处理" class="headerlink" title="关联关系处理"></a>关联关系处理</h3><p>现实世界有很多重要的关联关系，关系型数据可以很好地解决关联关系，但存在以下问题：</p>
-<ul>
-<li>对全文检索有限的支持能力</li>
-<li>实体关联查询时间消耗很昂贵，关联越多消耗就越昂贵。</li>
-<li>特别是跨服务器进行实体关联时成本极其昂贵，基本不可用，单个的服务器上又存在数据量的限制。</li>
-</ul>
-<p>Elasticsearch与大多数NoSql数据库类似，是扁平化的。<br>扁平化优势</p>
-<ul>
-<li>索引过程是快速和无锁的</li>
-<li>搜索过程是快速和无锁的</li>
-<li>因为每个文档都是相互独立的，大规模数据可以在多个节点上进行分布。</li>
-</ul>
-<p>事务：</p>
-<ul>
-<li>大多数关系数据库支持跨多个实体的 ACID 事务。</li>
-<li>Elasticsearch 中单个文档的数据变更是ACID，而设计多个文档的事务则不是。</li>
-</ul>
-<p>Elasticsearch中处理关系型数据管理的四种方法：</p>
-<ul>
-<li>Application-side joins (应用层联接)</li>
-<li>Data denormalization (数据非规范化)</li>
-<li>Nested objects (嵌套对象)</li>
-<li>Parent/child relationships (父子关系)</li>
-</ul>
-<h3 id="应用层连接-Application-side-Joins"><a href="#应用层连接-Application-side-Joins" class="headerlink" title="应用层连接(Application-side Joins)"></a>应用层连接(Application-side Joins)</h3><p>应用层连接就是模拟关系型数据库。<br>应用层联结</p>
-<ul>
-<li>主要优点：可以对数据进行标准化处理。</li>
-<li>主要缺点：为了搜索时联接文档，必须运行额外的查询。</li>
-</ul>
-<p>适用场景：第一个实体(例子中user)只有少量的文档记录的情况，并且最好它们很少改变。这样可以将结果缓存，并避免经常运行第一次查询。</p>
-<h3 id="非规范化你的数据-Denormalizing-Your-Data"><a href="#非规范化你的数据-Denormalizing-Your-Data" class="headerlink" title="非规范化你的数据(Denormalizing Your Data)"></a>非规范化你的数据(Denormalizing Your Data)</h3><p>保证一定数量的冗余副本可以在需要访问时避免进行关联。</p>
-<p>数据非规范化优点： 速度快，因为每个文档都包含所需的所有信息，查询匹配时不需要进行昂贵的联接操作。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/user/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:     <span class="string">"John Smith"</span>,</span><br><span class="line">  <span class="attr">"email"</span>:    <span class="string">"john@smith.com"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:      <span class="string">"1970/10/24"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/blogpost/2</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>:    <span class="string">"Relationships"</span>,</span><br><span class="line">  <span class="attr">"body"</span>:     <span class="string">"It's complicated..."</span>,</span><br><span class="line">  <span class="attr">"user"</span>:     &#123;</span><br><span class="line">    <span class="attr">"id"</span>:       <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"name"</span>:     <span class="string">"John Smith"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>单词查询就能通过relationships找到用户John的博客文章</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>:     <span class="string">"relationships"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"user.name"</span>: <span class="string">"John"</span>          &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<h3 id="字段折叠-Field-Collapsing"><a href="#字段折叠-Field-Collapsing" class="headerlink" title="字段折叠(Field Collapsing)"></a>字段折叠(Field Collapsing)</h3><p>通过特定字段进行分组.</p>
-<p>例如： 查询5个用户的评分最高的博客</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping/blogpost</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"properties"</span>: &#123;</span><br><span class="line">    <span class="attr">"user"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"raw"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>:  <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"index"</span>: <span class="string">"not_analyzed"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+数据建模(modling your data)
+Elasticsearch不同于关系型数据库，它没有范式，对于处理实体间的关系它没有直接给出方法。
 
-<p>添加数据</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/user/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Smith"</span>,</span><br><span class="line">  <span class="attr">"email"</span>: <span class="string">"john@smith.com"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>: <span class="string">"1970/10/24"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/blogpost/2</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"Relationships"</span>,</span><br><span class="line">  <span class="attr">"body"</span>: <span class="string">"It's complicated..."</span>,</span><br><span class="line">  <span class="attr">"user"</span>: &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"John Smith"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/user/3</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"Alice John"</span>,</span><br><span class="line">  <span class="attr">"email"</span>: <span class="string">"alice@john.com"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>: <span class="string">"1979/01/04"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /my_index/blogpost/4</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"Relationships are cool"</span>,</span><br><span class="line">  <span class="attr">"body"</span>: <span class="string">"It's not complicated at all..."</span>,</span><br><span class="line">  <span class="attr">"user"</span>: &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">3</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"Alice John"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+三种方式：
 
-<p>开始查询</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>:     <span class="string">"relationships"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"user.name"</span>: <span class="string">"John"</span>          &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"users"</span>: &#123;</span><br><span class="line">      <span class="attr">"terms"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:   <span class="string">"user.name.raw"</span>,      </span><br><span class="line">        <span class="attr">"order"</span>: &#123; <span class="attr">"top_score"</span>: <span class="string">"desc"</span> &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"top_score"</span>: &#123; <span class="attr">"max"</span>:      &#123; <span class="attr">"script"</span>:  <span class="string">"_score"</span>           &#125;&#125;,</span><br><span class="line">        <span class="attr">"blogposts"</span>: &#123; <span class="attr">"top_hits"</span>: &#123; <span class="attr">"_source"</span>: <span class="string">"title"</span>, <span class="attr">"size"</span>: <span class="number">5</span> &#125;&#125;  </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>query 返回通过 relationships 查找名称为 John 的用户的博客文章。</li>
-<li>terms 聚合为每一个 user.name.raw 创建一个桶。</li>
-<li>top_score 聚合对通过 users 聚合得到的每一个桶按照文档评分对词项进行排序。</li>
-<li>top_hits 聚合仅为每个用户返回五个最相关的博客文章的 title 字段。</li>
-</ul>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">"hits": &#123;</span><br><span class="line">  "total":     2,</span><br><span class="line">  "max_score": 0,</span><br><span class="line">  "hits":      []</span><br><span class="line">&#125;,</span><br><span class="line">"aggregations": &#123;</span><br><span class="line">  "users": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>:       <span class="string">"John Smith"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">1</span>,</span><br><span class="line">           <span class="attr">"blogposts"</span>: &#123;</span><br><span class="line">              <span class="attr">"hits"</span>: &#123;</span><br><span class="line">                 <span class="attr">"total"</span>:     <span class="number">1</span>,</span><br><span class="line">                 <span class="attr">"max_score"</span>: <span class="number">0.35258877</span>,</span><br><span class="line">                 <span class="attr">"hits"</span>: [</span><br><span class="line">                    &#123;</span><br><span class="line">                       <span class="attr">"_index"</span>: <span class="string">"my_index"</span>,</span><br><span class="line">                       <span class="attr">"_type"</span>:  <span class="string">"blogpost"</span>,</span><br><span class="line">                       <span class="attr">"_id"</span>:    <span class="string">"2"</span>,</span><br><span class="line">                       <span class="attr">"_score"</span>: <span class="number">0.35258877</span>,</span><br><span class="line">                       <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                          <span class="attr">"title"</span>: <span class="string">"Relationships"</span></span><br><span class="line">                       &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                 ]</span><br><span class="line">              &#125;</span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="attr">"top_score"</span>: &#123;</span><br><span class="line">              <span class="attr">"value"</span>: <span class="number">0.3525887727737427</span></span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]&#125;&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>在顶层查询结果中出现的每一个用户都会有一个对应的桶。</li>
-<li>在每个用户桶下面都会有一个 blogposts.hits 数组包含针对这个用户的顶层查询结果。</li>
-<li>用户桶按照每个用户最相关的博客文章进行排序。</li>
-</ul>
-<blockquote>
-<p>使用 top_hits 聚合等效执行一个查询返回这些用户的名字和他们最相关的博客文章，然后为每一个用户执行相同的查询，以获得最好的博客。但前者的效率要好很多。<br>每一个桶返回的顶层查询命中结果是基于最初主查询进行的一个轻量 迷你查询 结果集。这个迷你查询提供了一些你期望的常用特性，例如高亮显示以及分页功能。</p>
-</blockquote>
-<h3 id="非规范化和并发-Denormalization-and-Concurrency"><a href="#非规范化和并发-Denormalization-and-Concurrency" class="headerlink" title="非规范化和并发(Denormalization and Concurrency)"></a>非规范化和并发(Denormalization and Concurrency)</h3><p>非规范化缺点：</p>
-<ul>
-<li>字段更多，索引更大，占用更多的磁盘空间</li>
-<li>如果被嵌套的数据修改，相关的引用的索引都需要修改。</li>
-<li>大量数据修改会引发并发问题。</li>
-</ul>
-<p>批量修改数据需要使用 scroll 来检索所有的文件， 以及 bulk API 来更新它们。这个过程不是原子的，但是所有的文件将会迅速转移到他们的新存放位置。</p>
-<h3 id="解决并发问题-Solving-Concurrency-Issues"><a href="#解决并发问题-Solving-Concurrency-Issues" class="headerlink" title="解决并发问题(Solving Concurrency Issues)"></a>解决并发问题(Solving Concurrency Issues)</h3><p>当许多人同时修改同一数据时就会发生并发问题。</p>
-<p>批量修改时会出现两种情况:</p>
-<ul>
-<li>你决定使用 version （版本）号进行数据修改时版本号产生冲突时，你的批量重命名操作将会失败。</li>
-<li>你没有使用版本控制，你的变更将覆盖其他用户的变更。</li>
-</ul>
-<p>问题的原因是 Elasticsearch 不支持 ACID 事务。 对单个文件的变更是 ACIDic 的，但包含多个文档的变更不支持。</p>
-<p>并发问题需要在 Elasticsearch 的事务水准进行处理。<br>以下是三个切实可行的使用 Elasticsearch 的解决方案，它们都涉及某种形式的锁：</p>
-<ul>
-<li>全局锁 ：通过在任何时间只允许一个进程来进行变更动作，我们可以完全避免并发问题。</li>
-<li>文档锁</li>
-<li>树锁</li>
-</ul>
-<h5 id="全局锁-Global-Locking"><a href="#全局锁-Global-Locking" class="headerlink" title="全局锁(Global Locking)"></a>全局锁(Global Locking)</h5><p>通过在任何时间只允许一个进程来进行变更动作，我们可以完全避免并发问题。</p>
-<p>在 Elasticsearch 文档级别的变更支持 ACIDic，我们可以使用一个文档是否存在的状态作为一个全局锁。<br>create 全局锁文档,</p>
-<ul>
-<li>如果请求因冲突异常而失败，说明另一个进程已被授予全局锁，我们将不得不稍后再试。</li>
-<li>如果请求成功了，我们自豪的成为全局锁的主人，然后可以继续完成我们的变更。</li>
-<li>拿到锁后一旦完成变更，我们就必须通过删除全局锁文档来释放锁</li>
-<li>create 全局锁文档：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /fs/lock/global/_create</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
-DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /fs/lock/global</span><br></pre></td></tr></table></figure>
+ * 关联关系处理
+ * 嵌套对象
+ * 父-子关系文档
 
-</li>
-</ul>
-<p>根据变更的频繁程度以及时间消耗，一个全局锁能对系统造成大幅度的性能限制。 我们可以通过让我们的锁更细粒度的方式来增加并行度。</p>
-<h5 id="文档锁-Document-Locking"><a href="#文档锁-Document-Locking" class="headerlink" title="文档锁(Document Locking)"></a>文档锁(Document Locking)</h5><p>我们以相同的方法技术来锁定个体文档，而不是锁定整个文件系统。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /fs/lock/_bulk</span><br><span class="line">&#123; <span class="attr">"create"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"process_id"</span>: <span class="number">123</span>    &#125;</span><br><span class="line">&#123; <span class="attr">"create"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"process_id"</span>: <span class="number">123</span>    &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>lock 文档的 ID 将与应被锁定的文件的 ID 相同。</li>
-<li>process_id 代表要执行变更进程的唯一 ID。</li>
-</ul>
-<p>update 加锁</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /fs/lock/1/_update</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"upsert"</span>: &#123; <span class="attr">"process_id"</span>: <span class="number">123</span> &#125;,</span><br><span class="line">  <span class="attr">"script"</span>: <span class="string">"if ( ctx._source.process_id != process_id )</span></span><br><span class="line"><span class="string">  &#123; assert false &#125;; ctx.op = 'noop';"</span>,</span><br><span class="line">  <span class="attr">"params"</span>: &#123;</span><br><span class="line">    <span class="attr">"process_id"</span>: <span class="number">123</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>释放所有的锁–通过检索所有的锁文档并进行批量删除，可以完成锁的释放</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">POST /fs/_refresh</span><br><span class="line"></span><br><span class="line">GET /fs/lock/_search?scroll=1m</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"sort"</span> : [<span class="string">"_doc"</span>],</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span> : &#123;</span><br><span class="line">            <span class="attr">"process_id"</span> : <span class="number">123</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /fs/lock/_bulk</span><br><span class="line">&#123; <span class="attr">"delete"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"delete"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">2</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>refresh 调用确保所有 lock 文档对搜索请求可见。</li>
-<li>当你需要在单次搜索请求返回大量的检索结果集时，你可以使用 scroll 查询。</li>
-</ul>
-<p>文档级锁可以实现细粒度的访问控制，但是为数百万文档创建锁文件开销也很大。<br>在某些情况下，你可以用少得多的工作量实现细粒度的锁定，如以下目录树场景中所示。</p>
-<h5 id="树锁-Tree-Locking"><a href="#树锁-Tree-Locking" class="headerlink" title="树锁(Tree Locking)"></a>树锁(Tree Locking)</h5><ul>
-<li>树锁 可以锁定的一部分，而不是锁定每一个涉及的文档.</li>
-<li>树锁用最小的代价提供了细粒度的并发控制。当然，它不适用于所有的情况—​数据模型必须有类似于目录树的顺序访问路径才能使用。</li>
-<li>当非规范化成为很多项目的一个很好的选择，采用锁方案的需求会带来复杂的实现逻辑。 作为替代方案，Elasticsearch 提供两个模型帮助我们处理相关联的实体： 嵌套的对象 和 父子关系 。</li>
-</ul>
-<p>独占锁</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;lock_type&quot;: &quot;exclusive&quot;&#125;</span><br></pre></td></tr></table></figure>
+扩容设计：根据你的模型制定不同的扩容设计。
 
-<p>共享锁</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;lock_type&quot;:  &quot;shared&quot;,</span><br><span class="line">  &quot;lock_count&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>lock_count 记录持有共享锁进程的数量。</li>
-</ul>
-<p>完整的更新请求如下：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /fs/lock/%2Fclinton/_update</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"upsert"</span>: &#123;</span><br><span class="line">    <span class="attr">"lock_type"</span>:  <span class="string">"shared"</span>,</span><br><span class="line">    <span class="attr">"lock_count"</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"script"</span>: <span class="string">"if (ctx._source.lock_type == 'exclusive')</span></span><br><span class="line"><span class="string">  &#123; assert false &#125;; ctx._source.lock_count++"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>文档的 ID 是 /clinton ，经过URL编码后成为 %2fclinton 。</li>
-<li>upsert 文档如果不存在，则会被插入。</li>
-</ul>
-<p>一旦我们成功地在所有的父目录中获得一个共享锁，我们尝试在文件本身 create 一个独占锁：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /fs/lock/%2Fclinton%2fprojects%2felasticsearch%2fREADME.txt/_create</span><br><span class="line">&#123; <span class="attr">"lock_type"</span>: <span class="string">"exclusive"</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>现在，如果有其他人想要重新命名 /clinton 目录，他们将不得不在这条路径上获得一个独占锁：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /fs/lock/%2Fclinton/_create</span><br><span class="line">&#123; <span class="attr">"lock_type"</span>: <span class="string">"exclusive"</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>这个请求将失败，因为一个具有相同 ID 的 lock 文档已经存在。 另一个用户将不得不等待我们的操作完成以及释放我们的锁。独占锁只能这样被删除：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /fs/lock/%2Fclinton%2fprojects%2felasticsearch%2fREADME.txt</span><br></pre></td></tr></table></figure>
-<p>共享锁需要另一个脚本对 lock_count 递减，如果计数下降到零，删除 lock 文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (--ctx._source.lock_count &#x3D;&#x3D; 0) &#123;</span><br><span class="line">  ctx.op &#x3D; &#39;delete&#39;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>一旦 lock_count 达到0， ctx.op 会从 update 被修改成 delete 。</li>
-</ul>
-<p>此更新请求将为每级父目录由下至上的执行，从最长路径到最短路径：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /fs/lock/%2Fclinton%2fprojects%2felasticsearch/_update</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"script"</span>: <span class="string">"if (--ctx._source.lock_count == 0) &#123; ctx.op = 'delete' &#125; "</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+关联关系处理
+现实世界有很多重要的关联关系，关系型数据可以很好地解决关联关系，但存在以下问题：
 
+ * 对全文检索有限的支持能力
+ * 实体关联查询时间消耗很昂贵，关联越多消耗就越昂贵。
+ * 特别是跨服务器进行实体关联时成本极其昂贵，基本不可用，单个的服务器上又存在数据量的限制。
+
+Elasticsear
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/42-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%85%B3%E8%81%94%E5%85%B3%E7%B3%BB%E5%A4%84%E7%90%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1065,105 +826,26 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/parent-child.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/404_Parent_Child" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="父子关系文档映射"><a href="#父子关系文档映射" class="headerlink" title="父子关系文档映射"></a>父子关系文档映射</h3><ul>
-<li>父子关联会在主文档和其关联实体之间做一个完整的隔离设计。</li>
-<li>父子关系文档与嵌套模型区别：<ul>
-<li>相同点：都是将一个对象实体和另外一个对象实体关联起来</li>
-<li>不同点：嵌套模型所有对象都是在同一个文档中；父子关系文档中，父对象和子对象都是完全独立的文档。</li>
-</ul>
-</li>
-<li>父子关系通过 type与另一个文档关联起来</li>
-<li>父子关系优势：<ul>
-<li>更新父文档时，不会重新索引文档</li>
-<li>创建，修改或删除子文档时，不会影响父文档或其他子文档。这一点在这种场景下尤其有用：子文档数量较多，并且子文档创建和修改的频率高时。</li>
-<li>子文档可以作为搜索结果独立返回。</li>
-</ul>
-</li>
-<li>父子关系文档关联查询非常快，Elasticsearch 维护着这个父子文档的映射关系，得益于这个映射。</li>
-<li>父子关系文档限制条件：父文档与子文档必须要存储在同一分片中。</li>
-<li>父子文档ID映射存储在 Doc Values 中。当映射完全在内存中时， Doc Values 提供对映射的快速处理能力，另一方面当映射非常大时，可以通过溢出到磁盘提供足够的扩展能力</li>
-</ul>
-<h3 id="父子关系文档映射-Indexing-Parents-and-Children"><a href="#父子关系文档映射-Indexing-Parents-and-Children" class="headerlink" title="父子关系文档映射(Indexing Parents and Children)"></a>父子关系文档映射(Indexing Parents and Children)</h3><ul>
-<li>父子关系在新版本中由<a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.7/parent-join.html" target="_blank" rel="noopener">parent-join</a>替换</li>
-<li>通过type指定关联关系</li>
-<li>创建关系时机：1. 创建索引时 2. 更新父文档的mapping时，前提是 子文档type没有创建</li>
-</ul>
-<p>例如：员工属于某个分公司</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<h3 id="构建父子文档索引-Indexing-Parents-and-Children"><a href="#构建父子文档索引-Indexing-Parents-and-Children" class="headerlink" title="构建父子文档索引(Indexing Parents and Children)"></a>构建父子文档索引(Indexing Parents and Children)</h3><ul>
-<li>父文档 ID 有两个作用：创建了父文档和子文档之间的关系，并且保证了父文档和子文档都在同一个分片上。如果指定了父文档的 ID，那么就会使用父文档的 ID 进行路由，而不会使用当前文档 <code>_id</code>。</li>
-<li>在执行单文档的请求时需要指定父文档的 ID,单文档请求包括：通过 GET 请求获取一个子文档；创建、更新或删除一个子文档。而执行搜索请求时是不需要指定父文档的ID，这是因为搜索请求是向一个索引中的所有分片发起请求，而单文档的操作是只会向存储该文档的分片发送请求。因此，如果操作单个子文档时不指定父文档的 ID，那么很有可能会把请求发送到错误的分片上。</li>
-<li>如果你想要改变一个子文档的 parent 值，仅通过更新这个子文档是不够的，因为新的父文档有可能在另外一个分片上。因此，你必须要先把子文档删除，然后再重新索引这个子文档。</li>
-</ul>
-<p>添加父文档</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /company/branch/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">2</span>, <span class="attr">"parent"</span>: <span class="string">"london"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Mark Thomas"</span>, <span class="attr">"dob"</span>: <span class="string">"1982-05-16"</span>, <span class="attr">"hobby"</span>: <span class="string">"diving"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">3</span>, <span class="attr">"parent"</span>: <span class="string">"liverpool"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Barry Smith"</span>, <span class="attr">"dob"</span>: <span class="string">"1979-04-01"</span>, <span class="attr">"hobby"</span>: <span class="string">"hiking"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">4</span>, <span class="attr">"parent"</span>: <span class="string">"paris"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Adrien Grand"</span>, <span class="attr">"dob"</span>: <span class="string">"1987-05-11"</span>, <span class="attr">"hobby"</span>: <span class="string">"horses"</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>添加子文档</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /company/employee/1?parent=london</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="通过子文档查询父文档"><a href="#通过子文档查询父文档" class="headerlink" title="通过子文档查询父文档"></a>通过子文档查询父文档</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"dob"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"1980-01-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>多个子文档评分模式 score_mode: none,avg 、 min 、 max 和 sum. 默认为 none。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:       <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"score_mode"</span>: <span class="string">"max"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: <span class="string">"Alice Smith"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="min-child-max-child"><a href="#min-child-max-child" class="headerlink" title="min_child max_child"></a>min_child max_child</h5><p>使用min_child, max_child 这两个参数时，只有当子文档数量在指定范围内时，才会返回父文档。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:         <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"min_children"</span>: <span class="number">2</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_all"</span>: &#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>至少有两个雇员的分公司才会符合查询条件。</li>
-<li>带有 min_children 和 max_children 参数的 has_child 查询或过滤，和允许评分的 has_child 查询的性能非常接近。</li>
-</ul>
-<p>has_child Filter</p>
-<blockquote>
-<p>has_child 查询和过滤在运行机制上类似，区别是 has_child 过滤不支持 score_mode 参数。has_child 过滤仅用于筛选内容—​如内部的一个 filtered 查询—​和其他过滤行为类似：包含或者排除，但没有进行评分。<br>has_child 过滤的结果没有被缓存，但是 has_child 过滤内部的过滤方法适用于通常的缓存规则。</p>
-</blockquote>
-<h3 id="通过父文档查询子文档"><a href="#通过父文档查询子文档" class="headerlink" title="通过父文档查询子文档"></a>通过父文档查询子文档</h3><p>使用 has_child 语句可以基于子文档来查询父文档。<br>使用 has_parent 语句可以基于父文档来查询子文档。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /company/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_parent"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"country"</span>: <span class="string">"UK"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>has_parent 查询也支持 score_mode 这个参数，但是该参数只支持两种值： none （默认）和 score 。</li>
-<li>每个子文档都只有一个父文档，因此这里不存在将多个评分规约为一个的情况， score_mode 的取值仅为 score 和 none 。</li>
-</ul>
-<p>不带评分的 has_parent 查询</p>
-<blockquote>
-<p>当 has_parent 查询用于非评分模式（比如 filter 查询语句）时， score_mode 参数就不再起作用了。因为这种模式只是简单地包含或排除文档，没有评分，那么 score_mode 参数也就没有意义了。</p>
-</blockquote>
-<h3 id="子文档聚合"><a href="#子文档聚合" class="headerlink" title="子文档聚合"></a>子文档聚合</h3><p>在父-子文档中支持 子文档聚合，这一点和 嵌套聚合 类似。但是，对于父文档的聚合查询是不支持的。</p>
-<p>例子来演示按照国家维度查看最受雇员欢迎的业余爱好：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"country"</span>: &#123;</span><br><span class="line">      <span class="attr">"terms"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>: <span class="string">"country"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"employees"</span>: &#123;</span><br><span class="line">          <span class="attr">"children"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"employee"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"hobby"</span>: &#123;</span><br><span class="line">              <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                <span class="attr">"field"</span>: <span class="string">"hobby"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="祖辈和孙辈关系-Grandparents-and-Grandchildren"><a href="#祖辈和孙辈关系-Grandparents-and-Grandchildren" class="headerlink" title="祖辈和孙辈关系(Grandparents and Grandchildren)"></a>祖辈和孙辈关系(Grandparents and Grandchildren)</h3><p>父子关系可以延展到更多代关系,唯一的要求是满足在同一个分片上。</p>
-<p>例子中的 country 类型设定为 branch 类型的父辈。<br>employee –&gt; branch –&gt; country</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"country"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"country"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>新增数据</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">POST /company/country/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"UK"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"france"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"France"</span> &#125;</span><br><span class="line"></span><br><span class="line">POST /company/branch/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"london"</span>, <span class="attr">"parent"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"London Westmintster"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"liverpool"</span>, <span class="attr">"parent"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Liverpool Central"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"paris"</span>, <span class="attr">"parent"</span>: <span class="string">"france"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Champs Élysées"</span> &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">PUT /company/employee/1?parent=london</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /company/employee/1?parent=london&amp;routing=uk</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们要找到哪些国家的雇员喜欢远足旅行：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET /company/country/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"employee"</span>,</span><br><span class="line">          <span class="attr">"query"</span>: &#123;</span><br><span class="line">            <span class="attr">"match"</span>: &#123;</span><br><span class="line">              <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="实际使用中的一些建议-Practical-Considerations"><a href="#实际使用中的一些建议-Practical-Considerations" class="headerlink" title="实际使用中的一些建议(Practical Considerations)"></a>实际使用中的一些建议(Practical Considerations)</h3><p>当文档索引性能远比查询性能重要的时候，父子关系是非常有用的，但是它也是有巨大代价的。<br>其查询速度会比同等的嵌套查询慢5到10倍!</p>
-<h5 id="全局序号和延迟-Global-Ordinals-and-Latency"><a href="#全局序号和延迟-Global-Ordinals-and-Latency" class="headerlink" title="全局序号和延迟(Global Ordinals and Latency)"></a>全局序号和延迟(Global Ordinals and Latency)</h5><ul>
-<li>父子关系使用了全局序数 来加速文档间的联合,当索引变更时，全局序数要重建.</li>
-<li>一个分片中父文档越多，那么全局序数的重建就需要更多的时间。</li>
-<li>父子关系更适合于父文档少、子文档多的情况。</li>
-<li>全局序数默认情况下是延迟构建的,使用全局序数预加载把开销由query阶段转移到refresh阶段。</li>
-<li>当父文档过多时，全局序数的构建会耗费很多时间。此时可以通过增加 refresh_interval 来减少 refresh 的次数，延长全局序数的有效时间，这也很大程度上减小了全局序数每秒重建的cpu消耗。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">        <span class="attr">"fielddata"</span>: &#123;</span><br><span class="line">          <span class="attr">"loading"</span>: <span class="string">"eager_global_ordinals"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="多使用-和-结语-Multigenerations-and-Concluding-Thoughts"><a href="#多使用-和-结语-Multigenerations-and-Concluding-Thoughts" class="headerlink" title="多使用 和 结语(Multigenerations and Concluding Thoughts)"></a>多使用 和 结语(Multigenerations and Concluding Thoughts)</h5><p>父子多代联合查询的代价：</p>
-<ul>
-<li>联合越多，性能越差。</li>
-<li>每一代的父文档都要将其字符串类型的 <code>_id</code> 字段存储在内存中，这会占用大量内存。</li>
-</ul>
-<p>计划使用父子关系时考虑下面建议：</p>
-<ul>
-<li>尽量少地使用父子关系，仅在子文档远多于父文档时使用。</li>
-<li>避免在一个查询中使用多个父子联合语句。</li>
-<li>在 has_child 查询中使用 filter 上下文，或者设置 score_mode 为 none 来避免计算文档得分。</li>
-<li>保证父 IDs 尽量短，以便在 doc values 中更好地压缩，被临时载入时占用更少的内存。</li>
-</ul>
-
+父子关系文档映射
+ * 父子关联会在主文档和其关联实体之间做一个完整的隔离设计。
+ * 父子关系文档与嵌套模型区别： * 相同点：都是将一个对象实体和另外一个对象实体关联起来
+    * 不同点：嵌套模型所有对象都是在同一个文档中；父子关系文档中，父对象和子对象都是完全独立的文档。
+   
+   
+ * 父子关系通过 type与另一个文档关联起来
+ * 父子关系优势： * 更新父文档时，不会重新索引文档
+    * 创建，修改或删除子文档时，不会影响父文档或其他子文档。这一点在这种场景下尤其有用：子文档数量较多，并且子文档创建和修改的频率高时。
+    * 子文档可以作为
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/44-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E7%88%B6-%E5%AD%90%E5%85%B3%E7%B3%BB%E6%96%87%E6%A1%A3/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1250,137 +932,29 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/scale.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/410_Scaling" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="扩容设计-Designing-for-Scale"><a href="#扩容设计-Designing-for-Scale" class="headerlink" title="扩容设计(Designing for Scale)"></a>扩容设计(Designing for Scale)</h3><p>Elasticsearch扩展灵活，但也有局限性，了解局限性可以使你扩容更轻松。<br>讨论两种数据流：</p>
-<ul>
-<li>时序数据：时间驱动相关，例如 日志或社交网络数据流</li>
-<li>基于用户的数据：拥有很多的文档集但可以按用户或客户细分。</li>
-</ul>
-<h3 id="扩容单元-The-Unit-of-Scale"><a href="#扩容单元-The-Unit-of-Scale" class="headerlink" title="扩容单元(The Unit of Scale)"></a>扩容单元(The Unit of Scale)</h3><ul>
-<li>一个分片就是一个Lucene索引，一个Elasticsearch索引就是一系列分片的集合。</li>
-<li>一个分片就是一个扩容单元。</li>
-<li>路由算法：shard = hash(routing) % number_of_primary_shards</li>
-</ul>
-<h3 id="分片预分配-Shard-Overallocation"><a href="#分片预分配-Shard-Overallocation" class="headerlink" title="分片预分配(Shard Overallocation)"></a>分片预分配(Shard Overallocation)</h3><ul>
-<li>在建索引时初期，可以少建几个节点，但可以多建几个分片，方便后期添加节点移动分片。</li>
-<li>在 Elasticsearch 中新添加的索引默认被指定了五个主分片。这意味着我们最多可以将那个索引分散到五个节点上，每个节点一个分片。</li>
-<li>分片分裂(Shard Splitting): 将每个分片分裂为两个或更多部分的能力。</li>
-</ul>
-<p>Elasticsearch不支持分片分裂（shard-splitting）的原因：</p>
-<ul>
-<li>分裂一个分片几乎等于重新索引你的数据。</li>
-<li>分裂是指数级的。分裂并不会刚好地把你的处理能力提升 50%。</li>
-<li>分片分裂需要你拥有足够的能力支撑另一份索引的拷贝。通常来说，当你意识到你需要横向扩展时，你已经没有足够的剩余空间来做分裂了。</li>
-</ul>
-<h3 id="海量分片-Kagillion-Shards"><a href="#海量分片-Kagillion-Shards" class="headerlink" title="海量分片(Kagillion Shards)"></a>海量分片(Kagillion Shards)</h3><p>预分配分片太多的话，会有一下问题：</p>
-<ul>
-<li>一个分片的底层即为一个Lucene索引，会消耗一定文件句柄、内存以及CPU运转。</li>
-<li>每个搜索请求都需要命中索引中的每一个分片，如果多个分片在同一个节点上，会竞争相同的资源。</li>
-<li>用于计算相关度的词项统计信息是基于分片的。如果有许多分片，每一个都只有很少的数据会导致很低的相关度。</li>
-</ul>
-<h3 id="容量规划"><a href="#容量规划" class="headerlink" title="容量规划"></a>容量规划</h3><ul>
-<li>根据自己的场景规划分片的数量</li>
-<li>定好单个分片的容量，计算出整个索引的分片，再加上一部分预期增长。</li>
-</ul>
-<h3 id="副本分片-Replica-Shards"><a href="#副本分片-Replica-Shards" class="headerlink" title="副本分片(Replica Shards)"></a>副本分片(Replica Shards)</h3><ul>
-<li>副本分片主要目的是 故障转移。主分片节点挂掉后一个副本分片就成为主分片。</li>
-<li>增加副本数并不会增加索引容量，但可以服务于读请求，增加副本分片可以提升查询性能。</li>
-<li>通过副本进行负载均衡</li>
-</ul>
-<h3 id="多索引-Multiple-Indices"><a href="#多索引-Multiple-Indices" class="headerlink" title="多索引(Multiple Indices)"></a>多索引(Multiple Indices)</h3><p>在 索引别名和零停机情况下，通过新增多个索引增加索引的容量。<br>实施步骤：</p>
-<ol>
-<li>创建两个别名：一个用于搜索(<code>搜索别名</code>)，一个用于索引数据(<code>索引别名</code>)。例如:tweets_search,tweets_index</li>
-<li>新增第一个索引A后，把<code>搜索别名</code>和<code>索引别名</code>指向新增的索引A。</li>
-<li>新增第二个索引B后，<code>搜索别名</code>指向索引B，<code>索引别名</code>移除索引A指向索引B</li>
-<li>依次类推</li>
-</ol>
-<p>此时两个别名指向：</p>
-<ol>
-<li>一个搜索请求可以以多个索引为目标，这时<code>搜索别名</code>指向的是 索引A和B，</li>
-<li>索引写入请求只能以单个索引为目标，这时<code>索引别名</code>指向的是 索引B</li>
-</ol>
-<p>注意：通过ID获取文档时，需要对多个索引发起查询ID请求。</p>
-<blockquote>
-<p>一个文档 GET 请求，像一个索引写入请求那样，只能以单个索引为目标。 这导致在通过ID获取文档这样的场景下有一点复杂。作为代替，你可以对 tweets_1 以及 tweets_2 运行一个 ids 查询 搜索请求， 或者 multi-get 请求。</p>
-</blockquote>
-<h3 id="基于时间的数据-Time-Based-Data"><a href="#基于时间的数据-Time-Based-Data" class="headerlink" title="基于时间的数据(Time-Based Data)"></a>基于时间的数据(Time-Based Data)</h3><p>Elasticsearch 的常用案例之一便是日志记录.</p>
-<ul>
-<li>索引中文档数量迅速增长，通常随时间加速。</li>
-<li>文档几乎不会更新，基本以最近文档为搜索目标。</li>
-<li>随着时间推移，文档逐渐失去价值。</li>
-</ul>
-<h5 id="按时间范围索引-Index-per-Time-Frame"><a href="#按时间范围索引-Index-per-Time-Frame" class="headerlink" title="按时间范围索引(Index per Time Frame)"></a>按时间范围索引(Index per Time Frame)</h5><p>使用 时间范围索引(index per time frame), 可以按年/月/日进行索引，删旧数据只需删除旧的索引。<br>优点：</p>
-<ul>
-<li>允许你在需要的时候进行调整扩容</li>
-<li>别名可以帮我们更加透明地在索引间切换，将logs_current指向当前索引来接收新的日志事件， 当检索时，更新last_3_months来指向所有最近三个月的索引</li>
-</ul>
-<h3 id="索引模板"><a href="#索引模板" class="headerlink" title="索引模板"></a>索引模板</h3><p>日志记录类应用，依赖于自动创建索引比手动创建要更加方便。</p>
-<p>创建模板</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PUT /_template/my_logs</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"template"</span>: <span class="string">"logstash-*"</span>,</span><br><span class="line">  <span class="attr">"order"</span>:    <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"number_of_shards"</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"_default_"</span>: &#123;</span><br><span class="line">      <span class="attr">"_all"</span>: &#123;</span><br><span class="line">        <span class="attr">"enabled"</span>: <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aliases"</span>: &#123;</span><br><span class="line">    <span class="attr">"last_3_months"</span>: &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>将这个模板应用于所有以 logstash- 为起始的索引,不论它是手动还是自动创建的。</li>
-<li>order 这个模板将会覆盖默认的 logstash 模板，因为默认模板的 order 更低。</li>
-<li>number_of_shards 限制主分片数量为 1 。</li>
-<li>为所有类型禁用 <code>_all</code> 域。</li>
-<li>aliases 添加这个索引至 last_3_months 别名中。</li>
-</ul>
-<h3 id="数据过期-Retiring-Data"><a href="#数据过期-Retiring-Data" class="headerlink" title="数据过期(Retiring Data)"></a>数据过期(Retiring Data)</h3><p>随着时间推移，基于时间数据的相关度逐渐降低。</p>
-<p>删除旧数据很方便:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE &#x2F;logs_2013*</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<p>删除它之前还有一些事情可以做来帮助数据更加优雅地过期。</p>
-<h5 id="迁移旧索引-Migrate-Old-Indices"><a href="#迁移旧索引-Migrate-Old-Indices" class="headerlink" title="迁移旧索引(Migrate Old Indices)"></a>迁移旧索引(Migrate Old Indices)</h5><ol>
-<li><p>服务器指定标签(例如 strong)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;bin&#x2F;elasticsearch --node.box_type strong</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>今天的索引使用最好机器</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /logs_2014-10-01</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"index.routing.allocation.include.box_type"</span> : <span class="string">"strong"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>昨天的索引迁移到medium机器上</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"index.routing.allocation.include.box_type"</span> : <span class="string">"medium"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+扩容设计(Designing for Scale)
+Elasticsearch扩展灵活，但也有局限性，了解局限性可以使你扩容更轻松。
+讨论两种数据流：
 
-</li>
-</ol>
-<h5 id="索引优化-Optimize-Indices"><a href="#索引优化-Optimize-Indices" class="headerlink" title="索引优化(Optimize Indices)"></a>索引优化(Optimize Indices)</h5><p>今天的索引不能进行优化，优化操作将消耗节点上大量 I/O 并对索引今日日志造成冲击。</p>
-<p>对昨天的索引进行有效：1. 先移除副本 2. <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/merge-process.html#optimize-api" target="_blank" rel="noopener">optimize API</a>进行优化 3. 再添加副本,这样不用优化副本。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123; <span class="attr">"number_of_replicas"</span>: <span class="number">0</span> &#125;</span><br><span class="line"></span><br><span class="line">POST /logs_2014-09-30/_optimize?max_num_segments=1</span><br><span class="line"></span><br><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123; <span class="attr">"number_of_replicas"</span>: <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure>
+ * 时序数据：时间驱动相关，例如 日志或社交网络数据流
+ * 基于用户的数据：拥有很多的文档集但可以按用户或客户细分。
 
-<h5 id="关闭旧索引"><a href="#关闭旧索引" class="headerlink" title="关闭旧索引"></a>关闭旧索引</h5><p>不访问的索引，又不想删除索引，可以进行关闭，关闭的索引还存在于集群中，重新打开一个索引比从备份中恢复快的多。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-01-*/_flush</span><br><span class="line">POST /logs_2014-01-*/_close</span><br><span class="line">POST /logs_2014-01-*/_open</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>_flush</code>刷写（Flush）所有一月的索引来清空事务日志。</li>
-<li><code>_close</code> 关闭所有一月的索引.</li>
-<li><code>_open</code>当你需要再次访问它们时，使用 open API 来重新打开它们。</li>
-</ul>
-<h5 id="归档旧索引-Archiving-Old-Indices"><a href="#归档旧索引-Archiving-Old-Indices" class="headerlink" title="归档旧索引(Archiving Old Indices)"></a>归档旧索引(Archiving Old Indices)</h5><p>可以通过​<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-snapshots.html" target="_blank" rel="noopener">snapshot-restore API</a>​归档.</p>
-<h3 id="基于用户的数据-User-Based-Data"><a href="#基于用户的数据-User-Based-Data" class="headerlink" title="基于用户的数据(User-Based Data)"></a>基于用户的数据(User-Based Data)</h3><p>Elasticsearch 支持多租户,所以每个用户可以在相同的集群中拥有自己的索引。<br>“一个用户一个索引”对大多数场景都可以满足了。<br>可以根据每人的索引文档多少和搜索次数多少来分配分片数量和高配服务节点。</p>
-<h3 id="共享索引"><a href="#共享索引" class="headerlink" title="共享索引"></a>共享索引</h3><p>我们需要的是一种可以在用户间共享资源的方法，给每个用户他们拥有自己的索引这种印象，而不在小用户上浪费资源。<br>例如 多个论坛(forums)共用一个索引，通过forums_id来标识论坛内的帖子，索引和搜索时路由参数指定forums_id，可以保证同一个论坛存储在同一个分片上。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"number_of_shards"</span>: <span class="number">10</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"forum_id"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"not_analyzed"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+扩容单元(The Unit of Scale)
+ * 一个分片就是一个Lucene索引，一个Elasticsearch索引就是一系列分片的集合。
+ * 一个分片就是一个扩容单元。
+ * 路由算法：shard = hash(routing) % number_of_primary_shards
 
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums/post/1?routing=baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"forum_id"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"title"</span>:    <span class="string">"Easy recipe for ginger nuts"</span>,</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /forums/post/_search?routing=baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"term"</span>: &#123;</span><br><span class="line">          <span class="attr">"forum_id"</span>: &#123;</span><br><span class="line">            <span class="attr">"baking"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>指定多个论坛</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /forums/post/_search?routing=baking,cooking,recipes</span><br></pre></td></tr></table></figure>
-<p>要为每一个查询或者索引请求指定 routing 和 terms 的值看起来有一点的笨拙。 索引别名可以帮你解决这些！</p>
-<h3 id="利用别名实现一个用户一个索引"><a href="#利用别名实现一个用户一个索引" class="headerlink" title="利用别名实现一个用户一个索引"></a>利用别名实现一个用户一个索引</h3><p>创建一个别名指定一个过滤器和一个路由器值，使一个别名与一个索引关联起来。<br>例如：别名中的filter和routing配置上 forum_id。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums/_alias/baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"routing"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"filter"</span>: &#123;</span><br><span class="line">    <span class="attr">"term"</span>: &#123;</span><br><span class="line">      <span class="attr">"forum_id"</span>: <span class="string">"baking"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /baking/post/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"forum_id"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"title"</span>:    <span class="string">"Easy recipe for ginger nuts"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>我们还是需要为过滤器指定 forumn_id 字段，但自定义路由值已经是隐含的了。</li>
-</ul>
-<p>通过别名搜索帖子</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /baking/post/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过多别名搜索帖子</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /baking,recipes/post/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-<p>###</p>
-
+分片
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/45-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E6%89%A9%E5%AE%B9%E8%AE%BE%E8%AE%A1/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1467,97 +1041,30 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geoloc.html" target="_blank" rel="noopener">中文参考1</a><br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geopoints.html" target="_blank" rel="noopener">中文参考2</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/eb0004640922da772be5ccb61060642a23b67e6b/04_Geolocation.asciidoc" target="_blank" rel="noopener">英文参考1</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/310_Geopoints" target="_blank" rel="noopener">英文参考2</a></p>
-<h3 id="地理位置-Geolocation"><a href="#地理位置-Geolocation" class="headerlink" title="地理位置 (Geolocation)"></a>地理位置 (Geolocation)</h3><p>Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。</p>
-<p>Elasticsearch两种表示地理位置的方式：</p>
-<ol>
-<li>geo_point : 用经度-纬度表示坐标点，计算两点间距离来排序或相关性打分、或聚合到地图上一个网格。</li>
-<li>geo_shape : 以GeoJSON格式定义复杂的地理形状。 Geo-shapes纯粹是用来过滤，可以用来判断两形状是否重合或包含关系。</li>
-</ol>
-<h3 id="地理坐标点-Geo-Points"><a href="#地理坐标点-Geo-Points" class="headerlink" title="地理坐标点(Geo Points)"></a>地理坐标点(Geo Points)</h3><ul>
-<li>地理坐标点 是指地球表面可以用经纬度描述的一个点</li>
-<li>地理坐标点可以用来计算两个坐标间的距离</li>
-<li>地理坐标点可以判断一个坐标是否在一个区域中，或在聚合中.</li>
-<li>地理坐标点不能被动态映射（dynamic mapping）自动检测,需要显示声明类型为geo-point</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"restaurant"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"location"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"geo_point"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考1
+中文参考2
+英文参考1
+英文参考2
 
-<h3 id="经纬度坐标格式"><a href="#经纬度坐标格式" class="headerlink" title="经纬度坐标格式"></a>经纬度坐标格式</h3><p>添加数据：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions/restaurant/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:     <span class="string">"Chipotle Mexican Grill"</span>,</span><br><span class="line">  <span class="attr">"location"</span>: <span class="string">"40.715, -74.011"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /attractions/restaurant/2</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:     <span class="string">"Pala Pizza"</span>,</span><br><span class="line">  <span class="attr">"location"</span>: &#123;</span><br><span class="line">    <span class="attr">"lat"</span>:     <span class="number">40.722</span>,</span><br><span class="line">    <span class="attr">"lon"</span>:    <span class="number">-73.989</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /attractions/restaurant/3</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:     <span class="string">"Mini Munchies Pizza"</span>,</span><br><span class="line">  <span class="attr">"location"</span>: [ <span class="number">-73.983</span>, <span class="number">40.719</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>字符串形式以半角逗号分割，如 “lat,lon” 。</li>
-<li>对象形式显式命名为 lat 和 lon 。</li>
-<li>数组形式表示为 [lon,lat] 。</li>
-</ul>
-<p>注意顺序：<br><code>地理坐标点用字符串形式表示时是纬度在前，经度在后（ &quot;latitude,longitude&quot; ）</code><br><code>数组形式表示时是经度在前，纬度在后（ [longitude,latitude] ）</code></p>
-<blockquote>
-<p> Elasticesearch 内部，不管字符串形式还是数组形式，都是经度在前，纬度在后。不过早期为了适配 GeoJSON 的格式规范，调整了数组形式的表示方式。</p>
-</blockquote>
-<h3 id="通过地理坐标点过滤"><a href="#通过地理坐标点过滤" class="headerlink" title="通过地理坐标点过滤"></a>通过地理坐标点过滤</h3><p>有四种地理坐标点过滤器：</p>
-<ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-bounding-box.html" target="_blank" rel="noopener">geo_bounding_box</a> 找出落在指定矩形框中的点。</li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-distance.html" target="_blank" rel="noopener">geo_distance</a> 找出与指定位置在给定距离内的点。(圆形内的点)</li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-distance.html#geo-distance-range" target="_blank" rel="noopener">geo_distance_range</a> 找出与指定点距离在给定最小距离和最大距离之间的点。(圆环形内的点)</li>
-<li><a href="">geo_polygon</a> 找出落在多边形中的点。 这个过滤器使用代价很大 。当你觉得自己需要使用它，最好先看看 geo-shapes 。</li>
-</ul>
-<p>过程：指定的区域被转换成一系列以quad/geohash为前缀的tokens，并被用来在倒排索引中搜索拥有相同tokens的文档。</p>
-<blockquote>
-<p>地理坐标过滤器使用代价昂贵 — 所以最好在文档集合尽可能少的场景下使用。你可以先使用那些简单快捷的过滤器，比如 term 或 range ，来过滤掉尽可能多的文档，最后才交给地理坐标过滤器处理。<br>布尔型过滤器 bool filter 会自动帮你做这件事。它会优先让那些基于“bitset”的简单过滤器(见 关于缓存 )来过滤掉尽可能多的文档，然后依次才是更昂贵的地理坐标过滤器或者脚本类的过滤器。</p>
-</blockquote>
-<h3 id="地理坐标盒模型过滤器-Geo-Bounding-Box-Filter"><a href="#地理坐标盒模型过滤器-Geo-Bounding-Box-Filter" class="headerlink" title="地理坐标盒模型过滤器(Geo Bounding Box Filter)"></a>地理坐标盒模型过滤器(Geo Bounding Box Filter)</h3><p>Geo Bounding Box Filter目前为止最有效的地理坐标过滤器了，因为它计算起来非常简单。<br>你指定一个矩形的 顶部, 底部, 左边界和右边界 ，然后过滤器只需判断坐标的经度是否在左右边界之间，纬度是否在上下边界之间。</p>
-<p>原因： 过滤查询(filtered)已被弃用，并在ES 5.0中删除。<br>解决： 使用bool / must / filter查询</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.0</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.7</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.0</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这些坐标也可以用 bottom_left 和 top_right 来表示。</li>
-</ul>
-<h5 id="优化盒模型-Optimizing-Bounding-Boxes"><a href="#优化盒模型-Optimizing-Bounding-Boxes" class="headerlink" title="优化盒模型(Optimizing Bounding Boxes)"></a>优化盒模型(Optimizing Bounding Boxes)</h5><p>地理坐标盒模型过滤器 不需要把所有坐标点都加载到内存里。 因为它要做的 只是简单判断 lat 和 lon 坐标数值是否在给定的范围内，可以用倒排索引做一个 range 过滤来实现目标。</p>
-<p>要使用这种优化方式，需要把 geo_point 字段 用 lat 和 lon 的方式分别映射到索引中：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"restaurant"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"location"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:    <span class="string">"geo_point"</span>,</span><br><span class="line">          <span class="attr">"lat_lon"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置 type 参数为 indexed （替代默认值 memory ）来明确告诉 Elasticsearch 对这个过滤器使用倒排索引。</li>
-<li>geo_point 类型的字段可以包含多个地理坐标点，但是针对经度纬度分别索引的这种优化方式只对包含单个坐标点的字段有效。</li>
-</ul>
-<h3 id="地理距离过滤器-Geo-Distance-Filter"><a href="#地理距离过滤器-Geo-Distance-Filter" class="headerlink" title="地理距离过滤器(Geo Distance Filter)"></a>地理距离过滤器(Geo Distance Filter)</h3><p>地理距离过滤器(geo_distance)以给定位置为圆心画一个圆，找出坐标在圆内的文档。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"filtered"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">          <span class="attr">"distance"</span>: <span class="string">"1km"</span>,</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"lat"</span>:  <span class="number">40.715</span>,</span><br><span class="line">            <span class="attr">"lon"</span>: <span class="number">-73.988</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>找出所有与指定点距离在 1km 内的 location 字段。访问 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/common-options.html#distance-units" target="_blank" rel="noopener">Distance Units</a> 查看所支持的距离表示单位。</li>
-<li>中心点可以表示为字符串，数组或对象。详见 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/lat-lon-formats.html" target="_blank" rel="noopener">经纬度坐标格式</a>。</li>
-</ul>
-<p>geo_distance处理方式：</p>
-<blockquote>
-<p>地理距离过滤器计算代价昂贵。Elasticsearch 先画一个矩形框来围住整个圆形，然后只在盒模型内的点用地理距离计算方式处理。</p>
-</blockquote>
-<p>疑问：是否需要如此精确的使用圆模型来做距离过滤？<br>通常使用矩形模型 bounding box 是比地理距离更高效的方式，并且往往也能满足应用需求。</p>
-<h5 id="更快的地理距离计算"><a href="#更快的地理距离计算" class="headerlink" title="更快的地理距离计算"></a>更快的地理距离计算</h5><p>两点间距离有多种算法，这些算法都是以牺牲性能换取精度。<br>算法列表：</p>
-<ul>
-<li>arc : 球体。最慢但最精确的是 arc 计算方式，这种方式把世界当作球体来处理。不过这种方式的精度有限，因为这个世界并不是完全的球体。</li>
-<li>plane : 平面。plane 计算方式把地球当成是平坦的，这种方式快一些但是精度略逊。在赤道附近的位置精度最好，而靠近两极则变差。</li>
-<li>sloppy_arc : 默认的计算方式。如此命名，是因为它使用了 Lucene 的 SloppyMath 类。这是一种用精度换取速度的计算方式， 它使用 <a href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank" rel="noopener">Haversine formula</a> 来计算距离。它比 arc 计算方式快 4 到 5 倍，并且距离精度达 99.9%。</li>
-</ul>
-<p>指定不同的计算方式：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"filtered"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">          <span class="attr">"distance"</span>:      <span class="string">"1km"</span>,</span><br><span class="line">          <span class="attr">"distance_type"</span>: <span class="string">"plane"</span>,</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"lat"</span>:  <span class="number">40.715</span>,</span><br><span class="line">            <span class="attr">"lon"</span>: <span class="number">-73.988</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+地理位置 (Geolocation)
+Elasticsearch 可以把地理位置、全文搜索、结构化搜索和分析结合到一起。
 
-<h5 id="地理距离区间过滤器-geo-distance-range-Filter"><a href="#地理距离区间过滤器-geo-distance-range-Filter" class="headerlink" title="地理距离区间过滤器(geo_distance_range Filter)"></a>地理距离区间过滤器(geo_distance_range Filter)</h5><p>geo_distance 是一个圆形，geo_distance_range 过滤器是一个圆环状。</p>
-<p>指定一个最小距离（使用gt或者gte）和最大距离（使用lt和lte），就像使用 range 过滤器一样.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"filtered"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_distance_range"</span>: &#123;</span><br><span class="line">          <span class="attr">"gte"</span>:    <span class="string">"1km"</span>,</span><br><span class="line">          <span class="attr">"lt"</span>:     <span class="string">"2km"</span>,</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"lat"</span>:  <span class="number">40.715</span>,</span><br><span class="line">            <span class="attr">"lon"</span>: <span class="number">-73.988</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+Elasticsearch两种表示地理位置的方式：
 
+ 1. geo_point : 用经度-纬度表示坐标点，计算两点间距离来排序或相关性打分、或聚合到地图上一个网格。
+ 2. geo_shape : 以GeoJSON格式定义复杂的地理形状。 Geo-shapes纯粹是用来过滤，可以用来判断两形状是否重合或包含关系。
 
-<h3 id="按距离排序-Sorting-by-Distance"><a href="#按距离排序-Sorting-by-Distance" class="headerlink" title="按距离排序(Sorting by Distance)"></a>按距离排序(Sorting by Distance)</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"filtered"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"indexed"</span>,</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.0</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.0</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"sort"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"_geo_distance"</span>: &#123;</span><br><span class="line">        <span class="attr">"location"</span>: &#123;</span><br><span class="line">          <span class="attr">"lat"</span>:  <span class="number">40.715</span>,</span><br><span class="line">          <span class="attr">"lon"</span>: <span class="number">-73.998</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"order"</span>:         <span class="string">"asc"</span>,</span><br><span class="line">        <span class="attr">"unit"</span>:          <span class="string">"km"</span>,</span><br><span class="line">        <span class="attr">"distance_type"</span>: <span class="string">"plane"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>_geo_distance.location</code> 计算每个文档中 location 字段与指定的 lat/lon 点间的距离。</li>
-<li>将距离以 km 为单位写入到每个返回结果的 sort 键中。</li>
-<li>“distance_type”: “plane” 使用快速但精度略差的 plane 计算方式。</li>
-</ul>
-<blockquote>
-<p>地理距离排序可以对多个坐标点来使用，不管（这些坐标点）是在文档中还是排序参数中。使用 sort_mode 来指定是否需要使用位置集合的 最小 （ min ） 最大 （ max ）或者 平均 （ avg ）距离。 如此就可以返回 “离我的工作地和家最近的朋友” 这样的结果了。</p>
-</blockquote>
-<h5 id="按照距离打分-Scoring-by-Distance"><a href="#按照距离打分-Scoring-by-Distance" class="headerlink" title="按照距离打分(Scoring by Distance)"></a>按照距离打分(Scoring by Distance)</h5><ul>
-<li>常见场景是全文检索匹配度、流行程度或者价格一起决定排序结果。</li>
-<li>综合排序时你需要在 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/function-score-query.html" target="_blank" rel="noopener">功能评分查询</a> 中指定方式让我们把这些因子处理后得到一个综合分。</li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/decay-functions.html" target="_blank" rel="noopener">越近越好</a> 中有个一个例子就是介绍地理距离影响排序得分的。</li>
-<li>按距离排序还有个缺点就是性能：需要对每一个匹配到的文档都进行距离计算。而 function_score 查询，在 rescore 语句 中可以限制只对前 n 个结果进行计算。</li>
-</ul>
-
+地理坐标点(Geo Points)
+ * 地理坐标点 是指地球表面可以用经纬度描述的一个点
+ * 地理坐
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/38-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%9D%90%E6%A0%87%E7%82%B9/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1644,25 +1151,23 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geohashes.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/340_Geoshapes" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="Geohashes"><a href="#Geohashes" class="headerlink" title="Geohashes"></a>Geohashes</h3><p><a href="http://en.wikipedia.org/wiki/Geohash" target="_blank" rel="noopener">Geohashes</a>是一种将经纬度坐标(lat/lon)编码成字符串的方式。<br>这么做的初衷只是为了让地理位置在 url 上呈现的形式更加友好，但现在 geohashes 已经变成一种在数据库中有效索引地理坐标点和地理形状的方式。<br>Geohashes原理：<br>Geohashes把整个世界分成4行8列的32个单元格(每格用字母和数字表示),每个格子可以再分32格，依次不断重复分下去，geohash 的长度越长，它的精度就越高。共同前缀表示他们挨得很近，共同前缀越长距离就越近。两个刚好相邻的位置，可能会有完全不同的 geohash 。</p>
-<p>例如：gc 这个单元覆盖了爱尔兰和英格兰， gcp 覆盖了伦敦的大部分和部分南英格兰， gcpuuz94k 是白金汉宫的入口，精确到约 5 米。</p>
-<p>地理坐标点可以自动索引相关的 geohashes ，更重要的是，他们也可以索引所有的 geohashes 前缀 。<br>geohash单元 过滤器 可以使用这些 geohash 前缀来找出与指定坐标点（ lat/lon ）相邻的位置。</p>
-<h3 id="Geohashes-映射-Mapping-Geohashes"><a href="#Geohashes-映射-Mapping-Geohashes" class="headerlink" title="Geohashes 映射(Mapping Geohashes)"></a>Geohashes 映射(Mapping Geohashes)</h3><p>配置Geohashes 映射</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"restaurant"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"location"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:               <span class="string">"geo_point"</span>,</span><br><span class="line">          <span class="attr">"geohash_prefix"</span>:     <span class="literal">true</span>,</span><br><span class="line">          <span class="attr">"geohash_precision"</span>:  <span class="string">"1km"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>将 geohash_prefix 设为 true 来告诉 Elasticsearch 使用指定精度来索引 geohash 的前缀。</li>
-<li>精度可以是一个具体的数字，代表的 geohash 的长度，也可以是一个距离。 1km 的精度对应的 geohash 的长度是 7 。</li>
-</ul>
-<h3 id="Geohashes-单元查询-Geohash-Cell-Query"><a href="#Geohashes-单元查询-Geohash-Cell-Query" class="headerlink" title="Geohashes 单元查询(Geohash Cell Query)"></a>Geohashes 单元查询(Geohash Cell Query)</h3><p>geohash_cell 把经纬度坐标位置转成一个geohash,然后查找所有包含这个geohash的位置。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geohash_cell"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"lat"</span>:  <span class="number">40.718</span>,</span><br><span class="line">            <span class="attr">"lon"</span>: <span class="number">-73.983</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"precision"</span>: <span class="string">"2km"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
+Geohashes
+Geohashes是一种将经纬度坐标(lat/lon)编码成字符串的方式。
+这么做的初衷只是为了让地理位置在 url 上呈现的形式更加友好，但现在 geohashes 已经变成一种在数据库中有效索引地理坐标点和地理形状的方式。
+Geohashes原理：
+Geohashes把整个世界分成4行8列的32个单元格(每格用字母和数字表示),每个格子可以再分32格，依次不断重复分下去，geohash 的长度越长，它的精度就越高。共同前缀表示他们挨得很近，共同前缀越长距离就越近。两个刚好相邻的位置，可能会有完全不同的 geohash 。
 
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-
+例如：gc 这个单元覆盖
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/39-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-Geohashes/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1681,7 +1186,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
@@ -1695,7 +1200,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/" class="post-title-link" itemprop="url">40-地理位置-地理位置聚合</a>
+            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/" class="post-title-link" itemprop="url">41-地理位置-地理形状</a>
         </h2>
 
         <div class="post-meta">
@@ -1712,7 +1217,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:54:58" itemprop="dateModified" datetime="2020-05-26T13:54:58+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-26 13:55:01" itemprop="dateModified" datetime="2020-05-26T13:55:01+08:00">2020-05-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1730,7 +1235,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.5k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -1749,47 +1254,30 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-aggs.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/330_Geo_aggs" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="地理位置聚合-Geo-Aggregations"><a href="#地理位置聚合-Geo-Aggregations" class="headerlink" title="地理位置聚合(Geo Aggregations)"></a>地理位置聚合(Geo Aggregations)</h3><p>地理位置聚合就是将地理坐标聚集到更容易管理的bucket是中。<br>处理geo_point类型字段的三种聚合:</p>
-<ul>
-<li>地理位置距离(geo_distance) : 将文档按照距离围绕一个中心点来分组。</li>
-<li>geohash网格(geohash_grid) : 将文档按照geohash范围来分组，用来显示在地图上。</li>
-<li>地理位置边界(geo_bounds) : 返回一个包含所有地理位置坐标点的边界的经纬度坐标，这对显示地图时缩放比例的选择非常有用。</li>
-</ul>
-<h3 id="地理位置距离-geo-distance"><a href="#地理位置距离-geo-distance" class="headerlink" title="地理位置距离(geo_distance)"></a>地理位置距离(geo_distance)</h3><p>geo_distance 聚合 对一些搜索非常有用.</p>
-<p>例如： 找到所有距离我 1km 以内的披萨店。<br>搜索结果应该也的确被限制在用户指定 1km 范围内，但是我们可以添加在 2km 范围内找到的其他结果：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: <span class="string">"pizza"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"per_ring"</span>: &#123;</span><br><span class="line">      <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:    <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"unit"</span>:     <span class="string">"km"</span>,</span><br><span class="line">        <span class="attr">"origin"</span>: &#123;</span><br><span class="line">          <span class="attr">"lat"</span>:    <span class="number">40.712</span>,</span><br><span class="line">          <span class="attr">"lon"</span>:   <span class="number">-73.988</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"ranges"</span>: [</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">0</span>, <span class="attr">"to"</span>: <span class="number">1</span> &#125;,</span><br><span class="line">          &#123; <span class="attr">"from"</span>: <span class="number">1</span>, <span class="attr">"to"</span>: <span class="number">2</span> &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"post_filter"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_distance"</span>: &#123;</span><br><span class="line">      <span class="attr">"distance"</span>:   <span class="string">"1km"</span>,</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"lat"</span>:      <span class="number">40.712</span>,</span><br><span class="line">        <span class="attr">"lon"</span>:     <span class="number">-73.988</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<ul>
-<li>主查询查找名称中含有 pizza 的饭店。</li>
-<li>geo_bounding_box 筛选那些只在纽约区域的结果。</li>
-<li>per_ring.geo_distance 聚合统计距离用户 1km 以内，1km 到 2km 的结果的数量。</li>
-<li>最后，post_filter 将结果缩小至那些在用户 1km 范围内的饭店</li>
-</ul>
-<h3 id="geohash网格-geohash-grid"><a href="#geohash网格-geohash-grid" class="headerlink" title="geohash网格(geohash_grid)"></a>geohash网格(geohash_grid)</h3><p>geohash_grid按照指定精度将附近的位置聚合成一个网格。<br>聚合是稀疏的—它 仅返回那些含有文档的单元。<br>如果 geohashes 太精确，将产生太多的 buckets，它将默认返回那些包含了大量文档、最密集的10000个单元。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.8</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-74.1</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">              <span class="attr">"lat"</span>:  <span class="number">40.4</span>,</span><br><span class="line">              <span class="attr">"lon"</span>: <span class="number">-73.7</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"new_york"</span>: &#123;</span><br><span class="line">      <span class="attr">"geohash_grid"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:     <span class="string">"location"</span>,</span><br><span class="line">        <span class="attr">"precision"</span>: <span class="number">5</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>geo_bounding_box 边界框将搜索限制在大纽约区的范围</li>
-<li>Geohashes 精度为 5 大约是 5km x 5km。</li>
-</ul>
-<p>如果绘制到地图上需要一个将 geohash 转换成同等边界框或中心点的库</p>
-<h3 id="地理位置边界-geo-bounds"><a href="#地理位置边界-geo-bounds" class="headerlink" title="地理位置边界(geo_bounds)"></a>地理位置边界(geo_bounds)</h3><p>geo_bounds 计算封装所有地理日志点需要的最小边界框。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "map_zoom": &#123;</span><br><span class="line">      "geo_bounds": &#123;</span><br><span class="line">        "field":     "location"</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>返回结果即为结果集的最小边界框。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">"aggregations": &#123;</span><br><span class="line">  "map_zoom": &#123;</span><br><span class="line">     "bounds": &#123;</span><br><span class="line">        "top_left": &#123;</span><br><span class="line">           "lat":  40.722,</span><br><span class="line">           "lon": -74.011</span><br><span class="line">        &#125;,</span><br><span class="line">        "bottom_right": &#123;</span><br><span class="line">           "lat":  40.715,</span><br><span class="line">           "lon": -73.983</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+地理形状
+geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。
+Geo-shapes 不能用于计算距离、排序、打分以及聚合。
 
-<p>在每一个geohash 单元内部使用geo_bounds聚合， 以免一个单元内的地理位置点仅集中在单元的一部分上：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/restaurant/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"geo_bounding_box"</span>: &#123;</span><br><span class="line">          <span class="attr">"location"</span>: &#123;</span><br><span class="line">            <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">              "lat":  40,8,</span><br><span class="line">              "lon": -74.1</span><br><span class="line">            &#125;,</span><br><span class="line">            "bottom_right": &#123;</span><br><span class="line">              "lat":  40.4,</span><br><span class="line">              "lon": -73.9</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  "aggs": &#123;</span><br><span class="line">    "new_york": &#123;</span><br><span class="line">      "geohash_grid": &#123;</span><br><span class="line">        "field":     "location",</span><br><span class="line">        "precision": 5</span><br><span class="line">      &#125;,</span><br><span class="line">      "aggs": &#123;</span><br><span class="line">        "cell": &#123;</span><br><span class="line">          "geo_bounds": &#123;</span><br><span class="line">            "field": "location"</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>cell_bounds 子聚合会为每个 geohash 单元计算边界框。<br>结果如下：<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "new_york": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"dr5rs"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">2</span>,</span><br><span class="line">           <span class="attr">"cell"</span>: &#123;</span><br><span class="line">              <span class="attr">"bounds"</span>: &#123;</span><br><span class="line">                 <span class="attr">"top_left"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.722</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.989</span></span><br><span class="line">                 &#125;,</span><br><span class="line">                 <span class="attr">"bottom_right"</span>: &#123;</span><br><span class="line">                    <span class="attr">"lat"</span>:  <span class="number">40.719</span>,</span><br><span class="line">                    <span class="attr">"lon"</span>: <span class="number">-73.983</span></span><br><span class="line">                 &#125;</span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+3种关系：
 
+ * inersects : 相交，查询形状 与 索引形状 有重叠。默认值
+ * disjoint : 不相交，查询形状 与 索引形状 完全不重叠。
+ * within : 索引形状 完全被包含在 查询形状 中。
 
-</li>
-</ul>
-<p>###</p>
-<p>###</p>
-<p>###</p>
+你需要考虑修改两个非常重要的设置： 精度 和 距离误差 。
 
+精度(precision)
+ * 精度 （ precision ）参数 用来控制生成的 geohash 的最大长度。默认精度为 9 ，等同于
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1922,7 +1410,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="gutter"><pre><sp
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">198k</span>
+    <span title="Symbols count total">199k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

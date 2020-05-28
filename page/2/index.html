@@ -192,7 +192,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
@@ -206,7 +206,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/41-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%BD%A2%E7%8A%B6/" class="post-title-link" itemprop="url">41-地理位置-地理形状</a>
+            <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/" class="post-title-link" itemprop="url">40-地理位置-地理位置聚合</a>
         </h2>
 
         <div class="post-meta">
@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-26 13:55:01" itemprop="dateModified" datetime="2020-05-26T13:55:01+08:00">2020-05-26</time>
+                <time title="Modified: 2020-05-26 13:54:58" itemprop="dateModified" datetime="2020-05-26T13:54:58+08:00">2020-05-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
+              <span>3.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -260,58 +260,26 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/geo-shapes.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/eb0004640922da772be5ccb61060642a23b67e6b/340_Geoshapes" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="地理形状"><a href="#地理形状" class="headerlink" title="地理形状"></a>地理形状</h3><p>geo-shapes 有一下作用：判断 查询形状 与 索引形状的关系。<br>Geo-shapes 不能用于计算距离、排序、打分以及聚合。</p>
-<p>3种关系：</p>
-<ul>
-<li>inersects : 相交，查询形状 与 索引形状 有重叠。默认值</li>
-<li>disjoint : 不相交，查询形状 与 索引形状 完全不重叠。</li>
-<li>within : 索引形状 完全被包含在 查询形状 中。</li>
-</ul>
-<p>你需要考虑修改两个非常重要的设置： 精度 和 距离误差 。</p>
-<h3 id="精度-precision"><a href="#精度-precision" class="headerlink" title="精度(precision)"></a>精度(precision)</h3><ul>
-<li>精度 （ precision ）参数 用来控制生成的 geohash 的最大长度。默认精度为 9 ，等同于尺寸在 5m x 5m 的geohash 。</li>
-<li>精度越低，需要索引的单元就越少，检索时也会更快。当然，精度越低，地理形状的准确性就越差。你需要考虑自己的地理形状所需要的精度——即使减少1-2个等级的精度也能带来明显的消耗缩减收益。</li>
-</ul>
-<h3 id="距离误差-distance-error-pct"><a href="#距离误差-distance-error-pct" class="headerlink" title="距离误差(distance_error_pct)"></a>距离误差(distance_error_pct)</h3><p>距离误差 指定地理形状可以接受的最大错误率。它的默认值是 0.025 ， 即 2.5% 。<br>错误率越大，地理形状索引的单元越少。</p>
-<blockquote>
-<p>索引一个多边形时，中间连续区域很容易用一个短 geohash 来表示。麻烦的是边缘部分，这些地方需要使用更精细的 geohashes 才能表示。<br>当你在索引一个小地标时，你会希望它的边界比较精确。让这些纪念碑一个叠着一个可不好。当索引整个国家时，你就不需要这么高的精度了。误差个50米左右也不可能引发战争。</p>
-</blockquote>
-<h3 id="索引地理形状-Indexing-Geo-Shapes"><a href="#索引地理形状-Indexing-Geo-Shapes" class="headerlink" title="索引地理形状(Indexing Geo Shapes)"></a>索引地理形状(Indexing Geo Shapes)</h3><ul>
-<li>地理形状通过<a href="http://geojson.org/" target="_blank" rel="noopener">GeoJSON</a>表示，这是一种开放的使用JSON实现的二维形状编码方式。</li>
-<li>形状类型有： point,line,polygon,envelope，一个或多个经纬度点集合的数组。</li>
-<li>在 GeoJSON 里，经纬度表示方式通常是 纬度 在前， 经度 在后。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions/landmark/dam_square</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"name"</span> : <span class="string">"Dam Square, Amsterdam"</span>,</span><br><span class="line">    <span class="attr">"location"</span> : &#123;</span><br><span class="line">        <span class="attr">"type"</span> : <span class="string">"polygon"</span>,</span><br><span class="line">        <span class="attr">"coordinates"</span> : [[</span><br><span class="line">          [ <span class="number">4.89218</span>, <span class="number">52.37356</span> ],</span><br><span class="line">          [ <span class="number">4.89205</span>, <span class="number">52.37276</span> ],</span><br><span class="line">          [ <span class="number">4.89301</span>, <span class="number">52.37274</span> ],</span><br><span class="line">          [ <span class="number">4.89392</span>, <span class="number">52.37250</span> ],</span><br><span class="line">          [ <span class="number">4.89431</span>, <span class="number">52.37287</span> ],</span><br><span class="line">          [ <span class="number">4.89331</span>, <span class="number">52.37346</span> ],</span><br><span class="line">          [ <span class="number">4.89305</span>, <span class="number">52.37326</span> ],</span><br><span class="line">          [ <span class="number">4.89218</span>, <span class="number">52.37356</span> ]</span><br><span class="line">        ]]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>GeoJSON语法：</p>
-<ul>
-<li>[lon,lat] 用数组表示 经纬度 坐标点。</li>
-<li>[[lon,lat],[lon,lat], … ] 一组坐标点放到一个数组来表示一个多边形</li>
-<li>一个多边形(polygon)形状包含多个多边形；第一表示多边形的外轮廓，后续多边形表示内部空间<br>[<br>[[lon,lat],[lon,lat], … ],  # main polygon<br>[[lon,lat],[lon,lat], … ],  # hole in main polygon<br>…<br>]</li>
-</ul>
-<h3 id="查询地理形状-Querying-Geo-Shapes"><a href="#查询地理形状-Querying-Geo-Shapes" class="headerlink" title="查询地理形状(Querying Geo Shapes)"></a>查询地理形状(Querying Geo Shapes)</h3><p>geo_shape查询允许使用形状来做查询，而不仅仅是坐标点。</p>
-<p>查询出方圆 1km 内的所有地标：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/landmark/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:   <span class="string">"circle"</span>,</span><br><span class="line">          <span class="attr">"radius"</span>: <span class="string">"1km"</span>,</span><br><span class="line">          <span class="attr">"coordinates"</span>: [</span><br><span class="line">            <span class="number">4.89994</span>,</span><br><span class="line">            <span class="number">52.37815</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<p>举个例子，我们可以查找阿姆斯特丹中心区域所有的地标：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"relation"</span>: <span class="string">"within"</span>,</span><br><span class="line">        <span class="attr">"shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"polygon"</span>,</span><br><span class="line">          <span class="attr">"coordinates"</span>: [[</span><br><span class="line">              [<span class="number">4.88330</span>,<span class="number">52.38617</span>],</span><br><span class="line">              [<span class="number">4.87463</span>,<span class="number">52.37254</span>],</span><br><span class="line">              [<span class="number">4.87875</span>,<span class="number">52.36369</span>],</span><br><span class="line">              [<span class="number">4.88939</span>,<span class="number">52.35850</span>],</span><br><span class="line">              [<span class="number">4.89840</span>,<span class="number">52.35755</span>],</span><br><span class="line">              [<span class="number">4.91909</span>,<span class="number">52.36217</span>],</span><br><span class="line">              [<span class="number">4.92656</span>,<span class="number">52.36594</span>],</span><br><span class="line">              [<span class="number">4.93368</span>,<span class="number">52.36615</span>],</span><br><span class="line">              [<span class="number">4.93342</span>,<span class="number">52.37275</span>],</span><br><span class="line">              [<span class="number">4.92690</span>,<span class="number">52.37632</span>],</span><br><span class="line">              [<span class="number">4.88330</span>,<span class="number">52.38617</span>]</span><br><span class="line">            ]]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>把 relation 字段设置为 disjoint 来查找与指定形状不相交的部分，或者设置为 within 来查找完全落在查询形状中的。</li>
-</ul>
-<h3 id="在查询中使用已索引的形状-Querying-with-Indexed-Shapes"><a href="#在查询中使用已索引的形状-Querying-with-Indexed-Shapes" class="headerlink" title="在查询中使用已索引的形状(Querying with Indexed Shapes)"></a>在查询中使用已索引的形状(Querying with Indexed Shapes)</h3><p>对于那些经常会在查询中使用的形状，可以把它们索引起来以便在查询中可以方便地直接引用名字。</p>
-<p>把形状存储起来<br>映射字段:</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions/_mapping/neighborhood</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"properties"</span>: &#123;</span><br><span class="line">    <span class="attr">"name"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"string"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"location"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"geo_shape"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>存储形状</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PUT /attractions/neighborhood/central_amsterdam</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"Central Amsterdam"</span>,</span><br><span class="line">  <span class="attr">"location"</span> : &#123;</span><br><span class="line">      <span class="attr">"type"</span> : <span class="string">"polygon"</span>,</span><br><span class="line">      <span class="attr">"coordinates"</span> : [[</span><br><span class="line">        [<span class="number">4.88330</span>,<span class="number">52.38617</span>],</span><br><span class="line">        [<span class="number">4.87463</span>,<span class="number">52.37254</span>],</span><br><span class="line">        [<span class="number">4.87875</span>,<span class="number">52.36369</span>],</span><br><span class="line">        [<span class="number">4.88939</span>,<span class="number">52.35850</span>],</span><br><span class="line">        [<span class="number">4.89840</span>,<span class="number">52.35755</span>],</span><br><span class="line">        [<span class="number">4.91909</span>,<span class="number">52.36217</span>],</span><br><span class="line">        [<span class="number">4.92656</span>,<span class="number">52.36594</span>],</span><br><span class="line">        [<span class="number">4.93368</span>,<span class="number">52.36615</span>],</span><br><span class="line">        [<span class="number">4.93342</span>,<span class="number">52.37275</span>],</span><br><span class="line">        [<span class="number">4.92690</span>,<span class="number">52.37632</span>],</span><br><span class="line">        [<span class="number">4.88330</span>,<span class="number">52.38617</span>]</span><br><span class="line">      ]]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>查询形状</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/landmark/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"relation"</span>: <span class="string">"within"</span>,</span><br><span class="line">        <span class="attr">"indexed_shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"attractions"</span>,</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"neighborhood"</span>,</span><br><span class="line">          <span class="attr">"id"</span>:    <span class="string">"central_amsterdam"</span>,</span><br><span class="line">          <span class="attr">"path"</span>:  <span class="string">"location"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>指定 indexed_shape 而不是 shape ，Elasticesearch 就知道需要从指定的文档和 path 检索出对应的形状了。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /attractions/neighborhood/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"geo_shape"</span>: &#123;</span><br><span class="line">      <span class="attr">"location"</span>: &#123;</span><br><span class="line">        <span class="attr">"indexed_shape"</span>: &#123;</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"attractions"</span>,</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"landmark"</span>,</span><br><span class="line">          <span class="attr">"id"</span>:    <span class="string">"dam_square"</span>,</span><br><span class="line">          <span class="attr">"path"</span>:  <span class="string">"location"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+地理位置聚合(Geo Aggregations)
+地理位置聚合就是将地理坐标聚集到更容易管理的bucket是中。
+处理geo_point类型字段的三种聚合:
 
-<p>###</p>
+ * 地理位置距离(geo_distance) : 将文档按照距离围绕一个中心点来分组。
+ * geohash网格(geohash_grid) : 将文档按照geohash范围来分组，用来显示在地图上。
+ * 地理位置边界(geo_bounds) : 返回一个包含所有地理位置坐标点的边界的经纬度坐标，这对显示地图时缩放比例的选择非常有用。
 
+地理位置距离(geo_distance)
+geo_distance 聚合 
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/40-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E8%81%9A%E5%90%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -398,24 +366,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/significant-terms.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/70_sigterms_intro.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="Significant-Terms"><a href="#Significant-Terms" class="headerlink" title="(Significant Terms)"></a>(Significant Terms)</h3><ul>
-<li>significant_terms （SigTerms）聚合分析统计你的数据并通过对比正常数据找到可能有异常频次的指标。</li>
-<li>（SigTerms）聚合不同于其他聚合，它有着不同的工作机制，它不是简单的数学计算，有点像机器学习。</li>
-</ul>
-<p>应用场景：</p>
-<ul>
-<li>对于信用卡数据，我们可能会想找出信用卡欺诈。</li>
-<li>对于电商数据，我们可能会想找出未被识别的人口信息，从而进行更高效的市场推广。</li>
-<li>如果我们正在分析日志，我们可能会发现一个服务器会抛出比它本应抛出的更多异常。</li>
-</ul>
-<h3 id="significant-terms演示"><a href="#significant-terms演示" class="headerlink" title="significant_terms演示"></a>significant_terms演示</h3><p>无法下载demo数据。略过此节</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
+          中文参考，英文参考
 
+(Significant Terms)
+ * significant_terms （SigTerms）聚合分析统计你的数据并通过对比正常数据找到可能有异常频次的指标。
+ * （SigTerms）聚合不同于其他聚合，它有着不同的工作机制，它不是简单的数学计算，有点像机器学习。
+
+应用场景：
+
+ * 对于信用卡数据，我们可能会想找出信用卡欺诈。
+ * 对于电商数据，我们可能会想找出未被识别的人口信息，从而进行更高效的市场推广。
+ * 如果我们正在分析日志，我们可能会发现一个服务器会抛出比它本应抛出的更多异常。
+
+significant_terms演示
+无法下载demo数据。略
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/18/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/35-%E8%81%9A%E5%90%88-%E9%80%9A%E8%BF%87%E8%81%9A%E5%90%88%E5%8F%91%E7%8E%B0%E5%BC%82%E5%B8%B8%E6%8C%87%E6%A0%87/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -502,96 +474,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_approximate_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/55_approx_intro.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/60_cardinality.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
-<h3 id="近似聚合-Approximate-Aggregations"><a href="#近似聚合-Approximate-Aggregations" class="headerlink" title="近似聚合(Approximate Aggregations)"></a>近似聚合(Approximate Aggregations)</h3><p>在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。</p>
-<p>三角因子模型：大数据、精确性和实时性。<br>选择其中两项：</p>
-<ul>
-<li>精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。</li>
-<li>大数据 + 精确 ：传统的 Hadoop可以处理 PB 级的数据并且为提供精确答案，但响应不够及时。</li>
-<li>大数据 + 实时 ：近似算法为我们提供准确但不精确的结果。</li>
-</ul>
-<p>Elasticsearch 目前支持两种近似算法：cardinality ， percentiles。<br>它们会提供准确但不是 100% 精确的结果。 以牺牲一点小小的估算错误为代价，这些算法可以为我们换来高速的执行效率和极小的内存消耗。</p>
-<h2 id="近似算法：cardinality"><a href="#近似算法：cardinality" class="headerlink" title="近似算法：cardinality"></a>近似算法：cardinality</h2><h3 id="统计去重后的数量-Finding-Distinct-Counts"><a href="#统计去重后的数量-Finding-Distinct-Counts" class="headerlink" title="统计去重后的数量(Finding Distinct Counts)"></a>统计去重后的数量(Finding Distinct Counts)</h3><p>近似聚合 cardinality(基数）度量: 它提供一个字段的基数，即该字段的distinct或unique值的数目。<br>类似SQL:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">DISTINCT</span> color)</span><br><span class="line"><span class="keyword">FROM</span> cars</span><br></pre></td></tr></table></figure>
-<p>去重</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>结果</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "distinct_colors": &#123;</span><br><span class="line">     "value": 3</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
+英文参考2
 
-<p>每月有多少颜色的车被售出，将一个 cardinality 度量嵌入一个 date_histogram。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">      <span class="attr">"months"</span> : &#123;</span><br><span class="line">        <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">          <span class="attr">"field"</span>: <span class="string">"sold"</span>,</span><br><span class="line">          <span class="attr">"interval"</span>: <span class="string">"month"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">          <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">              <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"color"</span></span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+近似聚合(Approximate Aggregations)
+在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。
 
-<h5 id="学会权衡-Understanding-the-Trade-offs"><a href="#学会权衡-Understanding-the-Trade-offs" class="headerlink" title="学会权衡(Understanding the Trade-offs)"></a>学会权衡(Understanding the Trade-offs)</h5><p>cardinality 度量是一个近似算法。 它是基于 <a href="http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/40671.pdf" target="_blank" rel="noopener">HyperLogLog++</a> （HLL）算法的。 HLL 会先对我们的输入作哈希运算，然后根据哈希运算的结果中的 bits 做概率估算从而得到基数。</p>
-<p>这个算法的 特性 ：</p>
-<ul>
-<li>可配置的精度，用来控制内存的使用（更精确 ＝ 更多内存）。</li>
-<li>小的数据集精度是非常高的。</li>
-<li>我们可以通过配置参数，来设置去重需要的固定内存使用量。无论数千还是数十亿的唯一值，内存使用量只与你配置的精确度相关。</li>
-</ul>
-<p>通过 precision_threshold 参数来配置精度。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span>,</span><br><span class="line">              <span class="attr">"precision_threshold"</span> : <span class="number">100</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>precision_threshold=100 表示100 以内时会得到非常准确的结果。</li>
-<li>precision_threshold 接受 0–40,000 之间的数字，更大的值还是会被当作 40,000 来处理。</li>
-<li>高于阈值的基数会节省内存而牺牲准确度，同时也会对度量结果带入误差。</li>
-<li>在实际应用中， 100 的阈值可以在唯一值为百万的情况下仍然将误差维持 5% 以内。</li>
-</ul>
-<h5 id="速度优化-Optimizing-for-Speed"><a href="#速度优化-Optimizing-for-Speed" class="headerlink" title="速度优化(Optimizing for Speed)"></a>速度优化(Optimizing for Speed)</h5><ul>
-<li>HyperLogLog 的速度已经很快了，它只是在统计时对数据做哈希以及一些位操作。如果做进一步优化，索引时预先计算好字段内容的哈希值，查询时跳过哈希计算然后将哈希值从fielddata直接加载。</li>
-<li>预先计算哈希值只对内容很长或者基数很高的字段有用，计算这些字段的哈希值的消耗在查询时是无法忽略的。</li>
-<li>预先计算并不能保证所有的字段都更快，它只对那些具有高基数和/或者内容很长的字符串字段有作用。</li>
-</ul>
-<p>创建索引时新增一个字段映射，该映射包括哈希值字段。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">PUT /cars/</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"transactions"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"color"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"hash"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"murmur3"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>多值字段的类型是 murmur3 ，这是一个哈希函数。</li>
-<li>使用murmur3需要安装插件 map-murmur3 (执行命令 sudo bin/elasticsearch-plugin install mapper-murmur3)</li>
-</ul>
-<p>使用 color.hash 字段进行去重。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color.hash"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+三角因子模型：大数据、精确性和实时性。
+选择其中两项：
 
+ * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。
+ * 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级的数据并且为提供精确答案，但响应不够及时。
+ * 大数据 + 实时 ：近似算法为我们提供准确但不精确的结果。
 
-<h3 id="百分位数-计算-Calculating-Percentiles"><a href="#百分位数-计算-Calculating-Percentiles" class="headerlink" title="百分位数 计算(Calculating Percentiles)"></a>百分位数 计算(Calculating Percentiles)</h3><p>percentiles 百分位数 度量也是一个近似度量。<br>百分位数展现某以具体百分比下观察到的数值。例如，第95个百分位上的数值，是高于 95% 的数据总和。<br>百分位数通常用来找出异常。</p>
-<p>新增测试数据,包含三个值：延时、数据中心的区域以及时间戳。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">POST /website/logs/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">100</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">80</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">99</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">102</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">75</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">82</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">100</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">280</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">155</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">623</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">380</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">319</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>查询百分位数</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /website/logs/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"load_times"</span> : &#123;</span><br><span class="line">            <span class="attr">"percentiles"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"latency"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"avg_load_time"</span> : &#123;</span><br><span class="line">            <span class="attr">"avg"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"latency"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>percentiles 度量会返回一组预定义的百分位数值： [1, 5, 25, 50, 75, 95, 99],它们表示了人们感兴趣的常用百分位数值，极端的百分位数在范围的两边，其他的一些处于中部。</li>
-</ul>
-<p>返回结果：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "zones": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"eu"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"50.0"</span>: <span class="number">299.5</span>,</span><br><span class="line">                 <span class="attr">"95.0"</span>: <span class="number">562.25</span>,</span><br><span class="line">                 <span class="attr">"99.0"</span>: <span class="number">610.85</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="attr">"load_avg"</span>: &#123;</span><br><span class="line">              <span class="attr">"value"</span>: <span class="number">309.5</span></span><br><span class="line">           &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"us"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"50.0"</span>: <span class="number">90.5</span>,</span><br><span class="line">                 <span class="attr">"95.0"</span>: <span class="number">101.5</span>,</span><br><span class="line">                 <span class="attr">"99.0"</span>: <span class="number">101.9</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="attr">"load_avg"</span>: &#123;</span><br><span class="line">              <span class="attr">"value"</span>: <span class="number">89.66666666666667</span></span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="百分位数-排行-Percentile-Ranks"><a href="#百分位数-排行-Percentile-Ranks" class="headerlink" title="百分位数 排行(Percentile Ranks)"></a>百分位数 排行(Percentile Ranks)</h5><ul>
-<li>percentile_ranks : percentile_ranks度量告诉我们落在某个百分比一下的所有文档的最小值。</li>
-<li>percentile_ranks 与 percentile 是双向关系，percentile给出百分比对应的数据，percentile_ranks给出数据对应的百分比。</li>
-</ul>
-<p>查询 200和800对应点百分位</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /website/logs/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"zones"</span> : &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"zone"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">                <span class="attr">"load_times"</span> : &#123;</span><br><span class="line">                    <span class="attr">"percentile_ranks"</span> : &#123;</span><br><span class="line">                      <span class="attr">"field"</span> : <span class="string">"latency"</span>,</span><br><span class="line">                      <span class="attr">"values"</span> : [<span class="number">210</span>, <span class="number">800</span>]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>结果：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "zones": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"eu"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"210.0"</span>: <span class="number">31.944444444444443</span>,</span><br><span class="line">                 <span class="attr">"800.0"</span>: <span class="number">100</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"us"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"210.0"</span>: <span class="number">100</span>,</span><br><span class="line">                 <span class="attr">"800.0"</span>: <span class="number">100</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>“800”:100,表示800秒的要求所有请求都满足了</li>
-<li>eu欧洲 小于210秒的只有31%。</li>
-</ul>
-<h5 id="学会平衡-Understanding-the-Trade-offs"><a href="#学会平衡-Understanding-the-Trade-offs" class="headerlink" title="学会平衡(Understanding the Trade-offs)"></a>学会平衡(Understanding the Trade-offs)</h5><ul>
-<li>计算百分位需要一个近似算法。 朴素的 实现会维护一个所有值的有序列表， 但当我们有几十亿数据分布在几十个节点时，这几乎是不可能的。</li>
-<li>percentiles 使用一个 TDigest 算法，（由 Ted Dunning 在 <a href="https://github.com/tdunning/t-digest/blob/master/docs/t-digest-paper/histo.pdf" target="_blank" rel="noopener">Computing Extremely Accurate Quantiles Using T-Digests</a> 里面提出的）。</li>
-<li>TDigest 算法特性：<ul>
-<li>百分位的准确度与百分位的 极端程度 相关，也就是说 1 或 99 的百分位要比 50 百分位要准确。这只是数据结构内部机制的一种特性，但这是一个好的特性，因为多数人只关心极端的百分位。</li>
-<li>对于数值集合较小的情况，百分位非常准确。如果数据集足够小，百分位可能 100% 精确。</li>
-<li>随着桶里数值的增长，算法会开始对百分位进行估算。它能有效在准确度和内存节省之间做出权衡。 不准确的程度比较难以总结，因为它依赖于 聚合时数据的分布以及数据量的大小。</li>
-</ul>
-</li>
-<li>percentiles中可以通过修改参数 compression 来控制内存与准确度之间的比值。</li>
-<li>TDigest 算法用节点近似计算百分比：节点越多，准确度越高（同时内存消耗也越大），这都与数据量成正比。 compression 参数限制节点的最大数目为 20 * compression 。</li>
-<li>压缩比值：默认的压缩比值是 100，通过增加压缩比值，可以以消耗更多内存为代价提高百分位数准确性。更大的压缩比值会使算法运行更慢，因为底层的树形数据结构的存储也会增长，也导致操作的代价更高。</li>
-</ul>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-
+Elasticsearch 目前支持两种近似算法：cardinal
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -678,48 +582,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_filtering_queries_and_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/45_filtering.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="过滤和聚合-Filtering-Queries-and-Aggregations"><a href="#过滤和聚合-Filtering-Queries-and-Aggregations" class="headerlink" title="过滤和聚合(Filtering Queries and Aggregations)"></a>过滤和聚合(Filtering Queries and Aggregations)</h3><ul>
-<li>过滤器对查询范围做限定</li>
-<li>过滤器对聚合结果进行过滤</li>
-<li>任何可以适用于查询的过滤器也可以应用在聚合上。</li>
-</ul>
-<h3 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h3><ol>
-<li>售价在 $10,000 美元之上的所有汽车</li>
-<li>同时也为这些车计算平均售价</li>
-</ol>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"query"</span> : &#123;</span><br><span class="line">        <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"range"</span>: &#123;</span><br><span class="line">                    <span class="attr">"price"</span>: &#123;</span><br><span class="line">                        <span class="attr">"gte"</span>: <span class="number">10000</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"single_avg_price"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg"</span> : &#123; <span class="attr">"field"</span> : <span class="string">"price"</span> &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="过滤桶-Filter-Bucket"><a href="#过滤桶-Filter-Bucket" class="headerlink" title="过滤桶(Filter Bucket)"></a>过滤桶(Filter Bucket)</h3><ul>
-<li>使用过滤桶(Filter Bucket)在查询范围基础上进行过滤，满足过滤条件时加入桶内</li>
-<li>过滤桶(Filter Bucket)也可以嵌套</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"query"</span>:&#123;</span><br><span class="line">      <span class="attr">"match"</span>: &#123;</span><br><span class="line">         <span class="attr">"make"</span>: <span class="string">"ford"</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"aggs"</span>:&#123;</span><br><span class="line">      <span class="attr">"recent_sales"</span>: &#123;</span><br><span class="line">         <span class="attr">"filter"</span>: &#123;</span><br><span class="line">            <span class="attr">"range"</span>: &#123;</span><br><span class="line">               <span class="attr">"sold"</span>: &#123;</span><br><span class="line">                  <span class="attr">"from"</span>: <span class="string">"now-1M"</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"average_price"</span>:&#123;</span><br><span class="line">               <span class="attr">"avg"</span>: &#123;</span><br><span class="line">                  <span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>使用 过滤 桶在 查询 范围基础上应用过滤器。</li>
-<li>avg 度量只会对 ford 和上个月售出的文档计算平均售价。</li>
-</ul>
-<h3 id="后过滤器-Post-Filter"><a href="#后过滤器-Post-Filter" class="headerlink" title="后过滤器(Post Filter)"></a>后过滤器(Post Filter)</h3><p>4种过滤场景</p>
-<ol>
-<li>过滤搜索结果(query中使用filter，先执行过滤，再执行搜索)</li>
-<li>过滤聚合结果(aggs中使用filter)</li>
-<li>过滤部分聚合结果(嵌套的aggs中使用filter)</li>
-<li>只过滤搜索结果，不过滤聚合结果，使用post_filter在查询之后执行过滤，对查询范围没影响。</li>
-<li>post_filter 元素是 top-level，而且符合条件的文档加入桶中。</li>
-<li>post_filter 的特性是在查询之后 执行，失去了过滤器的性能优势（比如缓存)。</li>
-<li>在我们需要不同过滤时， post_filter 只与聚合一起使用。</li>
-</ol>
-<p>查询条件：1. 搜索绿色的福特汽车 2. 按照颜色对福特进行聚合</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"make"</span>: <span class="string">"ford"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"post_filter"</span>: &#123;    </span><br><span class="line">        <span class="attr">"term"</span> : &#123;</span><br><span class="line">            <span class="attr">"color"</span> : <span class="string">"green"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"all_colors"</span>: &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123; <span class="attr">"field"</span> : <span class="string">"color"</span> &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
+
+过滤和聚合(Filtering Queries and Aggregations)
+ * 过滤器对查询范围做限定
+ * 过滤器对聚合结果进行过滤
+ * 任何可以适用于查询的过滤器也可以应用在聚合上。
+
+过滤
+ 1. 售价在 $10,000 美元之上的所有汽车
+ 2. 同时也为这些车计算平均售价
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
 
 
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
-<li>在 filter 过滤中的不评分(non-scoring)查询，同时影响搜索结果和聚合结果。</li>
-<li>filter桶 影响聚合</li>
-<li>post_filter 只影响搜索结果</li>
-</ul>
-<p>###</p>
-<p>###</p>
-
+GET /cars/transactions/_search
+{
+    "size" : 0,
+    "query" : {
+        "constant_scor
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/32-%E8%81%9A%E5%90%88-%E8%BF%87%E6%BB%A4%E5%92%8C%E8%81%9A%E5%90%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -806,31 +714,45 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_scoping_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/40_scope.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="范围限定的聚合-Scoping-Aggregations"><a href="#范围限定的聚合-Scoping-Aggregations" class="headerlink" title="范围限定的聚合(Scoping Aggregations)"></a>范围限定的聚合(Scoping Aggregations)</h3><ul>
-<li>聚合与搜索同时执行时，聚合是基于查询匹配的文件集合进行计算的。</li>
-<li>过滤器也可以进行范围限定</li>
-<li>‘没有指定查询’ 和 ‘查询所有文档’ 是等价的。</li>
-<li>聚合总是对查询范围内的结果进行操作的，所以一个单独的聚合实际上是在对 match_all 的结果范围操作，即所有的文档</li>
-<li>利用查询来限定聚合的范围(scope)</li>
-</ul>
-<p>例如：福特汽车有多少中颜色</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span> : &#123;</span><br><span class="line">        <span class="attr">"match"</span> : &#123;</span><br><span class="line">            <span class="attr">"make"</span> : <span class="string">"ford"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="全局桶-Global-Bucket"><a href="#全局桶-Global-Bucket" class="headerlink" title="全局桶(Global Bucket)"></a>全局桶(Global Bucket)</h5><ul>
-<li>使用全局桶脱离当前查询范围的限制，基于所有文档。</li>
-<li>global 全局桶没有参数。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"query"</span> : &#123;</span><br><span class="line">        <span class="attr">"match"</span> : &#123;</span><br><span class="line">            <span class="attr">"make"</span> : <span class="string">"ford"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"single_avg_price"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg"</span> : &#123; <span class="attr">"field"</span> : <span class="string">"price"</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"all"</span>: &#123;</span><br><span class="line">            <span class="attr">"global"</span> : &#123;&#125;,</span><br><span class="line">            <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">                <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">                    <span class="attr">"avg"</span> : &#123; <span class="attr">"field"</span> : <span class="string">"price"</span> &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
+
+范围限定的聚合(Scoping Aggregations)
+ * 聚合与搜索同时执行时，聚合是基于查询匹配的文件集合进行计算的。
+ * 过滤器也可以进行范围限定
+ * ‘没有指定查询’ 和 ‘查询所有文档’ 是等价的。
+ * 聚合总是对查询范围内的结果进行操作的，所以一个单独的聚合实际上是在对 match_all 的结果范围操作，即所有的文档
+ * 利用查询来限定聚合的范围(scope)
+
+例如：福特汽车有多少中颜色
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
 
 
-
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-
+GET /cars/transactions/_search
+{
+    "q
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/31-%E8%81%9A%E5%90%88-%E8%8C%83%E5%9B%B4%E9%99%90%E5%AE%9A%E7%9A%84%E8%81%9A%E5%90%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -917,39 +839,43 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_looking_at_time.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/35_date_histogram.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="按时间统计-Looking-at-Time"><a href="#按时间统计-Looking-at-Time" class="headerlink" title="按时间统计(Looking at Time)"></a>按时间统计(Looking at Time)</h3><ul>
-<li>使用 date_histogram 按时间统计，能自动识别时间数据，还可以处理时区。</li>
-<li>date_histogram 经常为线装图以展示时间序列。</li>
-<li>date_histogram 是以时间范围上构建buckets，每个bucket被定义为一特定的日期大小(比如： 1个月，3天)</li>
-</ul>
-<p>查询每月汽车销量</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">      <span class="attr">"sales"</span>: &#123;</span><br><span class="line">         <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"sold"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="string">"month"</span>,</span><br><span class="line">            <span class="attr">"format"</span>: <span class="string">"yyyy-MM-dd"</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>每个月构建一个桶，统计汽车销量</li>
-<li>‘format’: 在ES内部日期被表生成数据，format把日期格式化成为更易读的格式。</li>
-</ul>
-<h3 id="返回空Buckets-Returning-Empty-Buckets"><a href="#返回空Buckets-Returning-Empty-Buckets" class="headerlink" title="返回空Buckets(Returning Empty Buckets)"></a>返回空Buckets(Returning Empty Buckets)</h3><ul>
-<li>min_doc_count 指定doc_count &gt;= min_doc_count 的文档返回</li>
-<li>extended_bounds 指定日期边界(min,max)，边界内如果不存在文档，该参数会补齐文档，值为0.</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">      <span class="attr">"sales"</span>: &#123;</span><br><span class="line">         <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"sold"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="string">"month"</span>,</span><br><span class="line">            <span class="attr">"format"</span>: <span class="string">"yyyy-MM-dd"</span>,</span><br><span class="line">            <span class="attr">"min_doc_count"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="attr">"extended_bounds"</span> : &#123;</span><br><span class="line">                <span class="attr">"min"</span> : <span class="string">"2014-01-01"</span>,</span><br><span class="line">                <span class="attr">"max"</span> : <span class="string">"2014-12-31"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>‘min_doc_count=0’ 强制返回空 buckets。</li>
-<li>extended_bounds 返回2014整年</li>
-</ul>
-<h3 id="扩展例子-Extended-Example"><a href="#扩展例子-Extended-Example" class="headerlink" title="扩展例子(Extended Example)"></a>扩展例子(Extended Example)</h3><p>查询条件：</p>
-<ol>
-<li>按照季度展示汽车销量</li>
-<li>每季度的每个汽车品牌销售总额</li>
-<li>每季度的总销售额</li>
-</ol>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">      <span class="attr">"sales"</span>: &#123;</span><br><span class="line">         <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"sold"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="string">"quarter"</span>,</span><br><span class="line">            <span class="attr">"format"</span>: <span class="string">"yyyy-MM-dd"</span>,</span><br><span class="line">            <span class="attr">"min_doc_count"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="attr">"extended_bounds"</span> : &#123;</span><br><span class="line">                <span class="attr">"min"</span> : <span class="string">"2014-01-01"</span>,</span><br><span class="line">                <span class="attr">"max"</span> : <span class="string">"2014-12-31"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"per_make_sum"</span>: &#123;</span><br><span class="line">               <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                  <span class="attr">"field"</span>: <span class="string">"make"</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                  <span class="attr">"sum_price"</span>: &#123;</span><br><span class="line">                     <span class="attr">"sum"</span>: &#123; <span class="attr">"field"</span>: <span class="string">"price"</span> &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"total_sum"</span>: &#123;</span><br><span class="line">               <span class="attr">"sum"</span>: &#123; <span class="attr">"field"</span>: <span class="string">"price"</span> &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<h3 id="潜力无穷-The-Sky’s-the-Limit"><a href="#潜力无穷-The-Sky’s-the-Limit" class="headerlink" title="潜力无穷(The Sky’s the Limit)"></a>潜力无穷(The Sky’s the Limit)</h3><p>###</p>
-<p>###</p>
-<p>###</p>
+按时间统计(Looking at Time)
+ * 使用 date_histogram 按时间统计，能自动识别时间数据，还可以处理时区。
+ * date_histogram 经常为线装图以展示时间序列。
+ * date_histogram 是以时间范围上构建buckets，每个bucket被定义为一特定的日期大小(比如： 1个月，3天)
 
+查询每月汽车销量
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+
+
+GET /cars/transactions/_search
+{
+   "size" : 0,
+   "aggs": {
+      "sales": 
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/30-%E8%81%9A%E5%90%88-%E6%8C%89%E6%97%B6%E9%97%B4%E7%BB%9F%E8%AE%A1/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1036,29 +962,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_building_bar_charts.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="构建条形图-Building-Bar-Charts"><a href="#构建条形图-Building-Bar-Charts" class="headerlink" title="构建条形图(Building Bar Charts)"></a>构建条形图(Building Bar Charts)</h3><ul>
-<li>聚合还有一个令人激动的特性就是能够十分容易地将它们转换成图表(charts)和图形(graphs)。</li>
-<li>直方图(histogram) 特别有用,它本质是一个条形图(Bar Charts)</li>
-<li>直方图(histogram) 需要指定一个区间，在区间内进行计算统计。</li>
-<li>关键字：histogram-直方图， interval-区间间隔， extended_stats-统计count,min,max,avg,sum,sum_of_squares,variance,std_deviation,std_deviation_bounds</li>
-</ul>
-<p>以20000元为间隔设定分组的间隔范围(0-19999, 20000-39999, …])，统计(sum)区间内的总收入。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"size"</span>: <span class="number">0</span>,</span><br><span class="line">	<span class="attr">"aggs"</span>: &#123;</span><br><span class="line">		<span class="attr">"price"</span>: &#123;</span><br><span class="line">			<span class="attr">"histogram"</span>: &#123;</span><br><span class="line">				<span class="attr">"field"</span>: <span class="string">"price"</span>,</span><br><span class="line">				<span class="attr">"interval"</span>: <span class="number">20000</span></span><br><span class="line">			&#125;,</span><br><span class="line">			<span class="attr">"aggs"</span>: &#123;</span><br><span class="line">				<span class="attr">"revenue"</span>: &#123;</span><br><span class="line">					<span class="attr">"sum"</span>: &#123;</span><br><span class="line">						<span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>histogram 桶要求两个参数：一个数值字段以及一个定义桶大小间隔。</li>
-<li>sum 度量嵌套在每个售价区间内，用来显示每个区间内的总收入。</li>
-</ul>
-<p>使用extended_stats统计(count,min,max,avg,sum,sum_of_squares,variance,std_deviation,std_deviation_bounds)</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"makes"</span>: &#123;</span><br><span class="line">      <span class="attr">"terms"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>: <span class="string">"make"</span>,</span><br><span class="line">        <span class="attr">"size"</span>: <span class="number">10</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"stats"</span>: &#123;</span><br><span class="line">          <span class="attr">"extended_stats"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-<p>###</p>
-
+构建条形图(Building Bar Charts)
+ * 聚合还有一个令人激动的特性就是能够十分容易地将它们转换成图表(charts)和图形(graphs)。
+ * 直方图(histogram) 特别有用,它本质是一个条形图(Bar Charts)
+ * 直方图(histogram) 需要指定一个区间，在区间内进行计算统计。
+ * 关键字：histogram-直方图， interval-区间间隔， extended_stats-统计count,min,max,avg,sum,sum_of_squares,variance,std_deviation,std_deviat
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/29-%E8%81%9A%E5%90%88-%E6%9D%A1%E5%BD%A2%E5%9B%BE/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1145,38 +1063,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/aggs-high-level.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/eb0004640922da772be5ccb61060642a23b67e6b/301_Aggregation_Overview.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="聚合简介"><a href="#聚合简介" class="headerlink" title="聚合简介"></a>聚合简介</h3><ul>
-<li>聚合会得到一个数据的概览。</li>
-<li>聚合是分析和总结全套的数据。</li>
-<li>聚合可以回答更加细微的问题</li>
-<li>聚合使用相同的数据结构，所以它的执行速度很快并且就像搜索一样几乎是实时的</li>
-<li>聚合和搜索结合使用。</li>
-</ul>
-<h3 id="高阶概念-High-Level-Concepts"><a href="#高阶概念-High-Level-Concepts" class="headerlink" title="高阶概念(High-Level Concepts)"></a>高阶概念(High-Level Concepts)</h3><ul>
-<li>两个主要概念:<ul>
-<li>桶(Buckets): 满足特定条件文档的集合。</li>
-<li>指标(Metrics): 对桶内的文档进行统计计算。</li>
-</ul>
-</li>
-<li>聚合也是可混合的语法，每个聚合是一个或多个桶和指标的组合。学习很少基本概念可以无尽组合。</li>
-</ul>
-<h3 id="桶"><a href="#桶" class="headerlink" title="桶"></a>桶</h3><ul>
-<li>桶：满足特定条件文档的集合。</li>
-<li>过程：聚合开始执行，每个文档里面的值通过计算来决定符合哪个桶的条件。如果匹配到则将文档放入响应的桶，接着进行聚合操作。</li>
-<li>桶可以嵌套其他桶。</li>
-<li>很多类型的桶让你基于条件来划分文档。</li>
-</ul>
-<h3 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h3><ul>
-<li>分桶是一种达到目的的手段：它提供了一种给文档分组的方法来让我们可以计算感兴趣的指标。</li>
-<li>大多数 指标 是简单的数学运算(例如最小值、平均值、最大值，还有汇总),通过文档值来计算。</li>
-</ul>
-<h3 id="桶和指标的组合"><a href="#桶和指标的组合" class="headerlink" title="桶和指标的组合"></a>桶和指标的组合</h3><ul>
-<li>聚合 是由桶和指标组成的。聚合可能只有一个桶，可能只有一个指标，或者可能两个都有。也有可能有一些桶嵌套在其他桶里面。</li>
-</ul>
-<p>###</p>
-<p>###</p>
+          中文参考，英文参考
 
+聚合简介
+ * 聚合会得到一个数据的概览。
+ * 聚合是分析和总结全套的数据。
+ * 聚合可以回答更加细微的问题
+ * 聚合使用相同的数据结构，所以它的执行速度很快并且就像搜索一样几乎是实时的
+ * 聚合和搜索结合使用。
+
+高阶概念(High-Level Concepts)
+ * 两个主要概念: * 桶(Buckets): 满足特定条件文档的集合。
+    * 指标(Metrics): 对桶内的文档进行统计计算。
+   
+   
+ * 聚合也是可混合的语法，每个聚合是一个或多个桶和指标的组合。学习很少基本概念可以无尽组合。
+
+桶
+ * 桶：满足特定条件文档的集合。
+ * 
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/27-%E8%81%9A%E5%90%88-%E9%AB%98%E9%98%B6%E6%A6%82%E5%BF%B5/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1263,51 +1176,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_aggregation_test_drive.html#_aggregation_test_drive" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/20_basic_example.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/21_add_metric.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
-<h3 id="尝试聚合"><a href="#尝试聚合" class="headerlink" title="尝试聚合"></a>尝试聚合</h3><p>聚合的桶操作和度量的完整用法可以在 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html" target="_blank" rel="noopener">Elasticsearch 参考</a> 中找到。</p>
-<p>添加数据</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">POST /cars/transactions/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">10000</span>, <span class="attr">"color"</span> : <span class="string">"red"</span>, <span class="attr">"make"</span> : <span class="string">"honda"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">20000</span>, <span class="attr">"color"</span> : <span class="string">"red"</span>, <span class="attr">"make"</span> : <span class="string">"honda"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-11-05"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">30000</span>, <span class="attr">"color"</span> : <span class="string">"green"</span>, <span class="attr">"make"</span> : <span class="string">"ford"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-05-18"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">15000</span>, <span class="attr">"color"</span> : <span class="string">"blue"</span>, <span class="attr">"make"</span> : <span class="string">"toyota"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-07-02"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">12000</span>, <span class="attr">"color"</span> : <span class="string">"green"</span>, <span class="attr">"make"</span> : <span class="string">"toyota"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-08-19"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">20000</span>, <span class="attr">"color"</span> : <span class="string">"red"</span>, <span class="attr">"make"</span> : <span class="string">"honda"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-11-05"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">80000</span>, <span class="attr">"color"</span> : <span class="string">"red"</span>, <span class="attr">"make"</span> : <span class="string">"bmw"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-01-01"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"price"</span> : <span class="number">25000</span>, <span class="attr">"color"</span> : <span class="string">"blue"</span>, <span class="attr">"make"</span> : <span class="string">"ford"</span>, <span class="attr">"sold"</span> : <span class="string">"2014-02-12"</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>查询那种颜色的车销量最好。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span>:<span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"popular_colors"</span>:&#123;</span><br><span class="line">      <span class="attr">"terms"</span> : &#123;</span><br><span class="line">        <span class="attr">"field"</span>: <span class="string">"color"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>聚合操作被置于顶层参数 aggs 之下,聚合是在特定搜索结果背景下执行的， 这也就是说它只是查询请求的另外一个顶层参数</li>
-<li>‘popular_colors’ 为聚合指定一个我们想要名称.</li>
-<li>定义单个桶的类型 terms</li>
-<li>“size”:0, 将 size 设置成0，我们并不关心搜索结果的具体内容，所以将返回记录数设置为 0 来提高查询速度。</li>
-</ul>
-<p>返回结果如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line">   "hits": &#123;</span><br><span class="line">      "hits": []</span><br><span class="line">   &#125;,</span><br><span class="line">   "aggregations": &#123;</span><br><span class="line">      "popular_colors": &#123;</span><br><span class="line">         "buckets": [</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"red"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">4</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"blue"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"green"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span></span><br><span class="line">            &#125;</span><br><span class="line">         ]</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>因为我们设置了 size 参数，所以不会有 hits 搜索结果返回。</li>
-<li>popular_colors 聚合是作为 aggregations 字段的一部分被返回的。</li>
-<li>响应包含多个桶，每个桶的 key 都与 color 字段里找到的唯一词对应。它总会包含 doc_count 字段，告诉我们包含该词项的文档数量。</li>
-<li>每个桶的数量(doc_count)代表该颜色的文档数量。</li>
-</ul>
-<h3 id="添加度量指标-Adding-a-Metric-to-the-Mix"><a href="#添加度量指标-Adding-a-Metric-to-the-Mix" class="headerlink" title="添加度量指标(Adding a Metric to the Mix)"></a>添加度量指标(Adding a Metric to the Mix)</h3><p>度量(metrics)是基于桶内的文档进行数学统计的，所以需要将度量嵌套到桶内。<br>需要告诉ES对哪个字段，计算哪些度量。</p>
-<p>统计汽车平均价格</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">      <span class="attr">"colors"</span>: &#123;</span><br><span class="line">         <span class="attr">"terms"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"color"</span></span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">               <span class="attr">"avg"</span>: &#123;</span><br><span class="line">                  <span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>新增的嵌套的度量层’aggs’; 度量名称为’avg_price’;度量本身是’avg’, 度量的字段是 ‘price’,</li>
-<li>嵌套中的’aggs’为度量新增 aggs 层, 它将 avg 度量嵌套置于 terms 桶内。</li>
-</ul>
-<h3 id="嵌套桶-Buckets-Inside-Buckets"><a href="#嵌套桶-Buckets-Inside-Buckets" class="headerlink" title="嵌套桶(Buckets Inside Buckets)"></a>嵌套桶(Buckets Inside Buckets)</h3><p>嵌套桶才能发挥聚合的力量。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">   <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">      <span class="attr">"colors"</span>: &#123;</span><br><span class="line">         <span class="attr">"terms"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>: <span class="string">"color"</span></span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">               <span class="attr">"avg"</span>: &#123;</span><br><span class="line">                  <span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"make"</span>: &#123;</span><br><span class="line">                <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                    <span class="attr">"field"</span>: <span class="string">"make"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>新增一个’make’聚合，嵌套在 colors 、 terms 桶内，与’avg_price’平级，相互独立。</li>
-<li>‘make’聚合是 terms 桶，它会为每个汽车制造商生成唯一的桶。</li>
-<li>一个聚合的每个曾经都可以有多个度量或桶。</li>
-<li>聚合使我们能够用一次数据请求获得所有的这些信息。</li>
-</ul>
-<p>返回结果：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"took"</span>: <span class="number">89</span>,</span><br><span class="line">    <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">        <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"skipped"</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"hits"</span>: &#123;</span><br><span class="line">        <span class="attr">"total"</span>: <span class="number">8</span>,</span><br><span class="line">        <span class="attr">"max_score"</span>: <span class="number">0.0</span>,</span><br><span class="line">        <span class="attr">"hits"</span>: []</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"aggregations"</span>: &#123;</span><br><span class="line">        <span class="attr">"colors"</span>: &#123;</span><br><span class="line">            <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">            <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">            <span class="attr">"buckets"</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="attr">"key"</span>: <span class="string">"red"</span>,</span><br><span class="line">                    <span class="attr">"doc_count"</span>: <span class="number">4</span>,</span><br><span class="line">                    <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">                        <span class="attr">"value"</span>: <span class="number">32500.0</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="attr">"make"</span>: &#123;</span><br><span class="line">                        <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"buckets"</span>: [</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"honda"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">3</span></span><br><span class="line">                            &#125;,</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"bmw"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">1</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        ]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="attr">"key"</span>: <span class="string">"blue"</span>,</span><br><span class="line">                    <span class="attr">"doc_count"</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">                        <span class="attr">"value"</span>: <span class="number">20000.0</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="attr">"make"</span>: &#123;</span><br><span class="line">                        <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"buckets"</span>: [</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"ford"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">1</span></span><br><span class="line">                            &#125;,</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"toyota"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">1</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        ]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="attr">"key"</span>: <span class="string">"green"</span>,</span><br><span class="line">                    <span class="attr">"doc_count"</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">                        <span class="attr">"value"</span>: <span class="number">21000.0</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="attr">"make"</span>: &#123;</span><br><span class="line">                        <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="attr">"buckets"</span>: [</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"ford"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">1</span></span><br><span class="line">                            &#125;,</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="attr">"key"</span>: <span class="string">"toyota"</span>,</span><br><span class="line">                                <span class="attr">"doc_count"</span>: <span class="number">1</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        ]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            ]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
+英文参考2
 
-<h3 id="最后的修改"><a href="#最后的修改" class="headerlink" title="最后的修改"></a>最后的修改</h3><p>为每个汽车生成商计算最低和最高的价格：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"size"</span>: <span class="number">0</span>,</span><br><span class="line">	<span class="attr">"aggs"</span>: &#123;</span><br><span class="line">		<span class="attr">"colors"</span>: &#123;</span><br><span class="line">			<span class="attr">"terms"</span>: &#123;</span><br><span class="line">				<span class="attr">"field"</span>: <span class="string">"color"</span></span><br><span class="line">			&#125;,</span><br><span class="line">			<span class="attr">"aggs"</span>: &#123;</span><br><span class="line">				<span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">					<span class="attr">"avg"</span>: &#123;</span><br><span class="line">						<span class="attr">"field"</span>: <span class="string">"price"</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125;,</span><br><span class="line">				<span class="attr">"make"</span>: &#123;</span><br><span class="line">					<span class="attr">"terms"</span>: &#123;</span><br><span class="line">						<span class="attr">"field"</span>: <span class="string">"make"</span></span><br><span class="line">					&#125;,</span><br><span class="line">					<span class="attr">"aggs"</span>: &#123;</span><br><span class="line">						<span class="attr">"min_price"</span>: &#123; <span class="attr">"min"</span>: &#123;<span class="attr">"field"</span>: <span class="string">"price"</span>&#125; &#125;,</span><br><span class="line">						<span class="attr">"max_price"</span>: &#123; <span class="attr">"max"</span>: &#123;<span class="attr">"field"</span>: <span class="string">"price"</span>&#125; &#125;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+尝试聚合
+聚合的桶操作和度量的完整用法可以在 Elasticsearch 参考 中找到。
 
-<p>###</p>
-<p>###</p>
-<p>###</p>
+添加数据
 
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+
+
+POST /cars/transactions/_bulk
+{ "index": {}}
+{ "price" : 10000, "color" : "red", "make" : "honda", "sold" : "2014-10-28" }
+{ "index": {}}
+{ "price" : 20000, "color" : "red", "make" : "hon
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/28-%E8%81%9A%E5%90%88-%E5%B0%9D%E8%AF%95%E8%81%9A%E5%90%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1394,39 +1302,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_sorting_multivalue_buckets.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/50_sorting_ordering.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
-<h3 id="多桶排序-Sorting-Multivalue-Buckets"><a href="#多桶排序-Sorting-Multivalue-Buckets" class="headerlink" title="多桶排序(Sorting Multivalue Buckets)"></a>多桶排序(Sorting Multivalue Buckets)</h3><ul>
-<li>多值桶（ terms 、 histogram 和 date_histogram ）动态生成很多桶。</li>
-<li>默认情况，桶根据doc_count降序排列。</li>
-</ul>
-<h3 id="内置排序-Intrinsic-Sorts"><a href="#内置排序-Intrinsic-Sorts" class="headerlink" title="内置排序(Intrinsic Sorts)"></a>内置排序(Intrinsic Sorts)</h3><ul>
-<li>内置排序(Intrinsic Sorts)：利用桶内置的属性进行排序，桶内置的属性是操作桶时产生的数据。</li>
-<li>内置排序字段：<ul>
-<li><code>_count</code> ：按文档数排序，默认：文档数降序。对terms、histogram、date_histogram有效</li>
-<li><code>_term</code> ： 按词项的字符串值的字母顺序排序。只在terms内使用。</li>
-<li><code>_key</code> :  按每个桶的键值数值排序(理论上与<code>_term</code>类似)。只在histogram和date_histogram内使用。</li>
-</ul>
-</li>
-</ul>
-<h3 id="按度量排序-Sorting-by-a-Metric"><a href="#按度量排序-Sorting-by-a-Metric" class="headerlink" title="按度量排序(Sorting by a Metric)"></a>按度量排序(Sorting by a Metric)</h3><p>基于度量计算的结果值进行排序.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span>,</span><br><span class="line">              <span class="attr">"order"</span>: &#123;</span><br><span class="line">                <span class="attr">"avg_price"</span> : <span class="string">"asc"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                <span class="attr">"avg_price"</span>: &#123;</span><br><span class="line">                    <span class="attr">"avg"</span>: &#123;<span class="attr">"field"</span>: <span class="string">"price"</span>&#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          中文参考，英文参考
 
-<h5 id="度量输出多值，如果进行排序？"><a href="#度量输出多值，如果进行排序？" class="headerlink" title="度量输出多值，如果进行排序？"></a>度量输出多值，如果进行排序？</h5><p>答案是 排序字段使用 度量点式路径。<br>例如 extended_stats 输出多值，排序字段 stats.variance</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span>,</span><br><span class="line">              <span class="attr">"order"</span>: &#123;</span><br><span class="line">                <span class="attr">"stats.variance"</span> : <span class="string">"asc"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                <span class="attr">"stats"</span>: &#123;</span><br><span class="line">                    <span class="attr">"extended_stats"</span>: &#123;<span class="attr">"field"</span>: <span class="string">"price"</span>&#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+多桶排序(Sorting Multivalue Buckets)
+ * 多值桶（ terms 、 histogram 和 date_histogram ）动态生成很多桶。
+ * 默认情况，桶根据doc_count降序排列。
 
-
-<h3 id="基于’深度’度量排序-Sorting-Based-on-“Deep”-Metrics"><a href="#基于’深度’度量排序-Sorting-Based-on-“Deep”-Metrics" class="headerlink" title="基于’深度’度量排序(Sorting Based on “Deep” Metrics)"></a>基于’深度’度量排序(Sorting Based on “Deep” Metrics)</h3><ul>
-<li>对’更深’的度量进行排序，将度量用尖括号(&gt;)嵌套起来表示。例如： red_green_cars&gt;stats.variance</li>
-<li>嵌套路径上每个桶必须是单值。</li>
-<li>多值桶（如：terms ）动态生成许多桶，无法通过指定一个确定路径来识别。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"histogram"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"price"</span>,</span><br><span class="line">              <span class="attr">"interval"</span>: <span class="number">20000</span>,</span><br><span class="line">              <span class="attr">"order"</span>: &#123;</span><br><span class="line">                <span class="attr">"red_green_cars&gt;stats.variance"</span> : <span class="string">"asc"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                <span class="attr">"red_green_cars"</span>: &#123;</span><br><span class="line">                    <span class="attr">"filter"</span>: &#123; <span class="attr">"terms"</span>: &#123;<span class="attr">"color"</span>: [<span class="string">"red"</span>, <span class="string">"green"</span>]&#125;&#125;,</span><br><span class="line">                    <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                        <span class="attr">"stats"</span>: &#123;<span class="attr">"extended_stats"</span>: &#123;<span class="attr">"field"</span> : <span class="string">"price"</span>&#125;&#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>###</p>
-<p>###</p>
-<p>###</p>
-
+内置排序(Intrinsic Sorts)
+ * 内置排序(Intrinsic Sorts)：利用桶内置的属性进行排序，桶内置的属性是操作桶时产生的数据。
+ * 内置排序字段： * _count ：按文档数排序，默认：文档数降序。对terms、histogram、date_histogram有效
+    * _term ： 按词项的字符串值的字母顺序
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/33-%E8%81%9A%E5%90%88-%E5%A4%9A%E6%A1%B6%E6%8E%92%E5%BA%8F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1559,7 +1452,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">198k</span>
+    <span title="Symbols count total">199k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

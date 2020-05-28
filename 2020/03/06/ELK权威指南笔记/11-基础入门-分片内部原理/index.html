@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考，英文参考 使文本可被搜索 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。 倒排索引需要知道集合中的所有文档 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。不变性的优点：  不需要加锁，不用担心多线程问题。 不变性可使索引被内核的文件系统缓存，提高了搜索的">
+  <meta name="description" content="中文参考，英文参考  使文本可被搜索  * 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。  * 倒排索引需要知道集合中的所有文档  * 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。 不变性的优点：   * 不需要加锁，不用担心多线程问题。  * 不变性可使索引">
 <meta property="og:type" content="article">
 <meta property="og:title" content="11 基础入门-内部分片原理">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考，英文参考 使文本可被搜索 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。 倒排索引需要知道集合中的所有文档 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。不变性的优点：  不需要加锁，不用担心多线程问题。 不变性可使索引被内核的文件系统缓存，提高了搜索的">
+<meta property="og:description" content="中文参考，英文参考  使文本可被搜索  * 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。  * 倒排索引需要知道集合中的所有文档  * 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。 不变性的优点：   * 不需要加锁，不用担心多线程问题。  * 不变性可使索引">
 <meta property="article:published_time" content="2020-03-06T03:45:57.000Z">
 <meta property="article:modified_time" content="2020-05-26T05:52:43.978Z">
 <meta property="article:author" content="细数星辰">
@@ -418,8 +418,8 @@
       <i class="fa fa-chevron-left"></i> 10 基础入门-索引管理
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/13-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%BB%93%E6%9E%84%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="next" title="13-深入搜索-结构化搜索">
-      13-深入搜索-结构化搜索 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/" rel="next" title="12-深入搜索-简介">
+      12-深入搜索-简介 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -542,7 +542,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">198k</span>
+    <span title="Symbols count total">199k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

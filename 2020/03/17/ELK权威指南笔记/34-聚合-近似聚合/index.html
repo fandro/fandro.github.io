@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="中文参考，英文参考英文参考2 近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。 三角因子模型：大数据、精确性和实时性。选择其中两项：  精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级">
+  <meta name="description" content="中文参考，英文参考 英文参考2  近似聚合(Approximate Aggregations) 在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。  三角因子模型：大数据、精确性和实时性。 选择其中两项：   * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。  * 大数据 + 精确 ：传统的 Hado">
 <meta property="og:type" content="article">
 <meta property="og:title" content="34-聚合-近似聚合">
 <meta property="og:url" content="http://blog.fwbo.me/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/index.html">
 <meta property="og:site_name" content="细数星辰">
-<meta property="og:description" content="中文参考，英文参考英文参考2 近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。 三角因子模型：大数据、精确性和实时性。选择其中两项：  精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级">
+<meta property="og:description" content="中文参考，英文参考 英文参考2  近似聚合(Approximate Aggregations) 在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。  三角因子模型：大数据、精确性和实时性。 选择其中两项：   * 精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。  * 大数据 + 精确 ：传统的 Hado">
 <meta property="article:published_time" content="2020-03-17T07:25:57.000Z">
 <meta property="article:modified_time" content="2020-05-26T05:54:33.678Z">
 <meta property="article:author" content="细数星辰">
@@ -502,7 +502,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">198k</span>
+    <span title="Symbols count total">199k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
