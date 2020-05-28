@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 扩容设计(Designing for Scale)Elasticsearch扩展灵活，但也有局限性，了解局限性可以使你扩容更轻松。讨论两种数据流：  时序数据：时间驱动相关，例如 日志或社交网络数据流 基于用户的数据：拥有很多的文档集但可以按用户或客户细分。  扩容单元(The Unit of Scale) 一个分片就是一个Lucene索引，一个Elasticsearch索引就">
+<meta property="og:type" content="article">
+<meta property="og:title" content="45-数据建模-扩容设计">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/45-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E6%89%A9%E5%AE%B9%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 扩容设计(Designing for Scale)Elasticsearch扩展灵活，但也有局限性，了解局限性可以使你扩容更轻松。讨论两种数据流：  时序数据：时间驱动相关，例如 日志或社交网络数据流 基于用户的数据：拥有很多的文档集但可以按用户或客户细分。  扩容单元(The Unit of Scale) 一个分片就是一个Lucene索引，一个Elasticsearch索引就">
+<meta property="article:published_time" content="2020-03-19T23:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:55:14.550Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/45-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E6%89%A9%E5%AE%B9%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>45-数据建模-扩容设计 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/45-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E6%89%A9%E5%AE%B9%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          45-数据建模-扩容设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-20 07:52:57" itemprop="dateCreated datePublished" datetime="2020-03-20T07:52:57+08:00">2020-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:55:14" itemprop="dateModified" datetime="2020-05-26T13:55:14+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/scale.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/410_Scaling" target="_blank" rel="noopener">英文参考</a></p>
+<h3 id="扩容设计-Designing-for-Scale"><a href="#扩容设计-Designing-for-Scale" class="headerlink" title="扩容设计(Designing for Scale)"></a>扩容设计(Designing for Scale)</h3><p>Elasticsearch扩展灵活，但也有局限性，了解局限性可以使你扩容更轻松。<br>讨论两种数据流：</p>
+<ul>
+<li>时序数据：时间驱动相关，例如 日志或社交网络数据流</li>
+<li>基于用户的数据：拥有很多的文档集但可以按用户或客户细分。</li>
+</ul>
+<h3 id="扩容单元-The-Unit-of-Scale"><a href="#扩容单元-The-Unit-of-Scale" class="headerlink" title="扩容单元(The Unit of Scale)"></a>扩容单元(The Unit of Scale)</h3><ul>
+<li>一个分片就是一个Lucene索引，一个Elasticsearch索引就是一系列分片的集合。</li>
+<li>一个分片就是一个扩容单元。</li>
+<li>路由算法：shard = hash(routing) % number_of_primary_shards</li>
+</ul>
+<h3 id="分片预分配-Shard-Overallocation"><a href="#分片预分配-Shard-Overallocation" class="headerlink" title="分片预分配(Shard Overallocation)"></a>分片预分配(Shard Overallocation)</h3><ul>
+<li>在建索引时初期，可以少建几个节点，但可以多建几个分片，方便后期添加节点移动分片。</li>
+<li>在 Elasticsearch 中新添加的索引默认被指定了五个主分片。这意味着我们最多可以将那个索引分散到五个节点上，每个节点一个分片。</li>
+<li>分片分裂(Shard Splitting): 将每个分片分裂为两个或更多部分的能力。</li>
+</ul>
+<p>Elasticsearch不支持分片分裂（shard-splitting）的原因：</p>
+<ul>
+<li>分裂一个分片几乎等于重新索引你的数据。</li>
+<li>分裂是指数级的。分裂并不会刚好地把你的处理能力提升 50%。</li>
+<li>分片分裂需要你拥有足够的能力支撑另一份索引的拷贝。通常来说，当你意识到你需要横向扩展时，你已经没有足够的剩余空间来做分裂了。</li>
+</ul>
+<h3 id="海量分片-Kagillion-Shards"><a href="#海量分片-Kagillion-Shards" class="headerlink" title="海量分片(Kagillion Shards)"></a>海量分片(Kagillion Shards)</h3><p>预分配分片太多的话，会有一下问题：</p>
+<ul>
+<li>一个分片的底层即为一个Lucene索引，会消耗一定文件句柄、内存以及CPU运转。</li>
+<li>每个搜索请求都需要命中索引中的每一个分片，如果多个分片在同一个节点上，会竞争相同的资源。</li>
+<li>用于计算相关度的词项统计信息是基于分片的。如果有许多分片，每一个都只有很少的数据会导致很低的相关度。</li>
+</ul>
+<h3 id="容量规划"><a href="#容量规划" class="headerlink" title="容量规划"></a>容量规划</h3><ul>
+<li>根据自己的场景规划分片的数量</li>
+<li>定好单个分片的容量，计算出整个索引的分片，再加上一部分预期增长。</li>
+</ul>
+<h3 id="副本分片-Replica-Shards"><a href="#副本分片-Replica-Shards" class="headerlink" title="副本分片(Replica Shards)"></a>副本分片(Replica Shards)</h3><ul>
+<li>副本分片主要目的是 故障转移。主分片节点挂掉后一个副本分片就成为主分片。</li>
+<li>增加副本数并不会增加索引容量，但可以服务于读请求，增加副本分片可以提升查询性能。</li>
+<li>通过副本进行负载均衡</li>
+</ul>
+<h3 id="多索引-Multiple-Indices"><a href="#多索引-Multiple-Indices" class="headerlink" title="多索引(Multiple Indices)"></a>多索引(Multiple Indices)</h3><p>在 索引别名和零停机情况下，通过新增多个索引增加索引的容量。<br>实施步骤：</p>
+<ol>
+<li>创建两个别名：一个用于搜索(<code>搜索别名</code>)，一个用于索引数据(<code>索引别名</code>)。例如:tweets_search,tweets_index</li>
+<li>新增第一个索引A后，把<code>搜索别名</code>和<code>索引别名</code>指向新增的索引A。</li>
+<li>新增第二个索引B后，<code>搜索别名</code>指向索引B，<code>索引别名</code>移除索引A指向索引B</li>
+<li>依次类推</li>
+</ol>
+<p>此时两个别名指向：</p>
+<ol>
+<li>一个搜索请求可以以多个索引为目标，这时<code>搜索别名</code>指向的是 索引A和B，</li>
+<li>索引写入请求只能以单个索引为目标，这时<code>索引别名</code>指向的是 索引B</li>
+</ol>
+<p>注意：通过ID获取文档时，需要对多个索引发起查询ID请求。</p>
+<blockquote>
+<p>一个文档 GET 请求，像一个索引写入请求那样，只能以单个索引为目标。 这导致在通过ID获取文档这样的场景下有一点复杂。作为代替，你可以对 tweets_1 以及 tweets_2 运行一个 ids 查询 搜索请求， 或者 multi-get 请求。</p>
+</blockquote>
+<h3 id="基于时间的数据-Time-Based-Data"><a href="#基于时间的数据-Time-Based-Data" class="headerlink" title="基于时间的数据(Time-Based Data)"></a>基于时间的数据(Time-Based Data)</h3><p>Elasticsearch 的常用案例之一便是日志记录.</p>
+<ul>
+<li>索引中文档数量迅速增长，通常随时间加速。</li>
+<li>文档几乎不会更新，基本以最近文档为搜索目标。</li>
+<li>随着时间推移，文档逐渐失去价值。</li>
+</ul>
+<h5 id="按时间范围索引-Index-per-Time-Frame"><a href="#按时间范围索引-Index-per-Time-Frame" class="headerlink" title="按时间范围索引(Index per Time Frame)"></a>按时间范围索引(Index per Time Frame)</h5><p>使用 时间范围索引(index per time frame), 可以按年/月/日进行索引，删旧数据只需删除旧的索引。<br>优点：</p>
+<ul>
+<li>允许你在需要的时候进行调整扩容</li>
+<li>别名可以帮我们更加透明地在索引间切换，将logs_current指向当前索引来接收新的日志事件， 当检索时，更新last_3_months来指向所有最近三个月的索引</li>
+</ul>
+<h3 id="索引模板"><a href="#索引模板" class="headerlink" title="索引模板"></a>索引模板</h3><p>日志记录类应用，依赖于自动创建索引比手动创建要更加方便。</p>
+<p>创建模板</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PUT /_template/my_logs</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"template"</span>: <span class="string">"logstash-*"</span>,</span><br><span class="line">  <span class="attr">"order"</span>:    <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"number_of_shards"</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"_default_"</span>: &#123;</span><br><span class="line">      <span class="attr">"_all"</span>: &#123;</span><br><span class="line">        <span class="attr">"enabled"</span>: <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aliases"</span>: &#123;</span><br><span class="line">    <span class="attr">"last_3_months"</span>: &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将这个模板应用于所有以 logstash- 为起始的索引,不论它是手动还是自动创建的。</li>
+<li>order 这个模板将会覆盖默认的 logstash 模板，因为默认模板的 order 更低。</li>
+<li>number_of_shards 限制主分片数量为 1 。</li>
+<li>为所有类型禁用 <code>_all</code> 域。</li>
+<li>aliases 添加这个索引至 last_3_months 别名中。</li>
+</ul>
+<h3 id="数据过期-Retiring-Data"><a href="#数据过期-Retiring-Data" class="headerlink" title="数据过期(Retiring Data)"></a>数据过期(Retiring Data)</h3><p>随着时间推移，基于时间数据的相关度逐渐降低。</p>
+<p>删除旧数据很方便:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE &#x2F;logs_2013*</span><br></pre></td></tr></table></figure>
+
+<p>删除它之前还有一些事情可以做来帮助数据更加优雅地过期。</p>
+<h5 id="迁移旧索引-Migrate-Old-Indices"><a href="#迁移旧索引-Migrate-Old-Indices" class="headerlink" title="迁移旧索引(Migrate Old Indices)"></a>迁移旧索引(Migrate Old Indices)</h5><ol>
+<li><p>服务器指定标签(例如 strong)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;bin&#x2F;elasticsearch --node.box_type strong</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>今天的索引使用最好机器</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /logs_2014-10-01</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"index.routing.allocation.include.box_type"</span> : <span class="string">"strong"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>昨天的索引迁移到medium机器上</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"index.routing.allocation.include.box_type"</span> : <span class="string">"medium"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h5 id="索引优化-Optimize-Indices"><a href="#索引优化-Optimize-Indices" class="headerlink" title="索引优化(Optimize Indices)"></a>索引优化(Optimize Indices)</h5><p>今天的索引不能进行优化，优化操作将消耗节点上大量 I/O 并对索引今日日志造成冲击。</p>
+<p>对昨天的索引进行有效：1. 先移除副本 2. <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/merge-process.html#optimize-api" target="_blank" rel="noopener">optimize API</a>进行优化 3. 再添加副本,这样不用优化副本。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123; <span class="attr">"number_of_replicas"</span>: <span class="number">0</span> &#125;</span><br><span class="line"></span><br><span class="line">POST /logs_2014-09-30/_optimize?max_num_segments=1</span><br><span class="line"></span><br><span class="line">POST /logs_2014-09-30/_settings</span><br><span class="line">&#123; <span class="attr">"number_of_replicas"</span>: <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="关闭旧索引"><a href="#关闭旧索引" class="headerlink" title="关闭旧索引"></a>关闭旧索引</h5><p>不访问的索引，又不想删除索引，可以进行关闭，关闭的索引还存在于集群中，重新打开一个索引比从备份中恢复快的多。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /logs_2014-01-*/_flush</span><br><span class="line">POST /logs_2014-01-*/_close</span><br><span class="line">POST /logs_2014-01-*/_open</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>_flush</code>刷写（Flush）所有一月的索引来清空事务日志。</li>
+<li><code>_close</code> 关闭所有一月的索引.</li>
+<li><code>_open</code>当你需要再次访问它们时，使用 open API 来重新打开它们。</li>
+</ul>
+<h5 id="归档旧索引-Archiving-Old-Indices"><a href="#归档旧索引-Archiving-Old-Indices" class="headerlink" title="归档旧索引(Archiving Old Indices)"></a>归档旧索引(Archiving Old Indices)</h5><p>可以通过​<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-snapshots.html" target="_blank" rel="noopener">snapshot-restore API</a>​归档.</p>
+<h3 id="基于用户的数据-User-Based-Data"><a href="#基于用户的数据-User-Based-Data" class="headerlink" title="基于用户的数据(User-Based Data)"></a>基于用户的数据(User-Based Data)</h3><p>Elasticsearch 支持多租户,所以每个用户可以在相同的集群中拥有自己的索引。<br>“一个用户一个索引”对大多数场景都可以满足了。<br>可以根据每人的索引文档多少和搜索次数多少来分配分片数量和高配服务节点。</p>
+<h3 id="共享索引"><a href="#共享索引" class="headerlink" title="共享索引"></a>共享索引</h3><p>我们需要的是一种可以在用户间共享资源的方法，给每个用户他们拥有自己的索引这种印象，而不在小用户上浪费资源。<br>例如 多个论坛(forums)共用一个索引，通过forums_id来标识论坛内的帖子，索引和搜索时路由参数指定forums_id，可以保证同一个论坛存储在同一个分片上。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"number_of_shards"</span>: <span class="number">10</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"post"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"forum_id"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:  <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"index"</span>: <span class="string">"not_analyzed"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums/post/1?routing=baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"forum_id"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"title"</span>:    <span class="string">"Easy recipe for ginger nuts"</span>,</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /forums/post/_search?routing=baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"term"</span>: &#123;</span><br><span class="line">          <span class="attr">"forum_id"</span>: &#123;</span><br><span class="line">            <span class="attr">"baking"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>指定多个论坛</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /forums/post/_search?routing=baking,cooking,recipes</span><br></pre></td></tr></table></figure>
+<p>要为每一个查询或者索引请求指定 routing 和 terms 的值看起来有一点的笨拙。 索引别名可以帮你解决这些！</p>
+<h3 id="利用别名实现一个用户一个索引"><a href="#利用别名实现一个用户一个索引" class="headerlink" title="利用别名实现一个用户一个索引"></a>利用别名实现一个用户一个索引</h3><p>创建一个别名指定一个过滤器和一个路由器值，使一个别名与一个索引关联起来。<br>例如：别名中的filter和routing配置上 forum_id。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /forums/_alias/baking</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"routing"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"filter"</span>: &#123;</span><br><span class="line">    <span class="attr">"term"</span>: &#123;</span><br><span class="line">      <span class="attr">"forum_id"</span>: <span class="string">"baking"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /baking/post/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"forum_id"</span>: <span class="string">"baking"</span>,</span><br><span class="line">  <span class="attr">"title"</span>:    <span class="string">"Easy recipe for ginger nuts"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>我们还是需要为过滤器指定 forumn_id 字段，但自定义路由值已经是隐含的了。</li>
+</ul>
+<p>通过别名搜索帖子</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /baking/post/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过多别名搜索帖子</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /baking,recipes/post/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"ginger nuts"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/38-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE-%E5%9C%B0%E7%90%86%E5%9D%90%E6%A0%87%E7%82%B9/" rel="prev" title="38-地理位置-地理坐标点">
+      <i class="fa fa-chevron-left"></i> 38-地理位置-地理坐标点
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/44-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E7%88%B6-%E5%AD%90%E5%85%B3%E7%B3%BB%E6%96%87%E6%A1%A3/" rel="next" title="44-数据建模-父子关系">
+      44-数据建模-父子关系 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#扩容设计-Designing-for-Scale"><span class="nav-number">1.</span> <span class="nav-text">扩容设计(Designing for Scale)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩容单元-The-Unit-of-Scale"><span class="nav-number">2.</span> <span class="nav-text">扩容单元(The Unit of Scale)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分片预分配-Shard-Overallocation"><span class="nav-number">3.</span> <span class="nav-text">分片预分配(Shard Overallocation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#海量分片-Kagillion-Shards"><span class="nav-number">4.</span> <span class="nav-text">海量分片(Kagillion Shards)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#容量规划"><span class="nav-number">5.</span> <span class="nav-text">容量规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#副本分片-Replica-Shards"><span class="nav-number">6.</span> <span class="nav-text">副本分片(Replica Shards)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多索引-Multiple-Indices"><span class="nav-number">7.</span> <span class="nav-text">多索引(Multiple Indices)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于时间的数据-Time-Based-Data"><span class="nav-number">8.</span> <span class="nav-text">基于时间的数据(Time-Based Data)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#按时间范围索引-Index-per-Time-Frame"><span class="nav-number">8.0.1.</span> <span class="nav-text">按时间范围索引(Index per Time Frame)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引模板"><span class="nav-number">9.</span> <span class="nav-text">索引模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据过期-Retiring-Data"><span class="nav-number">10.</span> <span class="nav-text">数据过期(Retiring Data)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#迁移旧索引-Migrate-Old-Indices"><span class="nav-number">10.0.1.</span> <span class="nav-text">迁移旧索引(Migrate Old Indices)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引优化-Optimize-Indices"><span class="nav-number">10.0.2.</span> <span class="nav-text">索引优化(Optimize Indices)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关闭旧索引"><span class="nav-number">10.0.3.</span> <span class="nav-text">关闭旧索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#归档旧索引-Archiving-Old-Indices"><span class="nav-number">10.0.4.</span> <span class="nav-text">归档旧索引(Archiving Old Indices)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于用户的数据-User-Based-Data"><span class="nav-number">11.</span> <span class="nav-text">基于用户的数据(User-Based Data)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共享索引"><span class="nav-number">12.</span> <span class="nav-text">共享索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用别名实现一个用户一个索引"><span class="nav-number">13.</span> <span class="nav-text">利用别名实现一个用户一个索引</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

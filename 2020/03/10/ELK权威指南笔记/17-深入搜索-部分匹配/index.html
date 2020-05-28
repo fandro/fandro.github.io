@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 部分匹配前面介绍的都是整个词的匹配，最小单元为单个词。部分匹配(Partial matching)：  允许查询词的一部分并返回包含这部分片断的词。  部分匹配的应用场景：  某个特定前缀开始，例如 邮编，产品序列或未分析值 某种模式匹配，例如 邮编，产品序列或未分析值 与某个正则式相匹配，例如 邮编，产品序列或未分析值 输入即搜索(search-as-you-type) :">
+<meta property="og:type" content="article">
+<meta property="og:title" content="17-深入搜索-部分匹配(Partial_Matching)">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/10/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/17-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E9%83%A8%E5%88%86%E5%8C%B9%E9%85%8D/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 部分匹配前面介绍的都是整个词的匹配，最小单元为单个词。部分匹配(Partial matching)：  允许查询词的一部分并返回包含这部分片断的词。  部分匹配的应用场景：  某个特定前缀开始，例如 邮编，产品序列或未分析值 某种模式匹配，例如 邮编，产品序列或未分析值 与某个正则式相匹配，例如 邮编，产品序列或未分析值 输入即搜索(search-as-you-type) :">
+<meta property="article:published_time" content="2020-03-10T12:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:53:30.401Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/10/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/17-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E9%83%A8%E5%88%86%E5%8C%B9%E9%85%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>17-深入搜索-部分匹配(Partial_Matching) | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/10/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/17-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E9%83%A8%E5%88%86%E5%8C%B9%E9%85%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          17-深入搜索-部分匹配(Partial_Matching)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-10 20:52:57" itemprop="dateCreated datePublished" datetime="2020-03-10T20:52:57+08:00">2020-03-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:53:30" itemprop="dateModified" datetime="2020-05-26T13:53:30+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="部分匹配"><a href="#部分匹配" class="headerlink" title="部分匹配"></a>部分匹配</h3><p>前面介绍的都是整个词的匹配，最小单元为单个词。<br>部分匹配(Partial matching)：</p>
+<blockquote>
+<p>允许查询词的一部分并返回包含这部分片断的词。</p>
+</blockquote>
+<p>部分匹配的应用场景：</p>
+<ul>
+<li>某个特定前缀开始，例如 邮编，产品序列或未分析值</li>
+<li>某种模式匹配，例如 邮编，产品序列或未分析值</li>
+<li>与某个正则式相匹配，例如 邮编，产品序列或未分析值</li>
+<li>输入即搜索(search-as-you-type) : 用户搜索时呈现可能的结果</li>
+<li>匹配如德语或荷兰语这样有长组合词的语言，如： Weltgesundheitsorganisation （世界卫生组织，英文 World Health Organization）。</li>
+</ul>
+<h3 id="邮编与结构化数据"><a href="#邮编与结构化数据" class="headerlink" title="邮编与结构化数据"></a>邮编与结构化数据</h3><p>邮编是有规律的结构化数据，需要配置成not_analyzed(keyword).<br>初始化邮编数据：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/address/1</span><br><span class="line">&#123; <span class="attr">"postcode"</span>: <span class="string">"W1V 3DG"</span> &#125;</span><br><span class="line">PUT /my_index/address/2</span><br><span class="line">&#123; <span class="attr">"postcode"</span>: <span class="string">"W2F 8HW"</span> &#125;</span><br><span class="line">PUT /my_index/address/3</span><br><span class="line">&#123; <span class="attr">"postcode"</span>: <span class="string">"W1F 7HW"</span> &#125;</span><br><span class="line">PUT /my_index/address/4</span><br><span class="line">&#123; <span class="attr">"postcode"</span>: <span class="string">"WC1N 1LZ"</span> &#125;</span><br><span class="line">PUT /my_index/address/5</span><br><span class="line">&#123; <span class="attr">"postcode"</span>: <span class="string">"SW5 0BE"</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="prefix-前缀查询"><a href="#prefix-前缀查询" class="headerlink" title="prefix 前缀查询"></a>prefix 前缀查询</h3><p>前缀查询</p>
+<ul>
+<li>前缀查询是一个词级别的底层查询</li>
+<li>不会对前缀进行分词</li>
+<li>前缀查询不做相关度评分计算，结果评分都是1.</li>
+<li>前缀查询和前缀过滤器唯一区别就是过滤器可以被缓存</li>
+<li>前缀查询过程是依次匹配倒排索引的词列表中词。</li>
+<li>注意事项：字段中词的集合要小，前缀长度不要太短，否则会有性能问题</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/address/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"prefix"</span>: &#123;</span><br><span class="line">            <span class="attr">"postcode"</span>: <span class="string">"W1"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="通配符与正则表达式查询-wildcard-and-regexp-Queries"><a href="#通配符与正则表达式查询-wildcard-and-regexp-Queries" class="headerlink" title="通配符与正则表达式查询 (wildcard and regexp Queries)"></a>通配符与正则表达式查询 (wildcard and regexp Queries)</h3><p>通配符(wildcard)和正则式</p>
+<ul>
+<li>通配符是一种底层基于词的查询</li>
+<li>允许指定匹配的正则表达式</li>
+<li>通配符使用shell通配符：？匹配任意字符，<code>*</code> 匹配 0或多个字符</li>
+<li>regexp 可以定义复杂的匹配模式</li>
+<li>wildcard 和 regexp 查询的工作方式与 prefix 查询完全一样，需要扫描倒排索引中的词列表才能找到所有匹配的词，然后依次获取每个词相关的文档 ID</li>
+<li>wildcard 和 regexp 查询同样也存在性能问题，应该避免使用左通配的匹配(如:<code>*foo</code>)</li>
+<li>prefix 、 wildcard 和 regexp 查询虽然有使用场景，但仍需谨慎使用。</li>
+</ul>
+<p>通配符</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/address/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"wildcard"</span>: &#123;</span><br><span class="line">            <span class="attr">"postcode"</span>: <span class="string">"W?F*HW"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正则表达式</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/address/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"regexp"</span>: &#123;</span><br><span class="line">            <span class="attr">"postcode"</span>: <span class="string">"W[0-9].+"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><code>prefix 、 wildcard 和 regexp 查询是基于词操作的</code><br>正常查询返回结果：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">"regexp"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"br.*"</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>以下查询不是基于词操作，无法返回结果</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">"regexp"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"Qu.*"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"regexp"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"quick br*"</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="查询时输入即搜索-Index-Time-Optimizations"><a href="#查询时输入即搜索-Index-Time-Optimizations" class="headerlink" title="查询时输入即搜索(Index-Time Optimizations)"></a>查询时输入即搜索(Index-Time Optimizations)</h3><p>即时搜索（instant search）或 输入即搜索（search-as-you-type）: 用户未输入完内容之前就能展现结果。<br>通过<code>match_phrase_prefix</code>实现即时搜索的功能.</p>
+<p>match_phrase_prefix</p>
+<ul>
+<li>与match_phrase类似，唯一不同的是最后一个词作为前缀使用。</li>
+<li>match_phrase_prefix也可以接受slop参数</li>
+<li>match_phrase_prefix也存在严重的资源消耗问题</li>
+<li>通过max_expansions参数来限制匹配数量，合理值是50, 匹配倒排索引词列表的前N个词项。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"match_phrase_prefix"</span> : &#123;</span><br><span class="line">        <span class="attr">"brand"</span> : &#123;</span><br><span class="line">            <span class="attr">"query"</span>: <span class="string">"walker johnnie bl"</span>,</span><br><span class="line">            <span class="attr">"max_expansions"</span>: <span class="number">50</span>,</span><br><span class="line">            <span class="attr">"slop"</span>:  <span class="number">10</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="索引时优化"><a href="#索引时优化" class="headerlink" title="索引时优化"></a>索引时优化</h3><p>查询时解决方案都是以牺牲搜索性能为代价的。<br>索引时优化数据可以提供搜索的灵活性，提升系统性能。<br>索引优化的代价是：1. 增加索引空间 2.索引能力变慢</p>
+<h3 id="Ngrams-在部分匹配的应用"><a href="#Ngrams-在部分匹配的应用" class="headerlink" title="Ngrams 在部分匹配的应用"></a>Ngrams 在部分匹配的应用</h3><p>‘profix,wildcard,regexp’的方案是:</p>
+<blockquote>
+<p>搜索内容与词的各个字母比较匹配。</p>
+</blockquote>
+<p>N-Grams 方案是:</p>
+<blockquote>
+<p>把词项拆分成各种组合列表，然后索引起来，搜索时只需要像term一样查询，只进行词相等比较。</p>
+</blockquote>
+<p>n-grams 形式如下：</p>
+<ul>
+<li>长度 1（unigram）： [ q, u, i, c, k ]</li>
+<li>长度 2（bigram）： [ qu, ui, ic, ck ]</li>
+<li>长度 3（trigram）： [ qui, uic, ick ]</li>
+<li>长度 4（four-gram）： [ quic, uick ]</li>
+<li>长度 5（five-gram）： [ quick ]</li>
+</ul>
+<p>edge n-grams(边界n-grams)形式如下：</p>
+<ul>
+<li>q</li>
+<li>qu</li>
+<li>qui</li>
+<li>quic</li>
+<li>quick</li>
+</ul>
+<p>edge n-grams能满足输入即搜索（search-as-you-type）这种应用场景。</p>
+<h3 id="索引时输入即搜索-Index-Time-Search-as-You-Type"><a href="#索引时输入即搜索-Index-Time-Search-as-You-Type" class="headerlink" title="索引时输入即搜索(Index-Time Search-as-You-Type)"></a>索引时输入即搜索(Index-Time Search-as-You-Type)</h3><p>配置边界ngram(edge ngram):</p>
+<ol>
+<li>在analysis.filter中配置过滤器autocomplete_filter</li>
+<li>在analysis.analyzer中配置分析器autocomplete，并在起filter中添加autocomplete_filter</li>
+<li>在映射中给属性配置上自定义分析器autocomplete</li>
+<li>搜索时索引分析器(index_search)和搜索分析器(search_index)需要指定不同的分析器，两种方法：<ol>
+<li>在搜索语句中指定搜索分析器。</li>
+<li>映射mapping配置时，索引和搜索分析器配置不同的分析器。</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"number_of_shards"</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"autocomplete_filter"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:     <span class="string">"edge_ngram"</span>,</span><br><span class="line">                    <span class="attr">"min_gram"</span>: <span class="number">1</span>,</span><br><span class="line">                    <span class="attr">"max_gram"</span>: <span class="number">20</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="attr">"autocomplete"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:      <span class="string">"custom"</span>,</span><br><span class="line">                    <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="attr">"filter"</span>: [</span><br><span class="line">                        <span class="string">"lowercase"</span>,</span><br><span class="line">                        <span class="string">"autocomplete_filter"</span></span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一种方法：在搜索语句中指定搜索分析器,不使用分析器autocomplete。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: &#123;</span><br><span class="line">                <span class="attr">"query"</span>:    <span class="string">"brown fo"</span>,</span><br><span class="line">                <span class="attr">"analyzer"</span>: <span class="string">"standard"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行测试</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_validate/query?explain</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: &#123;</span><br><span class="line">              <span class="attr">"query"</span>:    <span class="string">"brown fo"</span>,</span><br><span class="line">              <span class="attr">"analyzer"</span>: <span class="string">"standard"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二种方法：映射mapping配置时，索引和搜索分析器配置不同的分析器。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/my_type/_mapping</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">        <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>:            <span class="string">"string"</span>,</span><br><span class="line">                <span class="attr">"index_analyzer"</span>:  <span class="string">"autocomplete"</span>,</span><br><span class="line">                <span class="attr">"search_analyzer"</span>: <span class="string">"standard"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Ngrams比match_phrase_prefix方式要高效的多，但n-grams有时会有延迟问，索引ES又创建了 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-suggesters-completion.html" target="_blank" rel="noopener">completion suggester</a></p>
+<p>completion suggester:</p>
+<blockquote>
+<p>Elasticsearch 里的 completion suggester 采用与上面完全不同的方式，需要为搜索条件生成一个所有可能完成的词列表，然后将它们置入一个 有限状态机（finite state transducer） 内，这是个经优化的图结构。为了搜索建议提示，Elasticsearch 从图的开始处顺着匹配路径一个字符一个字符地进行匹配，一旦它处于用户输入的末尾，Elasticsearch 就会查找所有可能结束的当前路径，然后生成一个建议列表。<br>本数据结构存于内存中，能使前缀查找非常快，比任何一种基于词的查询都要快很多，这对名字或品牌的自动补全非常适用，因为这些词通常是以普通顺序组织的：用 “Johnny Rotten” 而不是 “Rotten Johnny” 。<br>当词序不是那么容易被预见时，边界 n-grams 比完成建议者（Completion Suggester）更合适。即使说不是所有猫都是一个花色，那这只猫的花色也是相当特殊的。</p>
+</blockquote>
+<h5 id="边界-n-grams-与邮编"><a href="#边界-n-grams-与邮编" class="headerlink" title="边界 n-grams 与邮编"></a>边界 n-grams 与邮编</h5><p>edge n-gram也可以用于结构化数据。使用keyword分词器来处理。</p>
+<blockquote>
+<p>keyword 分词器是一个非操作型分词器，这个分词器不做任何事情，它接收的任何字符串都会被原样发出，因此它可以用来处理 not_analyzed 的字段值，但这也需要其他的一些分析转换，如将字母转换成小写。</p>
+</blockquote>
+<p>下面示例使用 keyword 分词器将邮编转换成 token 流，这样就能使用边界 n-gram token 过滤器：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">        <span class="attr">"filter"</span>: &#123;</span><br><span class="line">            <span class="attr">"postcode_filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>:     <span class="string">"edge_ngram"</span>,</span><br><span class="line">                <span class="attr">"min_gram"</span>: <span class="number">1</span>,</span><br><span class="line">                <span class="attr">"max_gram"</span>: <span class="number">8</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">            <span class="attr">"postcode_index"</span>: &#123;</span><br><span class="line">                <span class="attr">"tokenizer"</span>: <span class="string">"keyword"</span>,</span><br><span class="line">                <span class="attr">"filter"</span>:    [ <span class="string">"postcode_filter"</span> ]</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"postcode_search"</span>: &#123;</span><br><span class="line">                <span class="attr">"tokenizer"</span>: <span class="string">"keyword"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>postcode_index 分析器使用 postcode_filter 将邮编转换成边界 n-gram 形式。</li>
+<li>postcode_search 分析器可以将搜索词看成 not_analyzed 未分析的。</li>
+</ul>
+<h3 id="Ngrams-在复合词的应用-Ngrams-for-Compound-Words"><a href="#Ngrams-在复合词的应用-Ngrams-for-Compound-Words" class="headerlink" title="Ngrams 在复合词的应用 (Ngrams for Compound Words)"></a>Ngrams 在复合词的应用 (Ngrams for Compound Words)</h3><p>两种方法：</p>
+<ol>
+<li>用 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-compound-word-tokenfilter.html" target="_blank" rel="noopener">组合词 token 过滤器（compound word token filter）</a>将复合词拆分成各自部分，但这种方式的结果质量依赖于组合词字典的质量。</li>
+<li>所有的词用 n-gram 进行处理，然后搜索任何匹配的片段——能匹配的片段越多，文档的相关度越大。再结合参数minimum_should_match和shingle使用。</li>
+</ol>
+<p>n-grams配置如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"trigrams_filter"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:     <span class="string">"ngram"</span>,</span><br><span class="line">                    <span class="attr">"min_gram"</span>: <span class="number">3</span>,</span><br><span class="line">                    <span class="attr">"max_gram"</span>: <span class="number">3</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="attr">"trigrams"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:      <span class="string">"custom"</span>,</span><br><span class="line">                    <span class="attr">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="attr">"filter"</span>:   [</span><br><span class="line">                        <span class="string">"lowercase"</span>,</span><br><span class="line">                        <span class="string">"trigrams_filter"</span></span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">            <span class="attr">"properties"</span>: &#123;</span><br><span class="line">                <span class="attr">"text"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">                    <span class="attr">"analyzer"</span>: <span class="string">"trigrams"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=trigrams</span><br><span class="line">Weißkopfseeadler</span><br></pre></td></tr></table></figure>
+<p>搜索语句：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"text"</span>: &#123;</span><br><span class="line">                <span class="attr">"query"</span>:                <span class="string">"Gesundheit"</span>,</span><br><span class="line">                <span class="attr">"minimum_should_match"</span>: <span class="string">"80%"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/09/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/16-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E8%BF%91%E4%BC%BC%E5%8C%B9%E9%85%8D/" rel="prev" title="16-深入搜索-近似匹配">
+      <i class="fa fa-chevron-left"></i> 16-深入搜索-近似匹配
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/11/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/18-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A61/" rel="next" title="18-深入搜索-控制相关度">
+      18-深入搜索-控制相关度 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#部分匹配"><span class="nav-number">1.</span> <span class="nav-text">部分匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#邮编与结构化数据"><span class="nav-number">2.</span> <span class="nav-text">邮编与结构化数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prefix-前缀查询"><span class="nav-number">3.</span> <span class="nav-text">prefix 前缀查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通配符与正则表达式查询-wildcard-and-regexp-Queries"><span class="nav-number">4.</span> <span class="nav-text">通配符与正则表达式查询 (wildcard and regexp Queries)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询时输入即搜索-Index-Time-Optimizations"><span class="nav-number">5.</span> <span class="nav-text">查询时输入即搜索(Index-Time Optimizations)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引时优化"><span class="nav-number">6.</span> <span class="nav-text">索引时优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ngrams-在部分匹配的应用"><span class="nav-number">7.</span> <span class="nav-text">Ngrams 在部分匹配的应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引时输入即搜索-Index-Time-Search-as-You-Type"><span class="nav-number">8.</span> <span class="nav-text">索引时输入即搜索(Index-Time Search-as-You-Type)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#边界-n-grams-与邮编"><span class="nav-number">8.0.1.</span> <span class="nav-text">边界 n-grams 与邮编</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ngrams-在复合词的应用-Ngrams-for-Compound-Words"><span class="nav-number">9.</span> <span class="nav-text">Ngrams 在复合词的应用 (Ngrams for Compound Words)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

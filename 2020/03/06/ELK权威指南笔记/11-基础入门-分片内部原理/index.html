@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 使文本可被搜索 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。 倒排索引需要知道集合中的所有文档 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。不变性的优点：  不需要加锁，不用担心多线程问题。 不变性可使索引被内核的文件系统缓存，提高了搜索的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="11 基础入门-内部分片原理">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 使文本可被搜索 倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。 倒排索引需要知道集合中的所有文档 词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等  索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。不变性的优点：  不需要加锁，不用担心多线程问题。 不变性可使索引被内核的文件系统缓存，提高了搜索的">
+<meta property="article:published_time" content="2020-03-06T03:45:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:52:43.978Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>11 基础入门-内部分片原理 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          11 基础入门-内部分片原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-06 11:45:57" itemprop="dateCreated datePublished" datetime="2020-03-06T11:45:57+08:00">2020-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:52:43" itemprop="dateModified" datetime="2020-05-26T13:52:43+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="使文本可被搜索"><a href="#使文本可被搜索" class="headerlink" title="使文本可被搜索"></a>使文本可被搜索</h3><ul>
+<li>倒排索引：倒排索引包含一个有序列表，列表包含所有文档中的词项，每个词项包含了它曾出现过文档的列表。</li>
+<li>倒排索引需要知道集合中的所有文档</li>
+<li>词项包含信息：词项出现总次数，词项在文档中的顺序，文档长度等等</li>
+</ul>
+<p>索引的不变性：索引被写入磁盘后是 不可改变的（它永远不会修改）。<br>不变性的优点：</p>
+<ul>
+<li>不需要加锁，不用担心多线程问题。</li>
+<li>不变性可使索引被内核的文件系统缓存，提高了搜索的性能。 一旦索引被读入内核的文件系统缓存，便会留在哪里，由于其不变性。只要文件系统缓存中还有足够的空间，那么大部分读请求会直接请求内存，而不会命中磁盘。这提供了很大的性能提升。</li>
+<li>其他缓存(filter缓存)，在索引的生命周期内始终有效。它们不需要在每次数据改变时被重建，因为数据不会变化。</li>
+<li>可被压缩。写入单个大的倒排索引允许数据被压缩，减少磁盘 I/O 和 需要被缓存到内存的索引的使用量。<br>缺点：</li>
+<li>索引不能修改</li>
+<li>让新文档可被搜索，需要重建整个索引</li>
+<li>限制了索引的数量，限制了更新频率</li>
+</ul>
+<h3 id="动态更新索引"><a href="#动态更新索引" class="headerlink" title="动态更新索引"></a>动态更新索引</h3><p>保留不变性的前提下如果实现索引的更新？<br>答：用更多的索引，新增补充索引，旧索引标记为删除。</p>
+<h5 id="Lucene-概念"><a href="#Lucene-概念" class="headerlink" title="Lucene 概念"></a>Lucene 概念</h5><ul>
+<li>ES一个索引包含多个分片，每个分片就是Lucene的一个索引。</li>
+<li>Lucene的一个索引由多个段组成，每个段本都是倒排索引</li>
+<li>ES中的’提交点’：包含所有已知段的文件</li>
+<li>ES搜索是按段搜索</li>
+</ul>
+<p>新增文档到被搜索经历的过程：</p>
+<ol>
+<li>新增文档时先保存到内存索引缓存中</li>
+<li>不时地提交缓存<ul>
+<li>一个新的段被写入磁盘</li>
+<li>新的段名称加入到提交点中</li>
+<li>磁盘同步，把磁盘缓存中等待的写入都刷入磁盘，保存成物理文件</li>
+</ul>
+</li>
+<li>新的段开启，可以被搜索</li>
+<li>内存缓存被清空，等待接收新的文档</li>
+</ol>
+<h6 id="删除和更新"><a href="#删除和更新" class="headerlink" title="删除和更新"></a>删除和更新</h6><ul>
+<li>删除：文档被删除时，在.del文件中被标记删除。</li>
+<li>更新：文档更新时先删除旧文档再新增新文档。</li>
+<li>被标记删除的文档：一个被标记删除的文档仍然可以被查询匹配到， 但它会在最终结果被返回前从结果集中移除</li>
+</ul>
+<h3 id="近实时搜索"><a href="#近实时搜索" class="headerlink" title="近实时搜索"></a>近实时搜索</h3><ul>
+<li>新建文档到被搜索，整个过程的瓶颈在文件系统刷新(fsync)到磁盘的这一步。</li>
+<li>轻量级方式，把fsync从过程中移除，写到文件系统中就可以被搜索。Lucene 允许新段被写入和打开—​使其包含的文档在未进行一次完整提交时便对搜索可见。</li>
+<li>refresh操作：ES中新建和打开一个新段的轻量的过程叫做 refesh。该操作把文档从内存中写入到文件系统缓存新段中，新段被打开可被搜索，并没有刷到硬盘中。</li>
+</ul>
+<p>refresh配置：</p>
+<ol>
+<li><p>refresh操作：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## 刷新（Refresh）所有的索引。</span><br><span class="line">POST /_refresh</span><br><span class="line">## 只刷新（Refresh） blogs 索引。</span><br><span class="line">POST /blogs/_refresh</span><br></pre></td></tr></table></figure></li>
+<li><p>设置refresh间隔时间 refresh_interval</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_logs</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"refresh_interval"</span>: <span class="string">"30s"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_logs/_settings</span><br><span class="line">&#123; <span class="attr">"refresh_interval"</span>: <span class="string">"1s"</span> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭refresh</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_logs/_settings</span><br><span class="line">&#123; <span class="attr">"refresh_interval"</span>: <span class="number">-1</span> &#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="持久化变更"><a href="#持久化变更" class="headerlink" title="持久化变更"></a>持久化变更</h3><ul>
+<li>事务日志(translog): ES每次操作时都会进行日志记录。</li>
+<li>什么时候清除translog? 执行全量提交(fsync)数据刷到硬盘中后，会清除translog中的数据。</li>
+<li>translog提供实时CRUD，通过ID查询、更新、删除一个文档时，首先检查translog最近变更。</li>
+<li>translog刷到硬盘两种策略：<ol>
+<li>默认5秒一次fsync到硬盘</li>
+<li>每次写请求完成后fsync到硬盘，例如:index,delete,update,bulk等</li>
+</ol>
+</li>
+<li>写操作是在translog在主和副分片上全部落盘之后才返回给客户端的。</li>
+</ul>
+<p>translog落盘策略配置：</p>
+<ol>
+<li>间隔落盘<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_settings</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"index.translog.durability"</span>: <span class="string">"async"</span>,</span><br><span class="line">    <span class="attr">"index.translog.sync_interval"</span>: <span class="string">"5s"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>请求时落盘 【默认】<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_settings</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"index.translog.durability"</span>: <span class="string">"request"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+参考文档： <a href="https://www.elastic.co/guide/en/elasticsearch/reference/2.4/index-modules-translog.html#_translog_settings" target="_blank" rel="noopener">translog</a></li>
+</ol>
+<p><strong><em>flush api</em></strong></p>
+<p>从新建到可被搜索的整个过程：</p>
+<blockquote>
+<ol>
+<li>所有在内存缓冲区的文档都被写入一个新的段。</li>
+<li>缓冲区被清空。</li>
+<li>一个提交点被写入硬盘。</li>
+<li>文件系统缓存通过 fsync 被刷新（flush）。</li>
+<li>老的 translog 被删除。</li>
+</ol>
+</blockquote>
+<p>什么是flush操作？</p>
+<blockquote>
+<p>ES中执行一次提交并截断translog的行为叫做 flush。</p>
+</blockquote>
+<p>flush触发条件：</p>
+<blockquote>
+<ol>
+<li>固定间隔时间执行flush,默认30分钟。<br>index.translog.flush_threshold_period : 30m</li>
+<li>translog文件达到指定大小时触发flush.<br>index.translog.flush_threshold_size : 512mb</li>
+<li>手动刷新</li>
+</ol>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 刷新（flush） blogs 索引</span><br><span class="line">POST /blogs/_flush</span><br><span class="line"># 刷新（flush）所有的索引并且并且等待所有刷新在返回前完成</span><br><span class="line">POST /_flush?wait_for_ongoing</span><br></pre></td></tr></table></figure>
+
+<p>flush使用情景：</p>
+<ol>
+<li>重启或关闭索引之前执行flush，如果不执行，重启后会重放translog进行恢复。</li>
+<li>手动flush，不常用。</li>
+</ol>
+<h3 id="段合并"><a href="#段合并" class="headerlink" title="段合并"></a>段合并</h3><p>段数目太多的缺点：</p>
+<ol>
+<li>一个段会消耗文件句、内存和cpu运行周期，段多会消耗系统资源</li>
+<li>搜索请求必须轮流检查每个段，段越多就越慢</li>
+</ol>
+<p>段合并：</p>
+<ol>
+<li>小段合并为大段，打段合并为更大的段</li>
+<li>段合并时清除已删除的旧文档</li>
+<li>合并时不影响索引和搜索</li>
+<li>合并大的段需要消耗大量的IO和CPU资源，ES会做资源限制，不会影响正常搜索</li>
+</ol>
+<p>optimize API</p>
+<ol>
+<li>max_num_segments 限制段的数目，减少段的数量</li>
+<li>optimize API 不应该用在一个活跃(频繁更新)的索引上。</li>
+<li>某些特定情况 optimize API很有用处，例如日志收集系统，老日志只读不会发生变化</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /logstash-2014-10/_optimize?max_num_segments=1</span><br></pre></td></tr></table></figure>
+
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/10-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B4%A2%E5%BC%95%E7%AE%A1%E7%90%86/" rel="prev" title="10 基础入门-索引管理">
+      <i class="fa fa-chevron-left"></i> 10 基础入门-索引管理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/13-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%BB%93%E6%9E%84%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="next" title="13-深入搜索-结构化搜索">
+      13-深入搜索-结构化搜索 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#使文本可被搜索"><span class="nav-number">1.</span> <span class="nav-text">使文本可被搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态更新索引"><span class="nav-number">2.</span> <span class="nav-text">动态更新索引</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Lucene-概念"><span class="nav-number">2.0.1.</span> <span class="nav-text">Lucene 概念</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#删除和更新"><span class="nav-number">2.0.1.1.</span> <span class="nav-text">删除和更新</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#近实时搜索"><span class="nav-number">3.</span> <span class="nav-text">近实时搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#持久化变更"><span class="nav-number">4.</span> <span class="nav-text">持久化变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#段合并"><span class="nav-number">5.</span> <span class="nav-text">段合并</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

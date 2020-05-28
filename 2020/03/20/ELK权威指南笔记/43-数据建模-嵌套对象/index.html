@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 嵌套对象(Nested Objects) 设置嵌套对象 字段类型 type: nested 将相关试题数据都存储在同一个文档中。例如：订单和明细，博客和评论。 在独立索引每一个嵌套对象后,对象中每个字段的相关性得以保留。 由于嵌套文档直接存储在文档内部,查询时嵌套文档和根文档联合成本很低,速度和单独存储几乎一样。 嵌套文档是隐藏存储的,我们不能直接获取。  添加数据 12345">
+<meta property="og:type" content="article">
+<meta property="og:title" content="43-数据建模-嵌套对象">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/43-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%B5%8C%E5%A5%97%E5%AF%B9%E8%B1%A1/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 嵌套对象(Nested Objects) 设置嵌套对象 字段类型 type: nested 将相关试题数据都存储在同一个文档中。例如：订单和明细，博客和评论。 在独立索引每一个嵌套对象后,对象中每个字段的相关性得以保留。 由于嵌套文档直接存储在文档内部,查询时嵌套文档和根文档联合成本很低,速度和单独存储几乎一样。 嵌套文档是隐藏存储的,我们不能直接获取。  添加数据 12345">
+<meta property="article:published_time" content="2020-03-20T09:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:55:08.254Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/43-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%B5%8C%E5%A5%97%E5%AF%B9%E8%B1%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>43-数据建模-嵌套对象 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/43-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%B5%8C%E5%A5%97%E5%AF%B9%E8%B1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          43-数据建模-嵌套对象
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-20 17:52:57" itemprop="dateCreated datePublished" datetime="2020-03-20T17:52:57+08:00">2020-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:55:08" itemprop="dateModified" datetime="2020-05-26T13:55:08+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/nested-objects.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/402_Nested" target="_blank" rel="noopener">英文参考</a></p>
+<h3 id="嵌套对象-Nested-Objects"><a href="#嵌套对象-Nested-Objects" class="headerlink" title="嵌套对象(Nested Objects)"></a>嵌套对象(Nested Objects)</h3><ul>
+<li>设置嵌套对象 字段类型 type: nested</li>
+<li>将相关试题数据都存储在同一个文档中。例如：订单和明细，博客和评论。</li>
+<li>在独立索引每一个嵌套对象后,对象中每个字段的相关性得以保留。</li>
+<li>由于嵌套文档直接存储在文档内部,查询时嵌套文档和根文档联合成本很低,速度和单独存储几乎一样。</li>
+<li>嵌套文档是隐藏存储的,我们不能直接获取。</li>
+</ul>
+<p>添加数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/blogpost/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"Nest eggs"</span>,</span><br><span class="line">  <span class="attr">"body"</span>:  <span class="string">"Making your money work..."</span>,</span><br><span class="line">  <span class="attr">"tags"</span>:  [ <span class="string">"cash"</span>, <span class="string">"shares"</span> ],</span><br><span class="line">  <span class="attr">"comments"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"name"</span>:    <span class="string">"John Smith"</span>,</span><br><span class="line">      <span class="attr">"comment"</span>: <span class="string">"Great article"</span>,</span><br><span class="line">      <span class="attr">"age"</span>:     <span class="number">28</span>,</span><br><span class="line">      <span class="attr">"stars"</span>:   <span class="number">4</span>,</span><br><span class="line">      <span class="attr">"date"</span>:    <span class="string">"2014-09-01"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"name"</span>:    <span class="string">"Alice White"</span>,</span><br><span class="line">      <span class="attr">"comment"</span>: <span class="string">"More like this please"</span>,</span><br><span class="line">      <span class="attr">"age"</span>:     <span class="number">31</span>,</span><br><span class="line">      <span class="attr">"stars"</span>:   <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"date"</span>:    <span class="string">"2014-10-22"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果我们依赖字段自动映射,那么 comments 字段会自动映射为 object 类型。</li>
+</ul>
+<p>查询：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"name"</span>: <span class="string">"Alice"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"age"</span>:  <span class="number">28</span>      &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JSON 格式的文档被处理成如下的扁平式键值对的结构。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;title&quot;:            [ eggs, nest ],</span><br><span class="line">  &quot;body&quot;:             [ making, money, work, your ],</span><br><span class="line">  &quot;tags&quot;:             [ cash, shares ],</span><br><span class="line">  &quot;comments.name&quot;:    [ alice, john, smith, white ],</span><br><span class="line">  &quot;comments.comment&quot;: [ article, great, like, more, please, this ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 28, 31 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 4, 5 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-09-01, 2014-10-22 ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Alice 和 31 、 John 和 2014-09-01 之间的相关性信息不再存在。</li>
+<li>虽然 object 类型 (参见 内部对象) 在存储 单一对象 时非常有用,但对于对象数组的搜索而言,毫无用处。</li>
+</ul>
+<p>嵌套对象(nested objects) 就是来解决这个问题的。将 comments 字段类型设置为 nested 而不是 object 后,每一个嵌套对象都会被索引为一个 隐藏的独立文档 ,举例如下:</p>
+<p>字段类型设置为nested(而不是object)后,每一个嵌套对象都会被索引为一个隐藏的独立文档。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;comments.name&quot;:    [ john, smith ],</span><br><span class="line">  &quot;comments.comment&quot;: [ article, great ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 28 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 4 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-09-01 ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;comments.name&quot;:    [ alice, white ],</span><br><span class="line">  &quot;comments.comment&quot;: [ like, more, please, this ],</span><br><span class="line">  &quot;comments.age&quot;:     [ 31 ],</span><br><span class="line">  &quot;comments.stars&quot;:   [ 5 ],</span><br><span class="line">  &quot;comments.date&quot;:    [ 2014-10-22 ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;title&quot;:            [ eggs, nest ],</span><br><span class="line">  &quot;body&quot;:             [ making, money, work, your ],</span><br><span class="line">  &quot;tags&quot;:             [ cash, shares ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="嵌套对象映射-Nested-Object-Mapping"><a href="#嵌套对象映射-Nested-Object-Mapping" class="headerlink" title="嵌套对象映射(Nested Object Mapping)"></a>嵌套对象映射(Nested Object Mapping)</h3><ul>
+<li>字段类型设置为nested.</li>
+<li>nested 字段可以包含其他的 nested 字段。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"blogpost"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"comments"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"nested"</span>,</span><br><span class="line">          <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>:    &#123; <span class="attr">"type"</span>: <span class="string">"string"</span>  &#125;,</span><br><span class="line">            <span class="attr">"comment"</span>: &#123; <span class="attr">"type"</span>: <span class="string">"string"</span>  &#125;,</span><br><span class="line">            <span class="attr">"age"</span>:     &#123; <span class="attr">"type"</span>: <span class="string">"short"</span>   &#125;,</span><br><span class="line">            <span class="attr">"stars"</span>:   &#123; <span class="attr">"type"</span>: <span class="string">"short"</span>   &#125;,</span><br><span class="line">            <span class="attr">"date"</span>:    &#123; <span class="attr">"type"</span>: <span class="string">"date"</span>    &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="嵌套对象查询-Querying-a-Nested-Object"><a href="#嵌套对象查询-Querying-a-Nested-Object" class="headerlink" title="嵌套对象查询(Querying a Nested Object)"></a>嵌套对象查询(Querying a Nested Object)</h3><ul>
+<li>嵌套对象需要使用nested 查询(nested query),因为嵌套对象被索引在独立隐藏的文档中，无法直接查询。</li>
+<li>nested 字段可以包含其他的 nested 字段。同样地，nested 查询也可以包含其他的 nested 查询。而嵌套的层次会按照你所期待的被应用。</li>
+<li>nested 查询匹配到的多个嵌套文档，他们的得分汇总一个分数可供根文档使用。</li>
+<li>默认情况下，根文档的分数是这些嵌套文档分数的平均值。可以通过设置 score_mode 参数来控制这个得分策略，相关策略有 avg (平均值), max (最大值), sum (加和) 和 none (直接返回 1.0 常数值分数)。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"eggs"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"nested"</span>: &#123;</span><br><span class="line">            <span class="attr">"path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">            <span class="attr">"score_mode"</span>: <span class="string">"max"</span>,</span><br><span class="line">            <span class="attr">"query"</span>: &#123;</span><br><span class="line">              <span class="attr">"bool"</span>: &#123;</span><br><span class="line">                <span class="attr">"must"</span>: [</span><br><span class="line">                  &#123;</span><br><span class="line">                    <span class="attr">"match"</span>: &#123;</span><br><span class="line">                      <span class="attr">"comments.name"</span>: <span class="string">"john"</span></span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;,</span><br><span class="line">                  &#123;</span><br><span class="line">                    <span class="attr">"match"</span>: &#123;</span><br><span class="line">                      <span class="attr">"comments.age"</span>: <span class="number">28</span></span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">                ]</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>“title”: “eggs”, title 子句是查询根文档的。</li>
+<li>“path”: “comments”, nested 子句作用于嵌套字段 comments 。在此查询中，既不能查询根文档字段，也不能查询其他嵌套文档。</li>
+<li>comments.name 和 comments.age 子句操作在同一个嵌套文档中。</li>
+<li>“score_mode”: “max”, 设置 score_mode 参数来控制这个得分策略，相关策略有 avg (平均值), max (最大值), sum (加和) 和 none (直接返回 1.0 常数值分数)。</li>
+</ul>
+<blockquote>
+<p>如果 nested 查询放在一个布尔查询的 filter 子句中，其表现就像一个 nested 查询，只是 score_mode 参数不再生效。因为它被用于不打分的查询中 — 只是符合或不符合条件，不必打分 — 那么 score_mode 就没有任何意义，因为根本就没有要打分的地方。</p>
+</blockquote>
+<h3 id="使用嵌套字段排序-Sorting-by-Nested-Fields"><a href="#使用嵌套字段排序-Sorting-by-Nested-Fields" class="headerlink" title="使用嵌套字段排序(Sorting by Nested Fields)"></a>使用嵌套字段排序(Sorting by Nested Fields)</h3><p>假如我们想要查询在10月份收到评论的博客文章，并且按照 stars 数的最小值来由小到大排序，那么查询语句如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"nested"</span>: &#123;</span><br><span class="line">      <span class="attr">"path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"comments.date"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"2014-10-01"</span>,</span><br><span class="line">            <span class="attr">"lt"</span>:  <span class="string">"2014-11-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"sort"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments.stars"</span>: &#123;</span><br><span class="line">      <span class="attr">"order"</span>: <span class="string">"asc"</span>,   </span><br><span class="line">      <span class="attr">"mode"</span>:  <span class="string">"min"</span>,   </span><br><span class="line">      <span class="attr">"nested_path"</span>: <span class="string">"comments"</span>,</span><br><span class="line">      <span class="attr">"nested_filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"comments.date"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"2014-10-01"</span>,</span><br><span class="line">            <span class="attr">"lt"</span>:  <span class="string">"2014-11-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>“nested” 此处的 nested 查询将结果限定为在10月份收到过评论的博客文章。</li>
+<li>“sort” 结果按照匹配的评论中 comment.stars 字段的最小值 (min) 来由小到大 (asc) 排序。</li>
+</ul>
+<blockquote>
+<p>我们为什么要用 nested_path 和 nested_filter 重复查询条件呢？原因在于，排序发生在查询执行之后。 查询条件限定了在10月份收到评论的博客文档，但返回的是博客文档。如果我们不在排序子句中加入 nested_filter ， 那么我们对博客文档的排序将基于博客文档的所有评论，而不是仅仅在10月份接收到的评论。</p>
+</blockquote>
+<h3 id="嵌套聚合-Nested-Aggregations"><a href="#嵌套聚合-Nested-Aggregations" class="headerlink" title="嵌套聚合(Nested Aggregations)"></a>嵌套聚合(Nested Aggregations)</h3><p>nested 聚合允许我们对嵌套对象里的字段进行聚合操作。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments"</span>: &#123;</span><br><span class="line">      <span class="attr">"nested"</span>: &#123;</span><br><span class="line">        <span class="attr">"path"</span>: <span class="string">"comments"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"by_month"</span>: &#123;</span><br><span class="line">          <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>:    <span class="string">"comments.date"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="string">"month"</span>,</span><br><span class="line">            <span class="attr">"format"</span>:   <span class="string">"yyyy-MM"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"avg_stars"</span>: &#123;</span><br><span class="line">              <span class="attr">"avg"</span>: &#123;</span><br><span class="line">                <span class="attr">"field"</span>: <span class="string">"comments.stars"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="逆向嵌套聚合-reverse-nested-Aggregation"><a href="#逆向嵌套聚合-reverse-nested-Aggregation" class="headerlink" title="逆向嵌套聚合(reverse_nested Aggregation)"></a>逆向嵌套聚合(reverse_nested Aggregation)</h5><p>nested聚合只能对嵌套文档的字段进行操作，通过reverse_nested聚合可以操作父级文档进行操作。<br>例如，我们要基于评论者的年龄找出评论者感兴趣 tags 的分布。 comment.age 是一个嵌套字段，但 tags 在根文档中：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/blogpost/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"comments"</span>: &#123;</span><br><span class="line">      <span class="attr">"nested"</span>: &#123;</span><br><span class="line">        <span class="attr">"path"</span>: <span class="string">"comments"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"age_group"</span>: &#123;</span><br><span class="line">          <span class="attr">"histogram"</span>: &#123;</span><br><span class="line">            <span class="attr">"field"</span>:    <span class="string">"comments.age"</span>,</span><br><span class="line">            <span class="attr">"interval"</span>: <span class="number">10</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"blogposts"</span>: &#123;</span><br><span class="line">              <span class="attr">"reverse_nested"</span>: &#123;&#125;,</span><br><span class="line">              <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">                <span class="attr">"tags"</span>: &#123;</span><br><span class="line">                  <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                    <span class="attr">"field"</span>: <span class="string">"tags"</span></span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>nested 聚合进入 comments 对象。</li>
+<li>histogram 聚合基于 comments.age 做分组，每10年一个分组。</li>
+<li>reverse_nested 聚合退回根文档。</li>
+<li>terms 聚合计算每个分组年龄段的评论者最常用的标签词。</li>
+</ul>
+<h5 id="嵌套对象的使用时机"><a href="#嵌套对象的使用时机" class="headerlink" title="嵌套对象的使用时机"></a>嵌套对象的使用时机</h5><p>嵌套对象 在只有一个主要实体时非常有用，这个主要实体包含有限个紧密关联但又不是很重要的实体。<br>例如：主要实体 blogpost，blogpost包含评论对象，在基于评论的内容查找博客文章时， nested 查询有很大的用处，并且可以提供更快的查询效率。</p>
+<p>嵌套模型的缺点：</p>
+<ul>
+<li>当对嵌套文档做增加、修改或删除时，整个文档都要重新被索引。嵌套文档越多成本就越大。</li>
+<li>查询结果返回的是整个文档，而不仅仅是匹配嵌套文档。尽管目前有计划支持只返回根文档中最佳匹配的嵌套文档，但目前还不支持。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/42-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%85%B3%E8%81%94%E5%85%B3%E7%B3%BB%E5%A4%84%E7%90%86/" rel="prev" title="42-数据建模">
+      <i class="fa fa-chevron-left"></i> 42-数据建模
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/26/java/Class%E5%92%8CObject%E5%85%B3%E7%B3%BB/" rel="next" title="Class和Object关系">
+      Class和Object关系 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套对象-Nested-Objects"><span class="nav-number">1.</span> <span class="nav-text">嵌套对象(Nested Objects)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套对象映射-Nested-Object-Mapping"><span class="nav-number">2.</span> <span class="nav-text">嵌套对象映射(Nested Object Mapping)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套对象查询-Querying-a-Nested-Object"><span class="nav-number">3.</span> <span class="nav-text">嵌套对象查询(Querying a Nested Object)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用嵌套字段排序-Sorting-by-Nested-Fields"><span class="nav-number">4.</span> <span class="nav-text">使用嵌套字段排序(Sorting by Nested Fields)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套聚合-Nested-Aggregations"><span class="nav-number">5.</span> <span class="nav-text">嵌套聚合(Nested Aggregations)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#逆向嵌套聚合-reverse-nested-Aggregation"><span class="nav-number">5.0.1.</span> <span class="nav-text">逆向嵌套聚合(reverse_nested Aggregation)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#嵌套对象的使用时机"><span class="nav-number">5.0.2.</span> <span class="nav-text">嵌套对象的使用时机</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

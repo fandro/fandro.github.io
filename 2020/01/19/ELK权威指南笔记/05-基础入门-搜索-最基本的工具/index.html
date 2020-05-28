@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 开篇ES存储功能：1. 存储文档 2. 为文档添加索引。ES搜索功能：1. 全文检索 3. 结构化查询    搜索相关的3个概念：映射(Mapping)  描述数据在字段内如果被存储。  分析(Analysis)  全文是如果处理使之能被搜索。  领域特定查询语言(Query DSL)ES中强大灵活的查询语 空查询12345678910111213141516171819202">
+<meta property="og:type" content="article">
+<meta property="og:title" content="05 基础入门-搜索-最基本的工具">
+<meta property="og:url" content="http://blog.fwbo.me/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/05-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%9C%E7%B4%A2-%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 开篇ES存储功能：1. 存储文档 2. 为文档添加索引。ES搜索功能：1. 全文检索 3. 结构化查询    搜索相关的3个概念：映射(Mapping)  描述数据在字段内如果被存储。  分析(Analysis)  全文是如果处理使之能被搜索。  领域特定查询语言(Query DSL)ES中强大灵活的查询语 空查询12345678910111213141516171819202">
+<meta property="article:published_time" content="2020-01-19T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:52:05.304Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/05-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%9C%E7%B4%A2-%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%B7%A5%E5%85%B7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>05 基础入门-搜索-最基本的工具 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/05-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%9C%E7%B4%A2-%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%B7%A5%E5%85%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          05 基础入门-搜索-最基本的工具
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-19 09:52:57" itemprop="dateCreated datePublished" datetime="2020-01-19T09:52:57+08:00">2020-01-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:52:05" itemprop="dateModified" datetime="2020-05-26T13:52:05+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="开篇"><a href="#开篇" class="headerlink" title="开篇"></a>开篇</h3><p>ES存储功能：1. 存储文档 2. 为文档添加索引。<br>ES搜索功能：1. 全文检索 3. 结构化查询   </p>
+<p>搜索相关的3个概念：<br><strong>映射(Mapping)</strong></p>
+<blockquote>
+<p>描述数据在字段内如果被存储。</p>
+</blockquote>
+<p><strong>分析(Analysis)</strong></p>
+<blockquote>
+<p>全文是如果处理使之能被搜索。</p>
+</blockquote>
+<p><strong>领域特定查询语言(Query DSL)</strong><br>ES中强大灵活的查询语</p>
+<h3 id="空查询"><a href="#空查询" class="headerlink" title="空查询"></a>空查询</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">返回：</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"hits"</span> : &#123;</span><br><span class="line">      <span class="attr">"total"</span> :       <span class="number">14</span>,</span><br><span class="line">      <span class="attr">"hits"</span> : [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"_index"</span>:   <span class="string">"us"</span>,</span><br><span class="line">          <span class="attr">"_type"</span>:    <span class="string">"tweet"</span>,</span><br><span class="line">          <span class="attr">"_id"</span>:      <span class="string">"7"</span>,</span><br><span class="line">          <span class="attr">"_score"</span>:   <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"_source"</span>: &#123;</span><br><span class="line">             <span class="attr">"date"</span>:    <span class="string">"2014-09-17"</span>,</span><br><span class="line">             <span class="attr">"name"</span>:    <span class="string">"John Smith"</span>,</span><br><span class="line">             <span class="attr">"tweet"</span>:   <span class="string">"The Query DSL is really powerful and flexible"</span>,</span><br><span class="line">             <span class="attr">"user_id"</span>: <span class="number">2</span></span><br><span class="line">          &#125;</span><br><span class="line">       &#125;,</span><br><span class="line">        ... <span class="number">9</span> RESULTS REMOVED ...</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"max_score"</span> :   <span class="number">1</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"took"</span> :           <span class="number">4</span>,</span><br><span class="line">   <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">      <span class="attr">"failed"</span> :      <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"successful"</span> :  <span class="number">10</span>,</span><br><span class="line">      <span class="attr">"total"</span> :       <span class="number">10</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"timed_out"</span> :      <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>个字段简介：<br>hits :</p>
+<blockquote>
+<p>hit是最重要部分，包含 total(匹配文档数)，_index,_type, _source(文档内容), _score(相关度分值), _max_score(最大分值)</p>
+</blockquote>
+<p>took：</p>
+<blockquote>
+<p>搜索花费的时间(毫秒)</p>
+</blockquote>
+<p>shards：</p>
+<blockquote>
+<p>分片信息，总分片数，成功分片数，失败分片数</p>
+</blockquote>
+<p>time_out:</p>
+<blockquote>
+<p>查询是否超时，默认没有指定超时时间，可以收到指定’/_search?timeout=10ms’<br>timeout 不是停止执行查询，而是告诉协调节点在timeout之前返回收集的结果并关闭连接。在后台可能还有查询再执行。</p>
+</blockquote>
+<h3 id="多索引-多类型"><a href="#多索引-多类型" class="headerlink" title="多索引 多类型"></a>多索引 多类型</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/_search</span><br><span class="line">在所有的索引中搜索所有的类型</span><br><span class="line">/gb/_search</span><br><span class="line">在 gb 索引中搜索所有的类型</span><br><span class="line">/gb,us/_search</span><br><span class="line">在 gb 和 us 索引中搜索所有的文档</span><br><span class="line">/g*,u*/_search</span><br><span class="line">在任何以 g 或者 u 开头的索引中搜索所有的类型</span><br><span class="line">/gb/user/_search</span><br><span class="line">在 gb 索引中搜索 user 类型</span><br><span class="line">/gb,us/user,tweet/_search</span><br><span class="line">在 gb 和 us 索引中搜索 user 和 tweet 类型</span><br><span class="line">/_all/user,tweet/_search</span><br><span class="line">在所有的索引中搜索 user 和 tweet 类型</span><br></pre></td></tr></table></figure>
+<p>请求单个索引和多个索引时过程是一样的，多索引时协调节点转发给多个索引。</p>
+<h3 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h3><p>分页参数：<br>size : 返回的结果数量，默认 10<br>from : 跳过的结果数量, 默认 0</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /_search?size=5</span><br><span class="line">GET /_search?size=5&amp;from=5</span><br><span class="line">GET /_search?size=5&amp;from=10</span><br></pre></td></tr></table></figure>
+<p>分页过程（假设5个分片，size=10，from=0）：</p>
+<ol>
+<li>客户端向协调节点发送请求</li>
+<li>协调节点转发给相关节点的分片,每个分片查询前10个结果</li>
+<li>5个分片处理完结果返回给协调节点</li>
+<li>协调节点收到50个结果，对50个结果集中排序，然后分页取出前10条，返回给客户端</li>
+</ol>
+<p>深度分页（deep page）<br>随着分页深度越深，每个分片查询的记录越多，协调节点集中排序的结果越多，性能越差。<br>例如：size=10，from=10000，分片数=5<br>==&gt; 每个分片需要查询10010个结果，协调节点处理50050个结果，取出10个结果，丢弃掉50040个结果</p>
+<h3 id="轻量搜索"><a href="#轻量搜索" class="headerlink" title="轻量搜索"></a>轻量搜索</h3><p>两种搜索形式：</p>
+<ol>
+<li>查询字符串形式 ： 轻量的形式，在查询字符串中传递所有参数。</li>
+<li>请求体形式 ： 使用JSON格式和更丰富的查询表达式作为搜索语言。</li>
+</ol>
+<h5 id="查询字符串"><a href="#查询字符串" class="headerlink" title="查询字符串"></a>查询字符串</h5><p>语法格式:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /_search?q=+name:john++tweet:mary+date:&gt;2014-09-10</span><br><span class="line">经过URL encode后：</span><br><span class="line">GET /_search?q=%2Bname:john+%3Atweet:mary</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>‘+’ : 必须与查询条件匹配<br>‘-‘ : 一定不与查询条件匹配</p>
+</blockquote>
+<p>优点 :</p>
+<ol>
+<li>可以用简洁语法表达复杂的查询</li>
+<li>做一次性查询比较方便，适合开发阶段</li>
+<li>缺点 :</li>
+<li>经过URL编码后可读性比较差</li>
+<li>调式比较困难</li>
+<li>语法容易出错，很脆弱</li>
+<li>允许然后用户在索引的任意字段上执行比较慢且重量级查询，会暴露隐私，甚至拖垮集群。</li>
+</ol>
+<p>根据以上特点不建议在生产环境使用查询字符串，建议使用功能更全面的 request body 查询。</p>
+<h5 id="all字段"><a href="#all字段" class="headerlink" title="_all字段"></a>_all字段</h5><p>ES默认是有存储_all字段，ES把所有字段的值拼接成一个大的字符串做为’_all’字段进行索引. 如果不指定字段时就是搜索的’_all’字段。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/06-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%98%A0%E5%B0%84%E5%92%8C%E5%88%86%E6%9E%90/" rel="prev" title="06 基础入门-映射和分析">
+      <i class="fa fa-chevron-left"></i> 06 基础入门-映射和分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/01/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/07-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E8%AF%B7%E6%B1%82%E4%BD%93%E6%9F%A5%E8%AF%A2/" rel="next" title="07 基础入门-请求体查询">
+      07 基础入门-请求体查询 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#开篇"><span class="nav-number">1.</span> <span class="nav-text">开篇</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#空查询"><span class="nav-number">2.</span> <span class="nav-text">空查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多索引-多类型"><span class="nav-number">3.</span> <span class="nav-text">多索引 多类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分页"><span class="nav-number">4.</span> <span class="nav-text">分页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#轻量搜索"><span class="nav-number">5.</span> <span class="nav-text">轻量搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查询字符串"><span class="nav-number">5.0.1.</span> <span class="nav-text">查询字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#all字段"><span class="nav-number">5.0.2.</span> <span class="nav-text">_all字段</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

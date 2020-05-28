@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 function_score 查询 过滤器无法计算评分。这样就需要寻求一种方式将过滤器和查询间的差异抹平。function_score 查询不仅正好可以扮演这个角色，而且有更强大的功能。 function_score 查询允许每个与主查询匹配的文档应用一个函数，以达到改变甚至替换原始查询评分的目的。 function_score 可以使用过滤器，这样既可以高效评分，有能利用过滤">
+<meta property="og:type" content="article">
+<meta property="og:title" content="19-深入搜索-控制相关度">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/12/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/19-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A62/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 function_score 查询 过滤器无法计算评分。这样就需要寻求一种方式将过滤器和查询间的差异抹平。function_score 查询不仅正好可以扮演这个角色，而且有更强大的功能。 function_score 查询允许每个与主查询匹配的文档应用一个函数，以达到改变甚至替换原始查询评分的目的。 function_score 可以使用过滤器，这样既可以高效评分，有能利用过滤">
+<meta property="article:published_time" content="2020-03-12T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:53:30.412Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/12/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/19-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A62/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>19-深入搜索-控制相关度 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/12/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/19-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A62/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          19-深入搜索-控制相关度
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-12 09:52:57" itemprop="dateCreated datePublished" datetime="2020-03-12T09:52:57+08:00">2020-03-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:53:30" itemprop="dateModified" datetime="2020-05-26T13:53:30+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="function-score-查询"><a href="#function-score-查询" class="headerlink" title="function_score 查询"></a>function_score 查询</h3><ul>
+<li>过滤器无法计算评分。这样就需要寻求一种方式将过滤器和查询间的差异抹平。function_score 查询不仅正好可以扮演这个角色，而且有更强大的功能。</li>
+<li>function_score 查询允许每个与主查询匹配的文档应用一个函数，以达到改变甚至替换原始查询评分的目的。</li>
+<li>function_score 可以使用过滤器，这样既可以高效评分，有能利用过滤器缓存</li>
+<li>function_score可以将全文查询与最新发生的因子结合在一起评分，可以根据全文相关度进行排序，但也会同时考虑其他因子：新发布文档、流行文档、或接近用户希望价格的产品等。</li>
+</ul>
+<p>ES预定义的函数：</p>
+<ul>
+<li>weight : 为每个文档应用一个权重提升值，该值不会被归一化，当weight=2时，最终结果为 2 * <code>_score</code></li>
+<li>field_value_factor : 使用这个值来修改 <code>_score</code> ，如将 popularity 或 votes （受欢迎或赞）作为考虑因素。</li>
+<li>random_score : 为每个用户都使用一个不同的随机评分对结果排序，但对某一具体用户来说，看到的顺序始终是一致的。</li>
+<li>衰减函数 —— linear、 exp、 gauss : 将浮动值结合到评分 <code>_score</code> 中，例如结合 publish_date 获得最近发布的文档，结合 geo_location 获得更接近某个具体经纬度（lat/lon）地点的文档，结合 price 获得更接近某个特定价格的文档。</li>
+<li>script_score : 如果需求超出以上范围时，用自定义脚本可以完全控制评分计算，实现所需逻辑。</li>
+</ul>
+<h3 id="按受欢迎度提升权重-Boosting-by-Popularity"><a href="#按受欢迎度提升权重-Boosting-by-Popularity" class="headerlink" title="按受欢迎度提升权重(Boosting by Popularity)"></a>按受欢迎度提升权重(Boosting by Popularity)</h3><p>将 function_score 查询与 field_value_factor 结合使用，即将点赞数与全文相关度评分结合。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">GET /blogposts/post/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"function_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"multi_match"</span>: &#123;</span><br><span class="line">          <span class="attr">"query"</span>:    <span class="string">"popularity"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: [ <span class="string">"title"</span>, <span class="string">"content"</span> ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"field_value_factor"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>:    <span class="string">"votes"</span>,</span><br><span class="line">        <span class="attr">"modifier"</span>: <span class="string">"log1p"</span>,</span><br><span class="line">        <span class="attr">"factor"</span>:   <span class="number">0.1</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"boost_mode"</span>: <span class="string">"sum"</span>,</span><br><span class="line">      <span class="attr">"max_boost"</span>:  <span class="number">1.5</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面配置后的公式： <code>new_score = old_score + log(1 + 0.1 * number_of_votes)</code><br>max_boost限制结果，无论 field_value_factor 函数的结果如何，最终结果都不会大于 1.5 。</p>
+<p>参数说明：</p>
+<ul>
+<li>function_score 查询将主查询和函数包括在内。</li>
+<li>主查询query优先执行。</li>
+<li>field_value_factor 函数会被应用到每个与主 query 匹配的文档。</li>
+<li>每个文档的 votes 字段都 必须 有值供 function_score 计算。如果 没有 文档的 votes 字段有值，那么就 必须 使用 missing 属性 提供的默认值来进行评分计算。</li>
+<li>modifier调节器 取值：none(默认)，log,log1p,log2p,ln,ln1p,ln2p,square,sqrt,reciprocal；更多参考:  <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-function-score-query.html#function-field-value-factor" target="_blank" rel="noopener">field_value_factor 文档</a></li>
+<li>factor : 协调因子，factor 值大于 1 会提升效果， factor 值小于 1 会降低效果。例如：new_score = old_score * log(1 + factor * number_of_votes)</li>
+<li>max_boost : 限制一个函数的最大效果，max_boost 只对函数的结果进行限制，不会对最终评分<code>_score</code>产生直接影响。</li>
+<li>boost_mode : 控制函数与查询评分(<code>_score</code>)合并后的结果。取值如下：<ul>
+<li>multiply : 评分 <code>_score</code> 与函数值的积（默认）</li>
+<li>sum : 评分 <code>_score</code>与函数值的和</li>
+<li>min : 评分 <code>_score</code>与函数值间的较小值</li>
+<li>max : 评分 <code>_score</code>与函数值间的较大值</li>
+<li>replace : 函数值替代评分<code>_score</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="过滤集提升权重"><a href="#过滤集提升权重" class="headerlink" title="过滤集提升权重"></a>过滤集提升权重</h3><p>查询city 字段中包含 Barcelona 的所有文档，不需要全文检索，用过滤比用查询表达更清晰。<br>使用filter(不是query)和weight提升权重，weight没有被归一化，而是直接被应用。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"function_score"</span>: &#123;  </span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"term"</span>: &#123; <span class="attr">"city"</span>: <span class="string">"Barcelona"</span> &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"functions"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"wifi"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"garden"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"pool"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">2</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"score_mode"</span>: <span class="string">"sum"</span>,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>function_score 查询有个 filter 过滤器而不是 query 查询。</li>
+<li>functions 关键字下存储着一个函数列表，每个函数都指定一个 filter 过滤器。</li>
+<li>函数会被应用于filter过滤器匹配的文档。</li>
+<li>score_mode 指定各个函数的值进行组合运算的方式。</li>
+<li>function_score 取值： match_all(默认)，query，filter。</li>
+<li>score_mode评分模式 ：将多个函数(filter)返回的结果缩减为单个值的方式。<ul>
+<li>multiply : 函数结果求积（默认）。</li>
+<li>sum : 函数结果求和。</li>
+<li>avg : 函数结果的平均值。</li>
+<li>max : 函数结果的最大值。</li>
+<li>min : 函数结果的最小值。</li>
+<li>first : 使用首个函数（可以有过滤器，也可能没有）的结果作为最终结果</li>
+</ul>
+</li>
+<li>在本例中，将每个过滤器匹配结果的权重 weight 求和，并将其作为最终评分结果，所以会使用sum评分模式。</li>
+<li>不与任何过滤器匹配的文档会保有其原始评分， <code>_score</code> 值的为 1 。</li>
+</ul>
+<h3 id="随机评分"><a href="#随机评分" class="headerlink" title="随机评分"></a>随机评分</h3><ul>
+<li>一致随机评分（consistently random scoring）,当seed相同时产生的随机数始终一致。</li>
+<li>使用场景：很多文档评分相同，使用每个文档都有均等相似的展现率</li>
+<li>random_score 函数会输出一个 0 到 1 之间的数，当种子 seed 值相同时，生成的随机结果是一致的</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"function_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"filter"</span>: &#123;</span><br><span class="line">        <span class="attr">"term"</span>: &#123; <span class="attr">"city"</span>: <span class="string">"Barcelona"</span> &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"functions"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"wifi"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"garden"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"filter"</span>: &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"features"</span>: <span class="string">"pool"</span> &#125;&#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">2</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"random_score"</span>: &#123;</span><br><span class="line">            <span class="attr">"seed"</span>:  <span class="string">"the users session id"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"score_mode"</span>: <span class="string">"sum"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>random_score 语句没有任何过滤器 filter ，所以会被应用到所有文档。</li>
+<li>将用户的会话 ID 作为种子 seed ，让该用户的随机始终保持一致，相同的种子 seed 会产生相同的随机结果。</li>
+</ul>
+<h3 id="越近越好"><a href="#越近越好" class="headerlink" title="越近越好"></a>越近越好</h3><p>function_score提供一组 衰减函数(decay functions) ： linear(线性)、exp(指数)、gauss(高斯函数)；</p>
+<p>三个函数都能接受的参数：</p>
+<ul>
+<li>origin : 中心点 或 字段可能的最佳值，落在原点 origin 上的文档评分 <code>_score</code> 为满分 1.0 。</li>
+<li>scale : 衰减率，即一个文档从原点origin下落时评分<code>_score</code>改变的速度。(例如：每100元或 每100米)</li>
+<li>decay : 从原点origin衰减到scale所得的评分<code>_score</code>,默认值是 0.5</li>
+<li>offset : 以原点 origin 为中心点，为其设置一个非零的偏移量 offset 覆盖一个范围，而不只是单个原点。在范围 -offset &lt;= origin &lt;= +offset 内的所有评分 <code>_score</code> 都是 1.0 。</li>
+</ul>
+<p>三个函数之间的区别在于范围（ origin +/- (offset + scale) ）之外的曲线形状：</p>
+<ul>
+<li>linear 线性函数是条直线，一旦直线与横轴 0 相交，所有其他值的评分都是 0.0 。</li>
+<li>exp 指数函数是先剧烈衰减然后变缓。</li>
+<li>gauss 高斯函数是钟形的——它的衰减速率是先缓慢，然后变快，最后又放缓。</li>
+</ul>
+<p>以伦敦市中作为原点 origin 。<br>所有距原点 origin 2km 范围内的位置的评分是 1.0 。<br>距中心 5km （ offset + scale ）的位置的评分是 0.5 。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"function_score"</span>: &#123;</span><br><span class="line">      <span class="attr">"functions"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"gauss"</span>: &#123;</span><br><span class="line">            <span class="attr">"location"</span>: &#123;</span><br><span class="line">              <span class="attr">"origin"</span>: &#123; <span class="attr">"lat"</span>: <span class="number">51.5</span>, <span class="attr">"lon"</span>: <span class="number">0.12</span> &#125;,</span><br><span class="line">              <span class="attr">"offset"</span>: <span class="string">"2km"</span>,</span><br><span class="line">              <span class="attr">"scale"</span>:  <span class="string">"3km"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"gauss"</span>: &#123;</span><br><span class="line">            <span class="attr">"price"</span>: &#123;</span><br><span class="line">              <span class="attr">"origin"</span>: <span class="string">"50"</span>,</span><br><span class="line">              <span class="attr">"offset"</span>: <span class="string">"50"</span>,</span><br><span class="line">              <span class="attr">"scale"</span>:  <span class="string">"20"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"weight"</span>: <span class="number">2</span></span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="理解-price-价格语句"><a href="#理解-price-价格语句" class="headerlink" title="理解 price 价格语句"></a>理解 price 价格语句</h3><p>price小技巧: 用户希望选择100元以下的度假屋，把原点origin设置为50，偏移量offset设置为50，这样就能覆盖 0-100元的范围了。</p>
+<h3 id="脚本评分"><a href="#脚本评分" class="headerlink" title="脚本评分"></a>脚本评分</h3><p>如果function_score无法满足应用场景，可以使用script_score 函数自行实现逻辑。</p>
+<p>Elasticsearch 里使用 Groovy 作为默认的脚本语言，它与JavaScript很像，上面这个算法用 Groovy 脚本表示如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">price  &#x3D; doc[&#39;price&#39;].value</span><br><span class="line">margin &#x3D; doc[&#39;margin&#39;].value</span><br><span class="line"></span><br><span class="line">if (price &lt; threshold) &#123;</span><br><span class="line">  return price * margin &#x2F; target</span><br><span class="line">&#125;</span><br><span class="line">return price * (1 - discount) * margin &#x2F; target</span><br></pre></td></tr></table></figure>
+
+<p>最终script_score函数与其他函数一起使用</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"function_score"</span>: &#123;</span><br><span class="line">    <span class="attr">"functions"</span>: [</span><br><span class="line">      &#123; ... 上面的gauss函数 location clause ... &#125;,</span><br><span class="line">      &#123; ... 上面的gauss函数 price clause ... &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"script_score"</span>: &#123;</span><br><span class="line">          <span class="attr">"params"</span>: &#123;</span><br><span class="line">            <span class="attr">"threshold"</span>: <span class="number">80</span>,</span><br><span class="line">            <span class="attr">"discount"</span>: <span class="number">0.1</span>,</span><br><span class="line">            <span class="attr">"target"</span>: <span class="number">10</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"script"</span>: <span class="string">"price  = doc['price'].value; margin = doc['margin'].value;</span></span><br><span class="line"><span class="string">          if (price &lt; threshold) &#123; return price * margin / target &#125;;</span></span><br><span class="line"><span class="string">          return price * (1 - discount) * margin / target;"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>location 和 price 语句在 衰减函数 中解释过。</li>
+<li>将这些变量作为参数 params 传递，我们可以查询时动态改变脚本无须重新编译。</li>
+<li>JSON 不能接受内嵌的换行符，脚本中的换行符可以用 \n 或 ; 符号替代。</li>
+<li>script_score 函数提供了巨大的灵活性，可以通过脚本访问文档里的所有字段、当前评分 <code>_score</code> 甚至词频、逆向文档频率和字段长度规范值这样的信息</li>
+<li>如果脚本执行慢，有下面方法优化：<ul>
+<li>尽可能多的提前计算各种信息并将结果存入每个文档中。</li>
+<li>Groovy 很快，但没 Java 快。可以将脚本用原生的 Java 脚本重新实现。（参见 原生 Java 脚本）。</li>
+<li>仅对那些最佳评分的文档应用脚本，使用 重新评分 中提到的 rescore 功能。</li>
+</ul>
+</li>
+</ul>
+<h3 id="可插拔的相似度算法-Pluggable-Similarity-Algorithms"><a href="#可插拔的相似度算法-Pluggable-Similarity-Algorithms" class="headerlink" title="可插拔的相似度算法(Pluggable Similarity Algorithms)"></a>可插拔的相似度算法(Pluggable Similarity Algorithms)</h3><p>Elasticsearch 将 实用评分算法 作为默认相似度算法，它也能够支持其他的一些算法，这些算法可以参考 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules-similarity.html#configuration" target="_blank" rel="noopener">相似度模块</a> 文档.</p>
+<h5 id="Okapi-BM25"><a href="#Okapi-BM25" class="headerlink" title="Okapi BM25"></a>Okapi BM25</h5><p>能与 TF/IDF 和向量空间模型媲美的就是 Okapi BM25 ，它被认为是 当今最先进的 排序函数。 BM25 源自 概率相关模型（probabilistic relevance model） ，而不是向量空间模型，但这个算法也和 Lucene 的实用评分函数有很多共通之处。</p>
+<p>BM25 同样使用词频、逆向文档频率以及字段长归一化，但是每个因子的定义都有细微区别。与其详细解释 BM25 公式，倒不如将关注点放在 BM25 所能带来的实际好处上。</p>
+<p>参考 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/pluggable-similarites.html#bm25-saturation" target="_blank" rel="noopener">Okapi BM25</a></p>
+<h5 id="词频饱和度-Term-frequency-saturation"><a href="#词频饱和度-Term-frequency-saturation" class="headerlink" title="词频饱和度(Term-frequency saturation)"></a>词频饱和度(Term-frequency saturation)</h5><p>BM25的非线性词频饱和度（nonlinear term-frequency saturation），达到某值后即使词频一直增加但对评分的影响很小。</p>
+<p>参考 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/pluggable-similarites.html#bm25-saturation" target="_blank" rel="noopener">词频饱和度</a></p>
+<h5 id="字段长度归一化-Field-length-normalization"><a href="#字段长度归一化-Field-length-normalization" class="headerlink" title="字段长度归一化(Field-length normalization)"></a>字段长度归一化(Field-length normalization)</h5><p>BM25会考虑字段的平均长度，这样能区分是短的title字段还是长的title字段。</p>
+<h5 id="BM25-调优-Tuning-BM25"><a href="#BM25-调优-Tuning-BM25" class="headerlink" title="BM25 调优(Tuning BM25)"></a>BM25 调优(Tuning BM25)</h5><p>BM25有两个可调参数：</p>
+<ul>
+<li>k1 : 这个参数控制着词频结果在词频饱和度中的上升速度。默认值为 1.2 。值越小饱和度变化越快，值越大饱和度变化越慢。</li>
+<li>b : 这个参数控制着字段长归一值所起的作用， 0.0 会禁用归一化， 1.0 会启用完全归一化。默认值为 0.75 。</li>
+</ul>
+<h3 id="更改相似度"><a href="#更改相似度" class="headerlink" title="更改相似度"></a>更改相似度</h3><ul>
+<li>相似度算法可以在映射时指定到字段上</li>
+<li>字段默认是 实用评分函数</li>
+<li>ES不支持更改已有字段的相似度算法</li>
+<li>自定义的相似度算法可以通过关闭索引，更新索引设置，开启索引这个过程进行更新。这样可以无须重建索引又能试验不同的相似度算法配置。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"similarity"</span>: <span class="string">"BM25"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"body"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"similarity"</span>: <span class="string">"default"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>自定义相似度算法</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span>: &#123;</span><br><span class="line">    <span class="attr">"similarity"</span>: &#123;</span><br><span class="line">      <span class="attr">"my_bm25"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"BM25"</span>,</span><br><span class="line">        <span class="attr">"b"</span>:    <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"similarity"</span>: <span class="string">"my_bm25"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"body"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"similarity"</span>: <span class="string">"BM25"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建一个基于内置 BM25 ，名为 my_bm25 的自定义相似度算法。</li>
+<li>“b”:0  禁用字段长度规范化（field-length normalization）。参见 调试 BM25 。</li>
+<li>title 字段使用自定义相似度算法 my_bm25 。</li>
+<li>字段 body 使用内置相似度算法 BM25</li>
+</ul>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><h3 id="调试相关度是最后-10-要做的事情-Relevance-Tuning-Is-the-Last-10"><a href="#调试相关度是最后-10-要做的事情-Relevance-Tuning-Is-the-Last-10" class="headerlink" title="调试相关度是最后 10% 要做的事情(Relevance Tuning Is the Last 10%)"></a>调试相关度是最后 10% 要做的事情(Relevance Tuning Is the Last 10%)</h3><ul>
+<li>本章介绍了 Lucene 是如何基于 TF/IDF 生成评分的</li>
+<li>理解评分过程是非常重要的，这样就可以根据具体的业务对评分结果进行调试、调节、减弱和定制。</li>
+<li>最佳实践：为了获得 具有成效 的搜索结果，就必须反复调试、调节、减弱和定制。</li>
+<li>经过对策略字段或重要语句应用权重提升。</li>
+<li>因为最相关 这个概念是一个难以触及的模糊目标，通常不同人对文档排序又有着不同的想法，容易使人陷入持续反复调整而没有明显进展的怪圈。不用陷入怪圈，要监控测量返回的结果，例如:监控顶端结果的点击次数，来回查看的频次。</li>
+<li>要想物尽其用并将搜索结果提高到 极高的 水平，唯一途径就是需要具备能评价度量用户行为的强大能力</li>
+</ul>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/11/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/18-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A61/" rel="prev" title="18-深入搜索-控制相关度">
+      <i class="fa fa-chevron-left"></i> 18-深入搜索-控制相关度
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/22-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%BD%92%E4%B8%80%E5%8C%96%E8%AF%8D%E5%85%83/" rel="next" title="03-处理人类语言-归一化词元">
+      03-处理人类语言-归一化词元 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#function-score-查询"><span class="nav-number">1.</span> <span class="nav-text">function_score 查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按受欢迎度提升权重-Boosting-by-Popularity"><span class="nav-number">2.</span> <span class="nav-text">按受欢迎度提升权重(Boosting by Popularity)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#过滤集提升权重"><span class="nav-number">3.</span> <span class="nav-text">过滤集提升权重</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#随机评分"><span class="nav-number">4.</span> <span class="nav-text">随机评分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#越近越好"><span class="nav-number">5.</span> <span class="nav-text">越近越好</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#理解-price-价格语句"><span class="nav-number">6.</span> <span class="nav-text">理解 price 价格语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#脚本评分"><span class="nav-number">7.</span> <span class="nav-text">脚本评分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可插拔的相似度算法-Pluggable-Similarity-Algorithms"><span class="nav-number">8.</span> <span class="nav-text">可插拔的相似度算法(Pluggable Similarity Algorithms)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Okapi-BM25"><span class="nav-number">8.0.1.</span> <span class="nav-text">Okapi BM25</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#词频饱和度-Term-frequency-saturation"><span class="nav-number">8.0.2.</span> <span class="nav-text">词频饱和度(Term-frequency saturation)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字段长度归一化-Field-length-normalization"><span class="nav-number">8.0.3.</span> <span class="nav-text">字段长度归一化(Field-length normalization)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BM25-调优-Tuning-BM25"><span class="nav-number">8.0.4.</span> <span class="nav-text">BM25 调优(Tuning BM25)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更改相似度"><span class="nav-number">9.</span> <span class="nav-text">更改相似度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">10.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调试相关度是最后-10-要做的事情-Relevance-Tuning-Is-the-Last-10"><span class="nav-number">11.</span> <span class="nav-text">调试相关度是最后 10% 要做的事情(Relevance Tuning Is the Last 10%)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

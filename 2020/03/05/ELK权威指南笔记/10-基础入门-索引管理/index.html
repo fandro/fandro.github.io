@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 索引管理优化索引和搜索过程，定制索引和类型 创建一个索引手动建立索引，配置索引分片，分析器和映射。 12345678PUT &#x2F;my_index&amp;#123;  &quot;settings&quot;: &amp;#123;... any settings ...  &amp;#125;,  &quot;mappings&quot; : &amp;#123;    &quot;type_one&quot; : &amp;#123;... any mappings ...">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10 基础入门-索引管理">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/10-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B4%A2%E5%BC%95%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 索引管理优化索引和搜索过程，定制索引和类型 创建一个索引手动建立索引，配置索引分片，分析器和映射。 12345678PUT &#x2F;my_index&amp;#123;  &quot;settings&quot;: &amp;#123;... any settings ...  &amp;#125;,  &quot;mappings&quot; : &amp;#123;    &quot;type_one&quot; : &amp;#123;... any mappings ...">
+<meta property="article:published_time" content="2020-03-05T09:59:00.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:52:43.978Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/10-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B4%A2%E5%BC%95%E7%AE%A1%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>10 基础入门-索引管理 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/10-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B4%A2%E5%BC%95%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          10 基础入门-索引管理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-05 17:59:00" itemprop="dateCreated datePublished" datetime="2020-03-05T17:59:00+08:00">2020-03-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:52:43" itemprop="dateModified" datetime="2020-05-26T13:52:43+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="索引管理"><a href="#索引管理" class="headerlink" title="索引管理"></a>索引管理</h3><p>优化索引和搜索过程，定制索引和类型</p>
+<h3 id="创建一个索引"><a href="#创建一个索引" class="headerlink" title="创建一个索引"></a>创建一个索引</h3><p>手动建立索引，配置索引分片，分析器和映射。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  "settings": &#123;... any settings ...  &#125;,</span><br><span class="line">  "mappings" : &#123;</span><br><span class="line">    "type_one" : &#123;... any mappings ...&#125;,</span><br><span class="line">    "type_two" : &#123;... any mappings ...&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>禁止自动创建索引，修改配置文件 config/elasticsearch.yml<br>action.auto_create_index: false</p>
+<h3 id="删除一个或多个索引"><a href="#删除一个或多个索引" class="headerlink" title="删除一个或多个索引"></a>删除一个或多个索引</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DELETE /my_index</span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br></pre></td></tr></table></figure>
+
+<p>删除全部索引</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
+
+<h3 id="索引配置"><a href="#索引配置" class="headerlink" title="索引配置"></a>索引配置</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_temp_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"number_of_shards"</span> :   <span class="number">1</span>,</span><br><span class="line">        <span class="attr">"number_of_replicas"</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>number_of_shards : 主分片数，默认值是5，配置后不能修改<br>number_of_replicas: 每个主分片的副本数，默认值是1，这个配置可以修改。</p>
+<p>修改副本数量：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_temp_index/_settings</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"number_of_replicas"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置分析器analysis"><a href="#配置分析器analysis" class="headerlink" title="配置分析器analysis"></a>配置分析器analysis</h3><p>standard分析器,系统默认分析器，适合大部分西方语系：</p>
+<ul>
+<li>standard 分词器，通过单词边界分割输入的文本。</li>
+<li>standard 语汇单元过滤器，目的是整理分词器触发的语汇单元</li>
+<li>lowercase 语汇单元过滤器，转换所有的语汇单元为小写。</li>
+<li>stop 语汇单元过滤器，删除停用词—​对搜索相关性影响不大的常用词，如 a,the,and,is。</li>
+</ul>
+<p>启用停用词过滤器，创建新的分析器并预定义停用词</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /spanish_docs</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"settings"</span> : &#123;</span><br><span class="line">    <span class="attr">"analysis"</span> : &#123;</span><br><span class="line">      <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="attr">"es_std"</span>:  &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="attr">"stopwords"</span>: <span class="string">"_spanish_"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /spanish_docs/_analyze?analyzer=es_std</span><br><span class="line">El veloz zorro marrón</span><br><span class="line"></span><br><span class="line">结果：</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"tokens"</span> : [</span><br><span class="line">    &#123; <span class="attr">"token"</span> :    <span class="string">"veloz"</span>,   <span class="attr">"position"</span> : <span class="number">2</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">"token"</span> :    <span class="string">"zorro"</span>,   <span class="attr">"position"</span> : <span class="number">3</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">"token"</span> :    <span class="string">"marrón"</span>,  <span class="attr">"position"</span> : <span class="number">4</span> &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义分析器"><a href="#自定义分析器" class="headerlink" title="自定义分析器"></a>自定义分析器</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">            "char_filter": &#123; ... custom character filters ... &#125;,</span><br><span class="line">            "tokenizer":   &#123; ...    custom tokenizers     ... &#125;,</span><br><span class="line">            "filter":      &#123; ...   custom token filters   ... &#125;,</span><br><span class="line">            "analyzer":    &#123; ...    custom analyzers      ... &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析器中执行顺序依次是：字符过滤器、分词器、词汇单元过滤器，3个自由组合创建自定义的分析器。</p>
+<ul>
+<li>字符过滤器(char filter)，在分词之前，处理内容中的特殊字符（清除字符，zif转换），可以有0个或多个字符过滤器。</li>
+<li>分词器(tokenizer)，一个分析器只能有一个分词器，分词器把字符串分解成单个词条或词汇单元。</li>
+<li>词汇单元过滤器(token filter)，分词后词单元流按指定顺序通过词单元过滤器，过滤器可以修改，添加或移除词单元。</li>
+</ul>
+<p>完整自定义</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">            <span class="attr">"char_filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"&amp;_to_and"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:       <span class="string">"mapping"</span>,</span><br><span class="line">                    <span class="attr">"mappings"</span>: [ <span class="string">"&amp;=&gt; and "</span>]</span><br><span class="line">            &#125;&#125;,</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"my_stopwords"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:       <span class="string">"stop"</span>,</span><br><span class="line">                    <span class="attr">"stopwords"</span>: [ <span class="string">"the"</span>, <span class="string">"a"</span> ]</span><br><span class="line">            &#125;&#125;,</span><br><span class="line">            <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="attr">"my_analyzer"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:         <span class="string">"custom"</span>,</span><br><span class="line">                    <span class="attr">"char_filter"</span>:  [ <span class="string">"html_strip"</span>, <span class="string">"&amp;_to_and"</span> ],</span><br><span class="line">                    <span class="attr">"tokenizer"</span>:    <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="attr">"filter"</span>:       [ <span class="string">"lowercase"</span>, <span class="string">"my_stopwords"</span> ]</span><br><span class="line">            &#125;&#125;</span><br><span class="line">&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 analyze API来测试my_analyzer</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=my_analyzer</span><br><span class="line">The quick &amp; brown fox</span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"tokens"</span> : [</span><br><span class="line">      &#123; <span class="attr">"token"</span> :   <span class="string">"quick"</span>,    <span class="attr">"position"</span> : <span class="number">2</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">"token"</span> :   <span class="string">"and"</span>,      <span class="attr">"position"</span> : <span class="number">3</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">"token"</span> :   <span class="string">"brown"</span>,    <span class="attr">"position"</span> : <span class="number">4</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">"token"</span> :   <span class="string">"fox"</span>,      <span class="attr">"position"</span> : <span class="number">5</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="类型和映射"><a href="#类型和映射" class="headerlink" title="类型和映射"></a>类型和映射</h3><p>类型： 一类相似的文档，类型由名称和映射组成<br>映射： 映射就是数据库的schema,描述字段或属性以及字段的数据类型，例如 string，integer,date等</p>
+<h5 id="Lucene-如何处理文档"><a href="#Lucene-如何处理文档" class="headerlink" title="Lucene 如何处理文档"></a>Lucene 如何处理文档</h5><p>Lucene中一个文档有一组简单的键值对组成，一个字段可以有多个值，这些值没有具体类型。<br>索引文档时字段的值被添加到倒排索引中。</p>
+<h5 id="类型是如何实现的"><a href="#类型是如何实现的" class="headerlink" title="类型是如何实现的"></a>类型是如何实现的</h5><ol>
+<li>Elasticsearch类型是以Lucene处理文档的方式为基础实现的。</li>
+<li>Lucene中没有类型概念，ES在每个文档的_type元数据中存储类型名，检索类型时通过_type进行过滤限制。</li>
+<li>Lucene中也没有映射概念，ES将复杂的JSON文档映射为Lucene扁平化的数据结构。</li>
+</ol>
+<h5 id="避免类型陷阱"><a href="#避免类型陷阱" class="headerlink" title="避免类型陷阱"></a>避免类型陷阱</h5><p>陷阱： 两个类型中不能定义相同名称的字段</p>
+<ol>
+<li>每个 Lucene 索引中的所有字段都包含一个单一的、扁平的模式。一个特定字段可以映射成 string或number，但是不能两者兼具。</li>
+<li>两个不同类型中的字段，映射到Lucene中一个索引中，没有类型区分。</li>
+</ol>
+<h5 id="类型结论"><a href="#类型结论" class="headerlink" title="类型结论"></a>类型结论</h5><ol>
+<li>一个索引中可以有两个类型，但两个类型中不能有相同名称的字段，否则会有字段冲突。</li>
+<li>一个索引中定义两个或多个类型时，大部分字段都相同，只有部分字段不同。</li>
+<li>如果两个类型字段完全不同，这时最好使用两个索引，因为字段互不相同时索引中一半数据是空的(稀疏)，最终导致性能问题</li>
+</ol>
+<h3 id="根对象"><a href="#根对象" class="headerlink" title="根对象"></a>根对象</h3><p>根对象包含内容：</p>
+<ul>
+<li>properties节点，包含字段的映射</li>
+<li>各种元数据，以下划线开头，例如:_type,_id,_source</li>
+<li>设置项，控制如何动态处理新字段，例如：analyzer、dynamic_date_formats和dynamic_templates</li>
+<li>其他设置，可以应该到根对象和其他object类型上，例如：enabled,dynamic和include_in_all</li>
+</ul>
+<h5 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h5><ul>
+<li>type 字段的数据类型</li>
+<li>index 值包含：analyzed(分词会索引)，not_analyzed(keyword)，no(不被搜索)</li>
+<li>analyzer 使用的分析器</li>
+</ul>
+<h5 id="元数据：-source字段"><a href="#元数据：-source字段" class="headerlink" title="元数据：_source字段"></a>元数据：_source字段</h5><p>_source字段 代表文档体的json字符串，包含所有我们想要的。</p>
+<p>如果不需source时使用禁用命令</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"enabled"</span>:  <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查询时指定返回的字段</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>:   &#123; <span class="attr">"match_all"</span>: &#123;&#125;&#125;,</span><br><span class="line">    <span class="attr">"_source"</span>: [ <span class="string">"title"</span>, <span class="string">"created"</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="元数据：-all-字段"><a href="#元数据：-all-字段" class="headerlink" title="元数据：_all 字段"></a>元数据：_all 字段</h5><ul>
+<li>_all :把其他字段当做一个大字符串来索引的特殊字符。</li>
+<li>_all是应急情况使用，快速查找想了解的索引信息。</li>
+<li>_all 记录其他字段所有字符串，all字段指定的分词器会对all字段进行分词。</li>
+<li>禁用某索引的all字段。</li>
+<li>配置字段中的include_in_all属性，指定该字段是否加入all字段。</li>
+</ul>
+<p>query-string查询all</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_search?q=tom</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"_all"</span>: <span class="string">"john smith marketing"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>禁止索引中的all</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping/my_type</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">        <span class="attr">"_all"</span>: &#123; <span class="attr">"enabled"</span>: <span class="literal">false</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过include_in_all配置字段中的加入’_all‘字段中,默认值是true</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/my_type/_mapping</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">        <span class="attr">"include_in_all"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>:           <span class="string">"string"</span>,</span><br><span class="line">                <span class="attr">"include_in_all"</span>: <span class="literal">true</span></span><br><span class="line">            &#125;,</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="元数据：文档标识"><a href="#元数据：文档标识" class="headerlink" title="元数据：文档标识"></a>元数据：文档标识</h5><p>4个相关字段：</p>
+<ul>
+<li>_id 文档的id，既没有被索引也没被存储，不是真实存在的。</li>
+<li>_type 文档的类型名，被索引但没被存储。</li>
+<li>_index 文档所在的索引，既没有被索引也没被存储，不是真实存在的。</li>
+<li>_uid _type和_id连接在一起构造成type#id，被索引(可搜索)和被存储(可取回)。   </li>
+</ul>
+<p>_id可以像真实字段一样查询,ES使用_uid字段来派生出_id</p>
+<h3 id="动态映射-dynamic-mapping"><a href="#动态映射-dynamic-mapping" class="headerlink" title="动态映射 dynamic mapping"></a>动态映射 dynamic mapping</h3><ul>
+<li>动态映射: 遇到新字段时动态映射会确定字段类型并添加字段的类型映射。</li>
+<li>用dynamic来配置是否需要动态映射</li>
+<li>dynamic 使用：<ol>
+<li>在根object或任何object类型上设置</li>
+<li>指定某些字段使用dynamic: 先设置默认值，再定义某些字段启用</li>
+</ol>
+</li>
+<li>dynamic可选值：<ol>
+<li>true ： 动态添加新字段，默认值</li>
+<li>false ： 忽略新字段，字段会被存储但不会被搜索。</li>
+<li>strict : 如果遇到新字段抛出异常</li>
+</ol>
+</li>
+</ul>
+<p>部分字段启用dynamic</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">            <span class="attr">"dynamic"</span>:      <span class="string">"strict"</span>,</span><br><span class="line">            <span class="attr">"properties"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>:  &#123; <span class="attr">"type"</span>: <span class="string">"string"</span>&#125;,</span><br><span class="line">                <span class="attr">"stash"</span>:  &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:     <span class="string">"object"</span>,</span><br><span class="line">                    <span class="attr">"dynamic"</span>:  <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义动态映射"><a href="#自定义动态映射" class="headerlink" title="自定义动态映射"></a>自定义动态映射</h3><h5 id="日期检测"><a href="#日期检测" class="headerlink" title="日期检测"></a>日期检测</h5><p>在动态映射情况下日期检查有异常情况，当然可以禁止进行日期检测。<br>日期检测规则可以通过<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/dynamic-field-mapping.html#date-detection" target="_blank" rel="noopener">dynamic_date_formats setting</a>设置</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">            <span class="attr">"date_detection"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="动态模板-dynamic-templates"><a href="#动态模板-dynamic-templates" class="headerlink" title="动态模板 dynamic_templates"></a>动态模板 dynamic_templates</h5><p>动态模板组成部分</p>
+<ul>
+<li>模板名称</li>
+<li>匹配规则</li>
+<li>匹配类型</li>
+<li>映射mapping</li>
+</ul>
+<p>动态模板配置：</p>
+<ul>
+<li>‘es’模板匹配字段名以 _es 结尾的字段。</li>
+<li>‘en’模板匹配其他所有字符串类型字段。</li>
+<li>‘match’ 只匹配名称</li>
+<li>‘path_match’匹配对象上的完整路径 <code>address.*.name</code></li>
+<li>unmatch和path_unmatch用于未被匹配的字段。</li>
+</ul>
+<p>更多配置(动态映射文档)[<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/dynamic-mapping.html]" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/5.6/dynamic-mapping.html]</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">            <span class="attr">"dynamic_templates"</span>: [</span><br><span class="line">                &#123; <span class="attr">"es"</span>: &#123;</span><br><span class="line">                      <span class="attr">"match"</span>:              <span class="string">"*_es"</span>,</span><br><span class="line">                      <span class="attr">"match_mapping_type"</span>: <span class="string">"string"</span>,</span><br><span class="line">                      <span class="attr">"mapping"</span>: &#123;</span><br><span class="line">                          <span class="attr">"type"</span>:           <span class="string">"string"</span>,</span><br><span class="line">                          <span class="attr">"analyzer"</span>:       <span class="string">"spanish"</span></span><br><span class="line">                      &#125;</span><br><span class="line">                &#125;&#125;,</span><br><span class="line">                &#123; <span class="attr">"en"</span>: &#123;</span><br><span class="line">                      <span class="attr">"match"</span>:              <span class="string">"*"</span>,</span><br><span class="line">                      <span class="attr">"match_mapping_type"</span>: <span class="string">"string"</span>,</span><br><span class="line">                      <span class="attr">"mapping"</span>: &#123;</span><br><span class="line">                          <span class="attr">"type"</span>:           <span class="string">"string"</span>,</span><br><span class="line">                          <span class="attr">"analyzer"</span>:       <span class="string">"english"</span></span><br><span class="line">                      &#125;</span><br><span class="line">                &#125;&#125;</span><br><span class="line">            ]</span><br><span class="line">&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>#####<br>#####</p>
+<h3 id="缺省映射"><a href="#缺省映射" class="headerlink" title="缺省映射"></a>缺省映射</h3><p>在索引中通过<code>_default_</code>指定所有字段的默认设置，字段可以重新设置以覆盖<code>_default_</code>中设置。<br>_default_ 映射也是一个指定索引 dynamic templates 的好方法。</p>
+<p>例如，我们可以使用 <code>_default_</code> 映射为所有的类型禁用 <code>_all</code> 字段， 而只在 blog 类型启用：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"_default_"</span>: &#123;</span><br><span class="line">            <span class="attr">"_all"</span>: &#123; <span class="attr">"enabled"</span>:  <span class="literal">false</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"blog"</span>: &#123;</span><br><span class="line">            <span class="attr">"_all"</span>: &#123; <span class="attr">"enabled"</span>:  <span class="literal">true</span>  &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="重新索引你的数据"><a href="#重新索引你的数据" class="headerlink" title="重新索引你的数据"></a>重新索引你的数据</h3><p>重建索引的两种方式：</p>
+<ol>
+<li>通过scroll查询大量文档，然后通过bulk api批量插入新索引中</li>
+<li>ES2.3后引入的 Reindex api,参考 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-reindex.html" target="_blank" rel="noopener">Reindex api</a></li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /old_index/_search?scroll=1m</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">            <span class="attr">"date"</span>: &#123;</span><br><span class="line">                <span class="attr">"gte"</span>:  <span class="string">"2014-01-01"</span>,</span><br><span class="line">                <span class="attr">"lt"</span>:   <span class="string">"2014-02-01"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"sort"</span>: [<span class="string">"_doc"</span>],</span><br><span class="line">    <span class="attr">"size"</span>:  <span class="number">1000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Reindex 操作：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST _reindex</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"source"</span>: &#123;</span><br><span class="line">    <span class="attr">"index"</span>: <span class="string">"twitter"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"dest"</span>: &#123;</span><br><span class="line">    <span class="attr">"index"</span>: <span class="string">"new_twitter"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="索引别名和零停机"><a href="#索引别名和零停机" class="headerlink" title="索引别名和零停机"></a>索引别名和零停机</h3><ol>
+<li>别名：别名就是快捷方式或软连接，可以指向一个或多个索引，可以给api使用。</li>
+<li>功能：<ul>
+<li>在集群中从一个索引到另一个索引的无缝切换</li>
+<li>给多个索引分组</li>
+<li>给索引的子集创建视图</li>
+</ul>
+</li>
+<li>两种管理方式: _alias用于单个操作，_aliases用于执行多个原子级操作</li>
+<li>利用别名重建索引步骤：<ol>
+<li>现有索引my_index_v1创建一个别名my_index</li>
+<li>创建新索引my_index_v2并修改类型，然后把my_index_v1的数据导入my_index_v2</li>
+<li>更换别名指向，my_index_v1移除别名，my_index_v2添加别名指向my_index</li>
+</ol>
+</li>
+</ol>
+<p>相关操作如下：</p>
+<ol>
+<li>创建索引 my_index_v1 ，然后将别名 my_index 指向它：<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index_v1</span><br><span class="line">PUT /my_index_v1/_alias/my_index</span><br></pre></td></tr></table></figure></li>
+<li>查询别名<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /*/_alias/my_index</span><br><span class="line">GET /my_index_v1/_alias/*</span><br></pre></td></tr></table></figure></li>
+<li>转移别名指向<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /_aliases</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"actions"</span>: [</span><br><span class="line">        &#123; <span class="attr">"remove"</span>: &#123; <span class="attr">"index"</span>: <span class="string">"my_index_v1"</span>, <span class="attr">"alias"</span>: <span class="string">"my_index"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"add"</span>:    &#123; <span class="attr">"index"</span>: <span class="string">"my_index_v2"</span>, <span class="attr">"alias"</span>: <span class="string">"my_index"</span> &#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/09-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%89%A7%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%A3%80%E7%B4%A2/" rel="prev" title="09 基础入门 - 执行分布式检索">
+      <i class="fa fa-chevron-left"></i> 09 基础入门 - 执行分布式检索
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/06/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/11-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E7%89%87%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86/" rel="next" title="11 基础入门-内部分片原理">
+      11 基础入门-内部分片原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引管理"><span class="nav-number">1.</span> <span class="nav-text">索引管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建一个索引"><span class="nav-number">2.</span> <span class="nav-text">创建一个索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除一个或多个索引"><span class="nav-number">3.</span> <span class="nav-text">删除一个或多个索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引配置"><span class="nav-number">4.</span> <span class="nav-text">索引配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置分析器analysis"><span class="nav-number">5.</span> <span class="nav-text">配置分析器analysis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义分析器"><span class="nav-number">6.</span> <span class="nav-text">自定义分析器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类型和映射"><span class="nav-number">7.</span> <span class="nav-text">类型和映射</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Lucene-如何处理文档"><span class="nav-number">7.0.1.</span> <span class="nav-text">Lucene 如何处理文档</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类型是如何实现的"><span class="nav-number">7.0.2.</span> <span class="nav-text">类型是如何实现的</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免类型陷阱"><span class="nav-number">7.0.3.</span> <span class="nav-text">避免类型陷阱</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类型结论"><span class="nav-number">7.0.4.</span> <span class="nav-text">类型结论</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#根对象"><span class="nav-number">8.</span> <span class="nav-text">根对象</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#属性"><span class="nav-number">8.0.1.</span> <span class="nav-text">属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#元数据：-source字段"><span class="nav-number">8.0.2.</span> <span class="nav-text">元数据：_source字段</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#元数据：-all-字段"><span class="nav-number">8.0.3.</span> <span class="nav-text">元数据：_all 字段</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#元数据：文档标识"><span class="nav-number">8.0.4.</span> <span class="nav-text">元数据：文档标识</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态映射-dynamic-mapping"><span class="nav-number">9.</span> <span class="nav-text">动态映射 dynamic mapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义动态映射"><span class="nav-number">10.</span> <span class="nav-text">自定义动态映射</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#日期检测"><span class="nav-number">10.0.1.</span> <span class="nav-text">日期检测</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#动态模板-dynamic-templates"><span class="nav-number">10.0.2.</span> <span class="nav-text">动态模板 dynamic_templates</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺省映射"><span class="nav-number">11.</span> <span class="nav-text">缺省映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重新索引你的数据"><span class="nav-number">12.</span> <span class="nav-text">重新索引你的数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引别名和零停机"><span class="nav-number">13.</span> <span class="nav-text">索引别名和零停机</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

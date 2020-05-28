@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 近似匹配match查询只能告诉我是否包含查询词条，无法告知词语的关系。 短语匹配 Phrase Matching短语匹配：  使用match_phrase关键词 查询字符串解析成搜索词项(与match查询相同) 全部词项：返回结果应包含搜索语句中的全部的词项 位置顺序相同：返回结果中包含词项的位置与搜索词项相同。  12345678GET &#x2F;my_index&#x2F;my_type&#x2F;_">
+<meta property="og:type" content="article">
+<meta property="og:title" content="16-深入搜索-近似匹配">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/09/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/16-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E8%BF%91%E4%BC%BC%E5%8C%B9%E9%85%8D/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 近似匹配match查询只能告诉我是否包含查询词条，无法告知词语的关系。 短语匹配 Phrase Matching短语匹配：  使用match_phrase关键词 查询字符串解析成搜索词项(与match查询相同) 全部词项：返回结果应包含搜索语句中的全部的词项 位置顺序相同：返回结果中包含词项的位置与搜索词项相同。  12345678GET &#x2F;my_index&#x2F;my_type&#x2F;_">
+<meta property="article:published_time" content="2020-03-09T11:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:53:06.279Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/09/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/16-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E8%BF%91%E4%BC%BC%E5%8C%B9%E9%85%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>16-深入搜索-近似匹配 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/09/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/16-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E8%BF%91%E4%BC%BC%E5%8C%B9%E9%85%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          16-深入搜索-近似匹配
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-09 19:52:57" itemprop="dateCreated datePublished" datetime="2020-03-09T19:52:57+08:00">2020-03-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:53:06" itemprop="dateModified" datetime="2020-05-26T13:53:06+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="近似匹配"><a href="#近似匹配" class="headerlink" title="近似匹配"></a>近似匹配</h3><p>match查询只能告诉我是否包含查询词条，无法告知词语的关系。</p>
+<h3 id="短语匹配-Phrase-Matching"><a href="#短语匹配-Phrase-Matching" class="headerlink" title="短语匹配 Phrase Matching"></a>短语匹配 Phrase Matching</h3><p>短语匹配：</p>
+<ol>
+<li>使用match_phrase关键词</li>
+<li>查询字符串解析成搜索词项(与match查询相同)</li>
+<li>全部词项：返回结果应包含搜索语句中的全部的词项</li>
+<li>位置顺序相同：返回结果中包含词项的位置与搜索词项相同。</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"quick brown fox"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>转化为等价的match查询</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">"match": &#123;</span><br><span class="line">    "title": &#123;</span><br><span class="line">        "query": "quick brown fox",</span><br><span class="line">        "type":  "phrase"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="词项的位置-Term-Positions"><a href="#词项的位置-Term-Positions" class="headerlink" title="词项的位置 Term Positions"></a>词项的位置 Term Positions</h5><ol>
+<li>索引文档时会存储位置信息</li>
+<li>位置信息由3个字段组成，起始点(start_offset),结束点(end_offset), 词项位置(positions)</li>
+<li>起始点(start_offset) : 词项在原始字符串中的起始位置</li>
+<li>结束点(end_offset) ：词项在原始字符串中的结束位置</li>
+<li>词项位置(positions)：词项在原始字符串中的位置号。</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /_analyze</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"text"</span> : <span class="string">"Quick brown fox"</span>,</span><br><span class="line">  <span class="attr">"analyzer"</span> : <span class="string">"standard"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"tokens"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"token"</span>: <span class="string">"quick"</span>,</span><br><span class="line">         <span class="attr">"start_offset"</span>: <span class="number">0</span>,</span><br><span class="line">         <span class="attr">"end_offset"</span>: <span class="number">5</span>,</span><br><span class="line">         <span class="attr">"type"</span>: <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">         <span class="attr">"position"</span>: <span class="number">1</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"token"</span>: <span class="string">"brown"</span>,</span><br><span class="line">         <span class="attr">"start_offset"</span>: <span class="number">6</span>,</span><br><span class="line">         <span class="attr">"end_offset"</span>: <span class="number">11</span>,</span><br><span class="line">         <span class="attr">"type"</span>: <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">         <span class="attr">"position"</span>: <span class="number">2</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"token"</span>: <span class="string">"fox"</span>,</span><br><span class="line">         <span class="attr">"start_offset"</span>: <span class="number">12</span>,</span><br><span class="line">         <span class="attr">"end_offset"</span>: <span class="number">15</span>,</span><br><span class="line">         <span class="attr">"type"</span>: <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">         <span class="attr">"position"</span>: <span class="number">3</span></span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="什么是短语"><a href="#什么是短语" class="headerlink" title="什么是短语"></a>什么是短语</h5><ol>
+<li>搜索词项全部出现在字段中</li>
+<li>搜索词项位置不变</li>
+</ol>
+<h3 id="混合起来-slop"><a href="#混合起来-slop" class="headerlink" title="混合起来 slop"></a>混合起来 slop</h3><p>原文：quick brown fox<br>使用slop参数的短语匹配:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: &#123;</span><br><span class="line">            	<span class="attr">"query"</span>: <span class="string">"quick fox"</span>,</span><br><span class="line">            	<span class="attr">"slop"</span>:  <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>slop : 原意是：溢出，这里是指词条移动。查询词条位置移动多少次才能与文档匹配。<br>移动：词项向右移动</p>
+<h3 id="多值字段-Multivalue-Fields"><a href="#多值字段-Multivalue-Fields" class="headerlink" title="多值字段 Multivalue Fields"></a>多值字段 Multivalue Fields</h3><p>短语查询在查询多值字段(数组)时会出现奇怪问题。<br>问题：ES索引数组时生成词汇单元都紧紧相邻，没有区分开数组中的字符串。<br>解决方法：利用position_increment_gap在各元素间插入位置增量值。<br>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/groups/1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"names"</span>: [ <span class="string">"John Abraham"</span>, <span class="string">"Lincoln Smith"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等价于下面</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/groups/1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"names"</span>: <span class="string">"John Abraham Lincoln Smith"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面的短语查询就会匹配到上面的文档。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/groups/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">            <span class="attr">"names"</span>: <span class="string">"Abraham Lincoln"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决方法：position_increment_gap 为多值字段中的每值间插入间隔值。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping/groups</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"names"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>:                <span class="string">"string"</span>,</span><br><span class="line">            <span class="attr">"position_increment_gap"</span>: <span class="number">100</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>位置信息如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Position 1: john</span><br><span class="line">Position 2: abraham</span><br><span class="line">Position 103: lincoln</span><br><span class="line">Position 104: smith</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="越近越好-Closer-Is-Better"><a href="#越近越好-Closer-Is-Better" class="headerlink" title="越近越好 Closer Is Better"></a>越近越好 Closer Is Better</h3><ul>
+<li>邻近查询(proximity query) : 短语查询中配置一个大于0的slop值。</li>
+<li>高slop值的好处：1. 排查距离太远的文档 2. 距离越近分值越高</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"query"</span>: &#123;</span><br><span class="line">      <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">         <span class="attr">"title"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>: <span class="string">"quick dog"</span>,</span><br><span class="line">            <span class="attr">"slop"</span>:  <span class="number">50</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果第1句比第2句的距离近，所以分值高。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"hits"</span>: [</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="attr">"_id"</span>:      <span class="string">"3"</span>,</span><br><span class="line">        <span class="attr">"_score"</span>:   <span class="number">0.75</span>,</span><br><span class="line">        <span class="attr">"_source"</span>: &#123;</span><br><span class="line">           <span class="attr">"title"</span>: <span class="string">"The quick brown fox jumps over the quick dog"</span></span><br><span class="line">        &#125;</span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="attr">"_id"</span>:      <span class="string">"2"</span>,</span><br><span class="line">        <span class="attr">"_score"</span>:   <span class="number">0.28347334</span>,</span><br><span class="line">        <span class="attr">"_source"</span>: &#123;</span><br><span class="line">           <span class="attr">"title"</span>: <span class="string">"The quick brown fox jumps over the lazy dog"</span></span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用邻近度提高相关度-Proximity-for-Relevance"><a href="#使用邻近度提高相关度-Proximity-for-Relevance" class="headerlink" title="使用邻近度提高相关度 Proximity for Relevance"></a>使用邻近度提高相关度 Proximity for Relevance</h3><p>邻近查询要求所有词条都出现在文档中，要求过于严格，可以把邻近查询作为信号(signal信号)使用。</p>
+<p>总结：</p>
+<ol>
+<li>match增加广度，提高召回率</li>
+<li>通过minimum_should_match参数去除长尾</li>
+<li>邻近查询做为辅助(signal)查询，提高相关度</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"title"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:                <span class="string">"quick brown fox"</span>,</span><br><span class="line">            <span class="attr">"minimum_should_match"</span>: <span class="string">"30%"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"should"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">          <span class="attr">"title"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>: <span class="string">"quick brown fox"</span>,</span><br><span class="line">            <span class="attr">"slop"</span>:  <span class="number">50</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="性能优化-Improving-Performance"><a href="#性能优化-Improving-Performance" class="headerlink" title="性能优化 Improving Performance"></a>性能优化 Improving Performance</h3><ol>
+<li>短语查询和邻近查询比简单的query代价更高</li>
+<li>简单query只需要查看词条是否存在；match_phrase 还需要计算和比较词项位置。</li>
+<li>term查询比短语查询快10倍，比邻近查询快20倍。</li>
+</ol>
+<h5 id="结果集重新评分-Rescoring-Results"><a href="#结果集重新评分-Rescoring-Results" class="headerlink" title="结果集重新评分 Rescoring Results"></a>结果集重新评分 Rescoring Results</h5><p>通过短语查询限制文档总数，这样可以限制短语查询和邻近查询的性能消耗。<br>重新评分结果集可以达到限制文档数的效果。<br>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;  </span><br><span class="line">            <span class="attr">"title"</span>: &#123;</span><br><span class="line">                <span class="attr">"query"</span>:                <span class="string">"quick brown fox"</span>,</span><br><span class="line">                <span class="attr">"minimum_should_match"</span>: <span class="string">"30%"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"rescore"</span>: &#123;</span><br><span class="line">        <span class="attr">"window_size"</span>: <span class="number">50</span>,</span><br><span class="line">        <span class="attr">"query"</span>: &#123;         </span><br><span class="line">            <span class="attr">"rescore_query"</span>: &#123;</span><br><span class="line">                <span class="attr">"match_phrase"</span>: &#123;</span><br><span class="line">                    <span class="attr">"title"</span>: &#123;</span><br><span class="line">                        <span class="attr">"query"</span>: <span class="string">"quick brown fox"</span>,</span><br><span class="line">                        <span class="attr">"slop"</span>:  <span class="number">50</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>match 包含在最终结果集中，并通过 TF/IDF 排序</li>
+<li>window_size <strong><em>每一分片</em></strong> 进行重新评分的顶部文档数量。</li>
+<li>目前唯一支持的重新打分算法就是另一个查询，但是以后会有计划增加更多的算法。</li>
+</ol>
+<h3 id="Shingles-寻找相关词-Finding-Associated-Words"><a href="#Shingles-寻找相关词-Finding-Associated-Words" class="headerlink" title="Shingles - 寻找相关词 Finding Associated Words"></a>Shingles - 寻找相关词 Finding Associated Words</h3><p><strong><em>Shingles是替换match_phrase查询的一个好的方案,性能优于match_phrase查询。_</em></strong></p>
+<p>短语查询和邻近查询的缺点：</p>
+<ol>
+<li>过于严格：所有词项必须存在</li>
+<li>slop虽然得到单词顺序灵活性，但也失去了 <strong><em>单词对</em></strong> 之间的联系。</li>
+</ol>
+<h6 id="shinlges"><a href="#shinlges" class="headerlink" title="shinlges"></a>shinlges</h6><ul>
+<li>shinles: 对字符串中的词项进行N-gram标记的方法。</li>
+<li>N-gram ：1-grams(unigrams),2-grams(Bigrams), 3-grams(Trigrams) …</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">N-grams</th>
+<th align="left">字符： apple</th>
+<th align="left">词项: sue ate the alligator</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1 Unigrams</td>
+<td align="left">a,p,p,l,e</td>
+<td align="left">“sue”,”ate”,”the”,”alligator”</td>
+</tr>
+<tr>
+<td align="left">2 Bigrams</td>
+<td align="left">ap,pp,pl,le</td>
+<td align="left">“sue ate”, “ate the”, “the alligator”</td>
+</tr>
+<tr>
+<td align="left">3 Trigrams</td>
+<td align="left">app,ppl,ple</td>
+<td align="left">“sue ate the”, “ate the alligator”</td>
+</tr>
+</tbody></table>
+<h5 id="生成-Shingles，Producing-Shingles"><a href="#生成-Shingles，Producing-Shingles" class="headerlink" title="生成 Shingles，Producing Shingles"></a>生成 Shingles，Producing Shingles</h5><p>映射配置步骤：</p>
+<ol>
+<li>analyzer中配置一个shingle过滤器</li>
+<li>配置shingle过滤器</li>
+<li>shingle过滤器参数包含：<ul>
+<li>type 指定为shingle,</li>
+<li>min_shingle_size和max_shingle_size 指定shingle最小和最大值，默认为2</li>
+<li>output_unigrams 设置是否输出unigrams, 默认true，会输出unigrams</li>
+</ul>
+</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"number_of_shards"</span>: <span class="number">1</span>,  </span><br><span class="line">        <span class="attr">"analysis"</span>: &#123;</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"my_shingle_filter"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:             <span class="string">"shingle"</span>,</span><br><span class="line">                    <span class="attr">"min_shingle_size"</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="attr">"max_shingle_size"</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="attr">"output_unigrams"</span>:  <span class="literal">false</span>   </span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="attr">"my_shingle_analyzer"</span>: &#123;</span><br><span class="line">                    <span class="attr">"type"</span>:             <span class="string">"custom"</span>,</span><br><span class="line">                    <span class="attr">"tokenizer"</span>:        <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="attr">"filter"</span>: [</span><br><span class="line">                        <span class="string">"lowercase"</span>,</span><br><span class="line">                        <span class="string">"my_shingle_filter"</span></span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试shingle</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_analyze?analyzer=my_shingle_analyzer</span><br><span class="line">Sue ate the alligator</span><br></pre></td></tr></table></figure>
+<p>结果为：”sue ate”, “ate the”, “the alligator”</p>
+<h5 id="多字段-Multifields"><a href="#多字段-Multifields" class="headerlink" title="多字段 Multifields"></a>多字段 Multifields</h5><p>在多字段中配置shingle,主字段使用unigrams,其他字段使用自定义shingle.<br>这样就把unigram和bigrams分开索引了。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping/my_type</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">        <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">                <span class="attr">"fields"</span>: &#123;</span><br><span class="line">                    <span class="attr">"shingles"</span>: &#123;</span><br><span class="line">                        <span class="attr">"type"</span>:     <span class="string">"string"</span>,</span><br><span class="line">                        <span class="attr">"analyzer"</span>: <span class="string">"my_shingle_analyzer"</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="搜索Shingles"><a href="#搜索Shingles" class="headerlink" title="搜索Shingles"></a>搜索Shingles</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"query"</span>: &#123;</span><br><span class="line">      <span class="attr">"bool"</span>: &#123;</span><br><span class="line">         <span class="attr">"must"</span>: &#123;</span><br><span class="line">            <span class="attr">"match"</span>: &#123;</span><br><span class="line">               <span class="attr">"title"</span>: <span class="string">"the hungry alligator ate sue"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"should"</span>: &#123;</span><br><span class="line">            <span class="attr">"match"</span>: &#123;</span><br><span class="line">               <span class="attr">"title.shingles"</span>: <span class="string">"the hungry alligator ate sue"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h5><ul>
+<li>shingles 不仅比短语查询更灵活，而且性能也更好。</li>
+<li>shingles在索引时会索引更多的字段，占用更多的磁盘空间，但是每次查询不用花费短语查询那样高的代价，可以跟一个简单的 match 查询一样高效</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/15-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E5%A4%9A%E5%AD%97%E6%AE%B5%E6%90%9C%E7%B4%A2/" rel="prev" title="15-深入搜索-多字段搜索">
+      <i class="fa fa-chevron-left"></i> 15-深入搜索-多字段搜索
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/10/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/17-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E9%83%A8%E5%88%86%E5%8C%B9%E9%85%8D/" rel="next" title="17-深入搜索-部分匹配(Partial_Matching)">
+      17-深入搜索-部分匹配(Partial_Matching) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#近似匹配"><span class="nav-number">1.</span> <span class="nav-text">近似匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#短语匹配-Phrase-Matching"><span class="nav-number">2.</span> <span class="nav-text">短语匹配 Phrase Matching</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#词项的位置-Term-Positions"><span class="nav-number">2.0.1.</span> <span class="nav-text">词项的位置 Term Positions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#什么是短语"><span class="nav-number">2.0.2.</span> <span class="nav-text">什么是短语</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#混合起来-slop"><span class="nav-number">3.</span> <span class="nav-text">混合起来 slop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多值字段-Multivalue-Fields"><span class="nav-number">4.</span> <span class="nav-text">多值字段 Multivalue Fields</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#越近越好-Closer-Is-Better"><span class="nav-number">5.</span> <span class="nav-text">越近越好 Closer Is Better</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用邻近度提高相关度-Proximity-for-Relevance"><span class="nav-number">6.</span> <span class="nav-text">使用邻近度提高相关度 Proximity for Relevance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能优化-Improving-Performance"><span class="nav-number">7.</span> <span class="nav-text">性能优化 Improving Performance</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#结果集重新评分-Rescoring-Results"><span class="nav-number">7.0.1.</span> <span class="nav-text">结果集重新评分 Rescoring Results</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shingles-寻找相关词-Finding-Associated-Words"><span class="nav-number">8.</span> <span class="nav-text">Shingles - 寻找相关词 Finding Associated Words</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#shinlges"><span class="nav-number">8.0.0.1.</span> <span class="nav-text">shinlges</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#生成-Shingles，Producing-Shingles"><span class="nav-number">8.0.1.</span> <span class="nav-text">生成 Shingles，Producing Shingles</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多字段-Multifields"><span class="nav-number">8.0.2.</span> <span class="nav-text">多字段 Multifields</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#搜索Shingles"><span class="nav-number">8.0.3.</span> <span class="nav-text">搜索Shingles</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#性能"><span class="nav-number">8.0.4.</span> <span class="nav-text">性能</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 分布式文档存储此章节主要介绍文件是如果分布到集群的，又如何从集群中获取的。 路由一个文档到一个分片分片位置计算公式： 1shard &#x3D; hash(routing) % number_of_primary_shards routing : 一个可变值，默认是_id,也可以自己指定。hash函数 ： 生成一个数字number_of_primary_shards : 主">
+<meta property="og:type" content="article">
+<meta property="og:title" content="04 基础入门-分布式文档存储">
+<meta property="og:url" content="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/04-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E6%A1%A3%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 分布式文档存储此章节主要介绍文件是如果分布到集群的，又如何从集群中获取的。 路由一个文档到一个分片分片位置计算公式： 1shard &#x3D; hash(routing) % number_of_primary_shards routing : 一个可变值，默认是_id,也可以自己指定。hash函数 ： 生成一个数字number_of_primary_shards : 主">
+<meta property="article:published_time" content="2020-01-13T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:52:00.249Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/04-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E6%A1%A3%E5%AD%98%E5%82%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>04 基础入门-分布式文档存储 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/04-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E6%A1%A3%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          04 基础入门-分布式文档存储
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-13 09:52:57" itemprop="dateCreated datePublished" datetime="2020-01-13T09:52:57+08:00">2020-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:52:00" itemprop="dateModified" datetime="2020-05-26T13:52:00+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="分布式文档存储"><a href="#分布式文档存储" class="headerlink" title="分布式文档存储"></a>分布式文档存储</h3><p>此章节主要介绍文件是如果分布到集群的，又如何从集群中获取的。</p>
+<h3 id="路由一个文档到一个分片"><a href="#路由一个文档到一个分片" class="headerlink" title="路由一个文档到一个分片"></a>路由一个文档到一个分片</h3><p>分片位置计算公式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shard &#x3D; hash(routing) % number_of_primary_shards</span><br></pre></td></tr></table></figure>
+<p>routing : 一个可变值，默认是_id,也可以自己指定。<br>hash函数 ： 生成一个数字<br>number_of_primary_shards : 主分片数量<br>公式计算后的结果值分布在[0, number_of_primary_shards-1],检索时也是使用这个公式。</p>
+<h3 id="主分片和副本分片如何交互"><a href="#主分片和副本分片如何交互" class="headerlink" title="主分片和副本分片如何交互"></a>主分片和副本分片如何交互</h3><p>每个节点都有能力处理任何请求，每个节点都知道集群中任何文档的位置。<br>我们发送请求到集群中的任意节点，节点把请求转发需要的节点上。<br>接受请求的节点称为 协调节点(coordinating node)</p>
+<h3 id="新建、索引和删除文档"><a href="#新建、索引和删除文档" class="headerlink" title="新建、索引和删除文档"></a>新建、索引和删除文档</h3><p>新建、索引和删除文档都是写操作。<br>背景：</p>
+<blockquote>
+<ol>
+<li>3个节点，2个主分片，每个主分片对应2个副分片</li>
+<li>请求id的最终目标分片是P0分片</li>
+</ol>
+</blockquote>
+<p>写操作内部流程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">q[request] -- 1.发送请求 --&gt; P1</span><br><span class="line">P1 --&gt; |2.转发请求| P0</span><br><span class="line">P0 --&gt; |3.P0处理完后转发到副本| r0</span><br><span class="line">P0 --&gt; |4.P0处理完后转发到副本| r00</span><br><span class="line">P1 --&gt; |5.返回结果| q</span><br><span class="line">subgraph cdoe</span><br><span class="line">  subgraph Node1-master</span><br><span class="line">    r00[R0]</span><br><span class="line">    P1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node2</span><br><span class="line">    r0[R0]</span><br><span class="line">    r11[R1]</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node3</span><br><span class="line">    P0</span><br><span class="line">    r1[R1]</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<p>可选的请求参数，以数据安全为代价提升性能</p>
+<h5 id="consistency-一致性"><a href="#consistency-一致性" class="headerlink" title="consistency 一致性"></a>consistency 一致性</h5><p>可选参数：one, all, quorum</p>
+<ul>
+<li>one : 主分片状态ok就允许执行</li>
+<li>all : 所有的主分片和副本分片状态都没问题才允许执行</li>
+<li>quorum : ES默认值，全部主分片和大多数副本分片状态ok就允许执行，计算公式：<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">quorum = int ((primary主分片 + number_of_replicas副本分片数)/2) + 1</span><br><span class="line">number_of_replicas : 每个主分片对应副本分片数,即setting中设置的副本值</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="timeout-超时时间"><a href="#timeout-超时时间" class="headerlink" title="timeout 超时时间"></a>timeout 超时时间</h5><p>当不满足一致性要求时ES的等待超时时间。默认是1分钟。</p>
+<h3 id="取回一个文档"><a href="#取回一个文档" class="headerlink" title="取回一个文档"></a>取回一个文档</h3><p>可以从主分片或副本分片检索文档。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">q[request] -- 1.发送请求 --&gt; P1</span><br><span class="line">P1 --&gt; |2.转发请求| r0</span><br><span class="line">r0 --&gt; |3.P0处理完后返回| P1</span><br><span class="line">P1 --&gt; |4.返回结果| q</span><br><span class="line">subgraph cdoe</span><br><span class="line">  subgraph Node1-master</span><br><span class="line">    r00[R0]</span><br><span class="line">    P1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node2</span><br><span class="line">    r0[R0]</span><br><span class="line">    r11[R1]</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node3</span><br><span class="line">    P0</span><br><span class="line">    r1[R1]</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>步骤：</p>
+<ol>
+<li>客户端发送请求到Node1上</li>
+<li>根据节点_id确定文档在分片0上，轮询所有的副本分片后，请求转发到Node2</li>
+<li>Node2处理完返回给Node1</li>
+</ol>
+<h3 id="局部更新文档-partial-update"><a href="#局部更新文档-partial-update" class="headerlink" title="局部更新文档 partial update"></a>局部更新文档 partial update</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">q[request] -- 1.发送请求 --&gt; P1</span><br><span class="line">P1 --&gt; |2.转发请求| P0</span><br><span class="line">P0 --&gt; |3.修改字段并重新索引主分片| P0</span><br><span class="line">P0 --&gt; |4.把新文档转发给副本| r0</span><br><span class="line">P0 --&gt; |5.把新文档转发给副本| r00</span><br><span class="line">P1 --&gt; |6.返回结果| q</span><br><span class="line">subgraph cdoe</span><br><span class="line">  subgraph Node1-master</span><br><span class="line">    r00[R0]</span><br><span class="line">    P1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node2</span><br><span class="line">    r0[R0]</span><br><span class="line">    r11[R1]</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  subgraph Node3</span><br><span class="line">    P0</span><br><span class="line">    r1[R1]</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>步骤：</p>
+<ol>
+<li>客户端向Node1发送局部更新请求</li>
+<li>Node1转发请求到主分片所在的Node3上</li>
+<li>Node3主分片修改字段并重新索引文档</li>
+<li>Node3把处理完的新文档转发给副本，副本都成功后，Node3向协调节点返回成功</li>
+<li>协调节点向客户端返回成功</li>
+</ol>
+<p>注意：</p>
+<blockquote>
+<ol>
+<li>主分片转发给副本分片的是新文档而不是跟新请求。</li>
+<li>转发是异步的不能保证转发顺序和达到顺序相同</li>
+</ol>
+</blockquote>
+<h3 id="多文档模式"><a href="#多文档模式" class="headerlink" title="多文档模式"></a>多文档模式</h3><p>bulk格式可以直接解析action/metadata,无需要解析requestbody，直接把bulk数据转发到主分片，不需要序列化为内部传输格式。<br>bulk的优势：解析速度快，占用内存小</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/20-%E5%A4%84%E7%90%86%E4%BA%BA%E7%B1%BB%E8%AF%AD%E8%A8%80-%E5%BC%80%E5%A7%8B%E5%A4%84%E7%90%86%E5%90%84%E7%A7%8D%E8%AF%AD%E8%A8%80/" rel="prev" title="03-处理人类语言">
+      <i class="fa fa-chevron-left"></i> 03-处理人类语言
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/00-%E5%89%8D%E8%A8%80/" rel="next" title="00 前言">
+      00 前言 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式文档存储"><span class="nav-number">1.</span> <span class="nav-text">分布式文档存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路由一个文档到一个分片"><span class="nav-number">2.</span> <span class="nav-text">路由一个文档到一个分片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主分片和副本分片如何交互"><span class="nav-number">3.</span> <span class="nav-text">主分片和副本分片如何交互</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新建、索引和删除文档"><span class="nav-number">4.</span> <span class="nav-text">新建、索引和删除文档</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#consistency-一致性"><span class="nav-number">4.0.1.</span> <span class="nav-text">consistency 一致性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#timeout-超时时间"><span class="nav-number">4.0.2.</span> <span class="nav-text">timeout 超时时间</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取回一个文档"><span class="nav-number">5.</span> <span class="nav-text">取回一个文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#局部更新文档-partial-update"><span class="nav-number">6.</span> <span class="nav-text">局部更新文档 partial update</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多文档模式"><span class="nav-number">7.</span> <span class="nav-text">多文档模式</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

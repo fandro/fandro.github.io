@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 父子关系文档映射 父子关联会在主文档和其关联实体之间做一个完整的隔离设计。 父子关系文档与嵌套模型区别： 相同点：都是将一个对象实体和另外一个对象实体关联起来 不同点：嵌套模型所有对象都是在同一个文档中；父子关系文档中，父对象和子对象都是完全独立的文档。   父子关系通过 type与另一个文档关联起来 父子关系优势： 更新父文档时，不会重新索引文档 创建，修改或删除子文档时，不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="44-数据建模-父子关系">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/44-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E7%88%B6-%E5%AD%90%E5%85%B3%E7%B3%BB%E6%96%87%E6%A1%A3/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 父子关系文档映射 父子关联会在主文档和其关联实体之间做一个完整的隔离设计。 父子关系文档与嵌套模型区别： 相同点：都是将一个对象实体和另外一个对象实体关联起来 不同点：嵌套模型所有对象都是在同一个文档中；父子关系文档中，父对象和子对象都是完全独立的文档。   父子关系通过 type与另一个文档关联起来 父子关系优势： 更新父文档时，不会重新索引文档 创建，修改或删除子文档时，不">
+<meta property="article:published_time" content="2020-03-19T23:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:55:19.586Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/44-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E7%88%B6-%E5%AD%90%E5%85%B3%E7%B3%BB%E6%96%87%E6%A1%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>44-数据建模-父子关系 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/44-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E7%88%B6-%E5%AD%90%E5%85%B3%E7%B3%BB%E6%96%87%E6%A1%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          44-数据建模-父子关系
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-20 07:52:57" itemprop="dateCreated datePublished" datetime="2020-03-20T07:52:57+08:00">2020-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:55:19" itemprop="dateModified" datetime="2020-05-26T13:55:19+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/parent-child.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/tree/master/404_Parent_Child" target="_blank" rel="noopener">英文参考</a></p>
+<h3 id="父子关系文档映射"><a href="#父子关系文档映射" class="headerlink" title="父子关系文档映射"></a>父子关系文档映射</h3><ul>
+<li>父子关联会在主文档和其关联实体之间做一个完整的隔离设计。</li>
+<li>父子关系文档与嵌套模型区别：<ul>
+<li>相同点：都是将一个对象实体和另外一个对象实体关联起来</li>
+<li>不同点：嵌套模型所有对象都是在同一个文档中；父子关系文档中，父对象和子对象都是完全独立的文档。</li>
+</ul>
+</li>
+<li>父子关系通过 type与另一个文档关联起来</li>
+<li>父子关系优势：<ul>
+<li>更新父文档时，不会重新索引文档</li>
+<li>创建，修改或删除子文档时，不会影响父文档或其他子文档。这一点在这种场景下尤其有用：子文档数量较多，并且子文档创建和修改的频率高时。</li>
+<li>子文档可以作为搜索结果独立返回。</li>
+</ul>
+</li>
+<li>父子关系文档关联查询非常快，Elasticsearch 维护着这个父子文档的映射关系，得益于这个映射。</li>
+<li>父子关系文档限制条件：父文档与子文档必须要存储在同一分片中。</li>
+<li>父子文档ID映射存储在 Doc Values 中。当映射完全在内存中时， Doc Values 提供对映射的快速处理能力，另一方面当映射非常大时，可以通过溢出到磁盘提供足够的扩展能力</li>
+</ul>
+<h3 id="父子关系文档映射-Indexing-Parents-and-Children"><a href="#父子关系文档映射-Indexing-Parents-and-Children" class="headerlink" title="父子关系文档映射(Indexing Parents and Children)"></a>父子关系文档映射(Indexing Parents and Children)</h3><ul>
+<li>父子关系在新版本中由<a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.7/parent-join.html" target="_blank" rel="noopener">parent-join</a>替换</li>
+<li>通过type指定关联关系</li>
+<li>创建关系时机：1. 创建索引时 2. 更新父文档的mapping时，前提是 子文档type没有创建</li>
+</ul>
+<p>例如：员工属于某个分公司</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="构建父子文档索引-Indexing-Parents-and-Children"><a href="#构建父子文档索引-Indexing-Parents-and-Children" class="headerlink" title="构建父子文档索引(Indexing Parents and Children)"></a>构建父子文档索引(Indexing Parents and Children)</h3><ul>
+<li>父文档 ID 有两个作用：创建了父文档和子文档之间的关系，并且保证了父文档和子文档都在同一个分片上。如果指定了父文档的 ID，那么就会使用父文档的 ID 进行路由，而不会使用当前文档 <code>_id</code>。</li>
+<li>在执行单文档的请求时需要指定父文档的 ID,单文档请求包括：通过 GET 请求获取一个子文档；创建、更新或删除一个子文档。而执行搜索请求时是不需要指定父文档的ID，这是因为搜索请求是向一个索引中的所有分片发起请求，而单文档的操作是只会向存储该文档的分片发送请求。因此，如果操作单个子文档时不指定父文档的 ID，那么很有可能会把请求发送到错误的分片上。</li>
+<li>如果你想要改变一个子文档的 parent 值，仅通过更新这个子文档是不够的，因为新的父文档有可能在另外一个分片上。因此，你必须要先把子文档删除，然后再重新索引这个子文档。</li>
+</ul>
+<p>添加父文档</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /company/branch/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">2</span>, <span class="attr">"parent"</span>: <span class="string">"london"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Mark Thomas"</span>, <span class="attr">"dob"</span>: <span class="string">"1982-05-16"</span>, <span class="attr">"hobby"</span>: <span class="string">"diving"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">3</span>, <span class="attr">"parent"</span>: <span class="string">"liverpool"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Barry Smith"</span>, <span class="attr">"dob"</span>: <span class="string">"1979-04-01"</span>, <span class="attr">"hobby"</span>: <span class="string">"hiking"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">4</span>, <span class="attr">"parent"</span>: <span class="string">"paris"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Adrien Grand"</span>, <span class="attr">"dob"</span>: <span class="string">"1987-05-11"</span>, <span class="attr">"hobby"</span>: <span class="string">"horses"</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>添加子文档</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /company/employee/1?parent=london</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过子文档查询父文档"><a href="#通过子文档查询父文档" class="headerlink" title="通过子文档查询父文档"></a>通过子文档查询父文档</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"range"</span>: &#123;</span><br><span class="line">          <span class="attr">"dob"</span>: &#123;</span><br><span class="line">            <span class="attr">"gte"</span>: <span class="string">"1980-01-01"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>多个子文档评分模式 score_mode: none,avg 、 min 、 max 和 sum. 默认为 none。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:       <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"score_mode"</span>: <span class="string">"max"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"name"</span>: <span class="string">"Alice Smith"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="min-child-max-child"><a href="#min-child-max-child" class="headerlink" title="min_child max_child"></a>min_child max_child</h5><p>使用min_child, max_child 这两个参数时，只有当子文档数量在指定范围内时，才会返回父文档。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>:         <span class="string">"employee"</span>,</span><br><span class="line">      <span class="attr">"min_children"</span>: <span class="number">2</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match_all"</span>: &#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>至少有两个雇员的分公司才会符合查询条件。</li>
+<li>带有 min_children 和 max_children 参数的 has_child 查询或过滤，和允许评分的 has_child 查询的性能非常接近。</li>
+</ul>
+<p>has_child Filter</p>
+<blockquote>
+<p>has_child 查询和过滤在运行机制上类似，区别是 has_child 过滤不支持 score_mode 参数。has_child 过滤仅用于筛选内容—​如内部的一个 filtered 查询—​和其他过滤行为类似：包含或者排除，但没有进行评分。<br>has_child 过滤的结果没有被缓存，但是 has_child 过滤内部的过滤方法适用于通常的缓存规则。</p>
+</blockquote>
+<h3 id="通过父文档查询子文档"><a href="#通过父文档查询子文档" class="headerlink" title="通过父文档查询子文档"></a>通过父文档查询子文档</h3><p>使用 has_child 语句可以基于子文档来查询父文档。<br>使用 has_parent 语句可以基于父文档来查询子文档。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /company/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_parent"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"country"</span>: <span class="string">"UK"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>has_parent 查询也支持 score_mode 这个参数，但是该参数只支持两种值： none （默认）和 score 。</li>
+<li>每个子文档都只有一个父文档，因此这里不存在将多个评分规约为一个的情况， score_mode 的取值仅为 score 和 none 。</li>
+</ul>
+<p>不带评分的 has_parent 查询</p>
+<blockquote>
+<p>当 has_parent 查询用于非评分模式（比如 filter 查询语句）时， score_mode 参数就不再起作用了。因为这种模式只是简单地包含或排除文档，没有评分，那么 score_mode 参数也就没有意义了。</p>
+</blockquote>
+<h3 id="子文档聚合"><a href="#子文档聚合" class="headerlink" title="子文档聚合"></a>子文档聚合</h3><p>在父-子文档中支持 子文档聚合，这一点和 嵌套聚合 类似。但是，对于父文档的聚合查询是不支持的。</p>
+<p>例子来演示按照国家维度查看最受雇员欢迎的业余爱好：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">GET /company/branch/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">    <span class="attr">"country"</span>: &#123;</span><br><span class="line">      <span class="attr">"terms"</span>: &#123;</span><br><span class="line">        <span class="attr">"field"</span>: <span class="string">"country"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">        <span class="attr">"employees"</span>: &#123;</span><br><span class="line">          <span class="attr">"children"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"employee"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">            <span class="attr">"hobby"</span>: &#123;</span><br><span class="line">              <span class="attr">"terms"</span>: &#123;</span><br><span class="line">                <span class="attr">"field"</span>: <span class="string">"hobby"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="祖辈和孙辈关系-Grandparents-and-Grandchildren"><a href="#祖辈和孙辈关系-Grandparents-and-Grandchildren" class="headerlink" title="祖辈和孙辈关系(Grandparents and Grandchildren)"></a>祖辈和孙辈关系(Grandparents and Grandchildren)</h3><p>父子关系可以延展到更多代关系,唯一的要求是满足在同一个分片上。</p>
+<p>例子中的 country 类型设定为 branch 类型的父辈。<br>employee –&gt; branch –&gt; country</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"country"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"country"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>新增数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">POST /company/country/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"UK"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"france"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"France"</span> &#125;</span><br><span class="line"></span><br><span class="line">POST /company/branch/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"london"</span>, <span class="attr">"parent"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"London Westmintster"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"liverpool"</span>, <span class="attr">"parent"</span>: <span class="string">"uk"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Liverpool Central"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="string">"paris"</span>, <span class="attr">"parent"</span>: <span class="string">"france"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"name"</span>: <span class="string">"Champs Élysées"</span> &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">PUT /company/employee/1?parent=london</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PUT /company/employee/1?parent=london&amp;routing=uk</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>:  <span class="string">"Alice Smith"</span>,</span><br><span class="line">  <span class="attr">"dob"</span>:   <span class="string">"1970-10-24"</span>,</span><br><span class="line">  <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们要找到哪些国家的雇员喜欢远足旅行：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET /company/country/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">      <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"has_child"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"employee"</span>,</span><br><span class="line">          <span class="attr">"query"</span>: &#123;</span><br><span class="line">            <span class="attr">"match"</span>: &#123;</span><br><span class="line">              <span class="attr">"hobby"</span>: <span class="string">"hiking"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实际使用中的一些建议-Practical-Considerations"><a href="#实际使用中的一些建议-Practical-Considerations" class="headerlink" title="实际使用中的一些建议(Practical Considerations)"></a>实际使用中的一些建议(Practical Considerations)</h3><p>当文档索引性能远比查询性能重要的时候，父子关系是非常有用的，但是它也是有巨大代价的。<br>其查询速度会比同等的嵌套查询慢5到10倍!</p>
+<h5 id="全局序号和延迟-Global-Ordinals-and-Latency"><a href="#全局序号和延迟-Global-Ordinals-and-Latency" class="headerlink" title="全局序号和延迟(Global Ordinals and Latency)"></a>全局序号和延迟(Global Ordinals and Latency)</h5><ul>
+<li>父子关系使用了全局序数 来加速文档间的联合,当索引变更时，全局序数要重建.</li>
+<li>一个分片中父文档越多，那么全局序数的重建就需要更多的时间。</li>
+<li>父子关系更适合于父文档少、子文档多的情况。</li>
+<li>全局序数默认情况下是延迟构建的,使用全局序数预加载把开销由query阶段转移到refresh阶段。</li>
+<li>当父文档过多时，全局序数的构建会耗费很多时间。此时可以通过增加 refresh_interval 来减少 refresh 的次数，延长全局序数的有效时间，这也很大程度上减小了全局序数每秒重建的cpu消耗。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PUT /company</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"branch"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"employee"</span>: &#123;</span><br><span class="line">      <span class="attr">"_parent"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"branch"</span>,</span><br><span class="line">        <span class="attr">"fielddata"</span>: &#123;</span><br><span class="line">          <span class="attr">"loading"</span>: <span class="string">"eager_global_ordinals"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="多使用-和-结语-Multigenerations-and-Concluding-Thoughts"><a href="#多使用-和-结语-Multigenerations-and-Concluding-Thoughts" class="headerlink" title="多使用 和 结语(Multigenerations and Concluding Thoughts)"></a>多使用 和 结语(Multigenerations and Concluding Thoughts)</h5><p>父子多代联合查询的代价：</p>
+<ul>
+<li>联合越多，性能越差。</li>
+<li>每一代的父文档都要将其字符串类型的 <code>_id</code> 字段存储在内存中，这会占用大量内存。</li>
+</ul>
+<p>计划使用父子关系时考虑下面建议：</p>
+<ul>
+<li>尽量少地使用父子关系，仅在子文档远多于父文档时使用。</li>
+<li>避免在一个查询中使用多个父子联合语句。</li>
+<li>在 has_child 查询中使用 filter 上下文，或者设置 score_mode 为 none 来避免计算文档得分。</li>
+<li>保证父 IDs 尽量短，以便在 doc values 中更好地压缩，被临时载入时占用更少的内存。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/45-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E6%89%A9%E5%AE%B9%E8%AE%BE%E8%AE%A1/" rel="prev" title="45-数据建模-扩容设计">
+      <i class="fa fa-chevron-left"></i> 45-数据建模-扩容设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/20/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/42-%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1-%E5%85%B3%E8%81%94%E5%85%B3%E7%B3%BB%E5%A4%84%E7%90%86/" rel="next" title="42-数据建模">
+      42-数据建模 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#父子关系文档映射"><span class="nav-number">1.</span> <span class="nav-text">父子关系文档映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#父子关系文档映射-Indexing-Parents-and-Children"><span class="nav-number">2.</span> <span class="nav-text">父子关系文档映射(Indexing Parents and Children)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构建父子文档索引-Indexing-Parents-and-Children"><span class="nav-number">3.</span> <span class="nav-text">构建父子文档索引(Indexing Parents and Children)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过子文档查询父文档"><span class="nav-number">4.</span> <span class="nav-text">通过子文档查询父文档</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#min-child-max-child"><span class="nav-number">4.0.1.</span> <span class="nav-text">min_child max_child</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过父文档查询子文档"><span class="nav-number">5.</span> <span class="nav-text">通过父文档查询子文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子文档聚合"><span class="nav-number">6.</span> <span class="nav-text">子文档聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#祖辈和孙辈关系-Grandparents-and-Grandchildren"><span class="nav-number">7.</span> <span class="nav-text">祖辈和孙辈关系(Grandparents and Grandchildren)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际使用中的一些建议-Practical-Considerations"><span class="nav-number">8.</span> <span class="nav-text">实际使用中的一些建议(Practical Considerations)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#全局序号和延迟-Global-Ordinals-and-Latency"><span class="nav-number">8.0.1.</span> <span class="nav-text">全局序号和延迟(Global Ordinals and Latency)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多使用-和-结语-Multigenerations-and-Concluding-Thoughts"><span class="nav-number">8.0.2.</span> <span class="nav-text">多使用 和 结语(Multigenerations and Concluding Thoughts)</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

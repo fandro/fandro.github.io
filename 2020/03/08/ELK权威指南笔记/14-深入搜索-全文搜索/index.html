@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 全文检索 full-text search两个重要方面：  相关性 Relevance,评价查询与其结果间的相关程度，并根据相关度进行排名。相关度计算方法： TF&#x2F;IDF 方法 相关性的介绍 地理位置邻近 模糊相似 其他算法   分析 Analysis，分析是将文本转换为token的过程，目的是创建索引和查询倒排索引。  基于词项与基于全文基于词项的查询 不需要分析阶段，对单个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="14-深入搜索-全文搜索">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/14-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E5%85%A8%E6%96%87%E6%90%9C%E7%B4%A2/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 全文检索 full-text search两个重要方面：  相关性 Relevance,评价查询与其结果间的相关程度，并根据相关度进行排名。相关度计算方法： TF&#x2F;IDF 方法 相关性的介绍 地理位置邻近 模糊相似 其他算法   分析 Analysis，分析是将文本转换为token的过程，目的是创建索引和查询倒排索引。  基于词项与基于全文基于词项的查询 不需要分析阶段，对单个">
+<meta property="article:published_time" content="2020-03-08T05:16:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:53:01.745Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/14-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E5%85%A8%E6%96%87%E6%90%9C%E7%B4%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>14-深入搜索-全文搜索 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/14-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E5%85%A8%E6%96%87%E6%90%9C%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          14-深入搜索-全文搜索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-08 13:16:57" itemprop="dateCreated datePublished" datetime="2020-03-08T13:16:57+08:00">2020-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:53:01" itemprop="dateModified" datetime="2020-05-26T13:53:01+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="全文检索-full-text-search"><a href="#全文检索-full-text-search" class="headerlink" title="全文检索 full-text search"></a>全文检索 full-text search</h3><p>两个重要方面：</p>
+<ol>
+<li>相关性 Relevance,评价查询与其结果间的相关程度，并根据相关度进行排名。<br>相关度计算方法：<ol>
+<li>TF/IDF 方法 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/relevance-intro.html" target="_blank" rel="noopener">相关性的介绍</a></li>
+<li>地理位置邻近</li>
+<li>模糊相似</li>
+<li>其他算法</li>
+</ol>
+</li>
+<li>分析 Analysis，分析是将文本转换为token的过程，目的是创建索引和查询倒排索引。</li>
+</ol>
+<h3 id="基于词项与基于全文"><a href="#基于词项与基于全文" class="headerlink" title="基于词项与基于全文"></a>基于词项与基于全文</h3><h5 id="基于词项的查询"><a href="#基于词项的查询" class="headerlink" title="基于词项的查询"></a>基于词项的查询</h5><ol>
+<li>不需要分析阶段，对单个词项进行操作，例如 term，fuzzy这样的操作</li>
+<li>term查询只对倒排索引的词项进行精确匹配</li>
+</ol>
+<h5 id="基于全文的查询"><a href="#基于全文的查询" class="headerlink" title="基于全文的查询"></a>基于全文的查询</h5><p>像match 或 query_string 这样的高层查询，对查询映射信息进行区别对待：</p>
+<ol>
+<li>查询字段为日期和整数时，将查询字符串当做日期和整数</li>
+<li>查询字段为未分析(not_analyzed)的字符串时，会把查询字符串作为单个词项对待。</li>
+<li>查询字段为已分析(analyzed)字符串时，会将查询字符串交给分析器生成一个词项列表</li>
+</ol>
+<p>单词项查询通常用是非这种二元问题表示，更适合用过滤，还有效利用缓存。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">            <span class="attr">"filter"</span>: &#123;</span><br><span class="line">                <span class="attr">"term"</span>: &#123; <span class="attr">"gender"</span>: <span class="string">"female"</span> &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="匹配-match-查询"><a href="#匹配-match-查询" class="headerlink" title="匹配(match)查询"></a>匹配(match)查询</h3><ol>
+<li>match查询是核心查询，首页查询方式</li>
+<li>match是高级的全文查询, 既能处理全文字段，又能处理精确字段</li>
+<li>match主要场景是全文搜索</li>
+</ol>
+<h5 id="索引一些数据"><a href="#索引一些数据" class="headerlink" title="索引一些数据"></a>索引一些数据</h5><p>创建一些索引数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">DELETE /my_index</span><br><span class="line"></span><br><span class="line">PUT /my_index</span><br><span class="line">&#123; <span class="attr">"settings"</span>: &#123; <span class="attr">"number_of_shards"</span>: <span class="number">1</span> &#125;&#125;</span><br><span class="line"></span><br><span class="line">POST /my_index/my_type/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">1</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"The quick brown fox"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">2</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"The quick brown fox jumps over the lazy dog"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">3</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"The quick brown fox jumps over the quick dog"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123; <span class="attr">"_id"</span>: <span class="number">4</span> &#125;&#125;</span><br><span class="line">&#123; <span class="attr">"title"</span>: <span class="string">"Brown fox brown dog"</span> &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="单个词查询"><a href="#单个词查询" class="headerlink" title="单个词查询"></a>单个词查询</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"QUICK!"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>match步骤：</p>
+<ol>
+<li>检查字段类型，判断是否对字符串进行分析</li>
+<li>分析查询字符串，分析器把字符串分析成词项，执行单个底层term查询</li>
+<li>查找匹配文档， 用term查询在倒排索引中查询quick，然后获取一组包含该项的文档</li>
+<li>为每个文档评分，技术每个文档相关度评分_score, score由3部分组成：词频(TF: term frequcncy),反向文档频率(IDF:inverse document frequency), 字段长度(字段越短相关度越高)。</li>
+</ol>
+<h3 id="多词查询-multi-word"><a href="#多词查询-multi-word" class="headerlink" title="多词查询 multi_word"></a>多词查询 multi_word</h3><h5 id="多词查询"><a href="#多词查询" class="headerlink" title="多词查询"></a>多词查询</h5><p>match查询多词很简单，查询字符串换成多词就可以。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"BROWN DOG!"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等价于 term should ‘BROWN’ ‘DOG’</p>
+<h5 id="提高精度"><a href="#提高精度" class="headerlink" title="提高精度"></a>提高精度</h5><p>通过operator操作符可以接受 or 和 and，默认值 or</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">            <span class="attr">"title"</span>: &#123;      </span><br><span class="line">                <span class="attr">"query"</span>:    <span class="string">"BROWN DOG!"</span>,</span><br><span class="line">                <span class="attr">"operator"</span>: <span class="string">"and"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="控制精度"><a href="#控制精度" class="headerlink" title="控制精度"></a>控制精度</h5><p>通过minimum_should_match(最小匹配参数)控制精度。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: &#123;</span><br><span class="line">        <span class="attr">"query"</span>: <span class="string">"quick brown dog"</span>,</span><br><span class="line">        <span class="attr">"minimum_should_match"</span>: <span class="string">"75%"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>三词项的示例中， 75% 会自动被截断成 66.6% ，即三个里面两个词</p>
+<h3 id="组合查询"><a href="#组合查询" class="headerlink" title="组合查询"></a>组合查询</h3><ol>
+<li>组合查询与组合过滤器一样，通过bool模型实现</li>
+<li>组合查询与组合过滤器中的bool使用，唯一不同之处是 组合查询会计算相关度</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>:     &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"quick"</span> &#125;&#125;,</span><br><span class="line">      <span class="attr">"must_not"</span>: &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"lazy"</span>  &#125;&#125;,</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">                  &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">                  &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"dog"</span>   &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>should语句中有一个词项匹配，文档就算相关。</p>
+<h5 id="评分计算"><a href="#评分计算" class="headerlink" title="评分计算"></a>评分计算</h5><p>查询的评分步骤：</p>
+<ol>
+<li>计算每个文档相关度评分score</li>
+<li>将must和should语句的分数score求和</li>
+<li>求和的分数除以must和should语句的总数</li>
+</ol>
+<p>注意：must_not 语句不影响评分，因为它只是排除不相关文档</p>
+<h5 id="控制精度-1"><a href="#控制精度-1" class="headerlink" title="控制精度"></a>控制精度</h5><ol>
+<li>must 必须匹配</li>
+<li>must_not 必须不匹配</li>
+<li>should 至少一个匹配，可以通过 minimum_should_match 控制精度，</li>
+<li>minimum_should_match可以是数字，也可以是百分比</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/my_type/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"fox"</span>   &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"dog"</span>   &#125;&#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"minimum_should_match"</span>: <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="如何使用布尔匹配"><a href="#如何使用布尔匹配" class="headerlink" title="如何使用布尔匹配"></a>如何使用布尔匹配</h3><ol>
+<li>常用match查询，如果match无法满足控制过程，就需要使用bool组合查询</li>
+<li>match查询可以转换为等价的bool组合查询</li>
+</ol>
+<p>等价转换例子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown fox"</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"bool"</span>: &#123;</span><br><span class="line">    <span class="attr">"should"</span>: [</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"fox"</span>   &#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:    <span class="string">"brown fox"</span>,</span><br><span class="line">            <span class="attr">"operator"</span>: <span class="string">"and"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"bool"</span>: &#123;</span><br><span class="line">    <span class="attr">"must"</span>: [</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"fox"</span>   &#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>:                <span class="string">"quick brown fox"</span>,</span><br><span class="line">            <span class="attr">"minimum_should_match"</span>: <span class="string">"75%"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"bool"</span>: &#123;</span><br><span class="line">    <span class="attr">"should"</span>: [</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"fox"</span>   &#125;&#125;,</span><br><span class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"quick"</span> &#125;&#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"minimum_should_match"</span>: <span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="查询语句提升权重-boost"><a href="#查询语句提升权重-boost" class="headerlink" title="查询语句提升权重 boost"></a>查询语句提升权重 boost</h3><ol>
+<li>使用boost控制语句的权重</li>
+<li>boost默认值为1，提升权重(boost大于1), 降低权重(boost 介于 0到 1之间)</li>
+<li>权重提升不少线性的，boost=2不等于2倍评分</li>
+<li>权重应用之后会被归一化</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">"should": [</span><br><span class="line">    &#123; <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"content"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>: <span class="string">"Elasticsearch"</span>,</span><br><span class="line">            <span class="attr">"boost"</span>: <span class="number">3</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;&#125;,</span><br><span class="line">    &#123; <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"content"</span>: &#123;</span><br><span class="line">            <span class="attr">"query"</span>: <span class="string">"Lucene"</span>,</span><br><span class="line">            <span class="attr">"boost"</span>: <span class="number">2</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;&#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h3 id="控制分析"><a href="#控制分析" class="headerlink" title="控制分析"></a>控制分析</h3><ol>
+<li>字段可以指定分析器，也可使用类型(type)、索引(index)或节点(node)的默认配置。</li>
+<li>索引阶段和搜索阶段可以使用不同分析器analyzer</li>
+</ol>
+<p>索引时分析器使用优先级：</p>
+<ol>
+<li>字段映射里定义的分析器analyzer</li>
+<li>索引中默认分析器(standard 标准分析器)</li>
+<li>全局缺省的分析器</li>
+</ol>
+<p>搜索时分析器使用优先级：</p>
+<ol>
+<li>自定义的分析器analyzer</li>
+<li>字段映射里定义的搜索分析器 search_analyzer</li>
+<li>字段映射里定义的分析器analyzer</li>
+<li>索引设置中默认的分析器(standard 标准分析器)</li>
+</ol>
+<h5 id="分析器配置实践"><a href="#分析器配置实践" class="headerlink" title="分析器配置实践"></a>分析器配置实践</h5><p>两种策略</p>
+<ol>
+<li>为每个字段指定分析器<br>1.1 好处：清楚了解每个字段的分析器配置<br>1.2 缺点 ： 配置项太多太麻烦</li>
+<li>索引中设置默认分析器，个别字段使用自定义分析器</li>
+</ol>
+<h3 id="被破坏的相关度"><a href="#被破坏的相关度" class="headerlink" title="被破坏的相关度"></a>被破坏的相关度</h3><p>问题：IDF在单个分片上计算的，在数据少且分布不均匀时，IDF在每个分片中会不同。<br>解决方法：</p>
+<ol>
+<li>只在主分片上创建索引，本地IDF就是全局IDF</li>
+<li>搜索请求后加?search_type=dfs_query_then_fetch,dfs是指 分布式频率搜索(Distributed Frequency Search)。<br>ES会先获取每个分片本地的IDF，然后再根据结果计算索引的全局IDF。注意：不要在生产环境使用</li>
+</ol>
+<p>注意：在实际应用中，本地和全局的 IDF 的差异会随着索引里文档数的增多渐渐消失，在真实世界的数据量下，局部的 IDF 会被迅速均化，所以上述问题并不是相关度被破坏所导致的，而是由于数据太少。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/12-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E7%AE%80%E4%BB%8B/" rel="prev" title="12-深入搜索-简介">
+      <i class="fa fa-chevron-left"></i> 12-深入搜索-简介
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/08/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/15-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E5%A4%9A%E5%AD%97%E6%AE%B5%E6%90%9C%E7%B4%A2/" rel="next" title="15-深入搜索-多字段搜索">
+      15-深入搜索-多字段搜索 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#全文检索-full-text-search"><span class="nav-number">1.</span> <span class="nav-text">全文检索 full-text search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于词项与基于全文"><span class="nav-number">2.</span> <span class="nav-text">基于词项与基于全文</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基于词项的查询"><span class="nav-number">2.0.1.</span> <span class="nav-text">基于词项的查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基于全文的查询"><span class="nav-number">2.0.2.</span> <span class="nav-text">基于全文的查询</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匹配-match-查询"><span class="nav-number">3.</span> <span class="nav-text">匹配(match)查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#索引一些数据"><span class="nav-number">3.0.1.</span> <span class="nav-text">索引一些数据</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#单个词查询"><span class="nav-number">3.0.2.</span> <span class="nav-text">单个词查询</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多词查询-multi-word"><span class="nav-number">4.</span> <span class="nav-text">多词查询 multi_word</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#多词查询"><span class="nav-number">4.0.1.</span> <span class="nav-text">多词查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#提高精度"><span class="nav-number">4.0.2.</span> <span class="nav-text">提高精度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#控制精度"><span class="nav-number">4.0.3.</span> <span class="nav-text">控制精度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#组合查询"><span class="nav-number">5.</span> <span class="nav-text">组合查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#评分计算"><span class="nav-number">5.0.1.</span> <span class="nav-text">评分计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#控制精度-1"><span class="nav-number">5.0.2.</span> <span class="nav-text">控制精度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用布尔匹配"><span class="nav-number">6.</span> <span class="nav-text">如何使用布尔匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询语句提升权重-boost"><span class="nav-number">7.</span> <span class="nav-text">查询语句提升权重 boost</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制分析"><span class="nav-number">8.</span> <span class="nav-text">控制分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分析器配置实践"><span class="nav-number">8.0.1.</span> <span class="nav-text">分析器配置实践</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#被破坏的相关度"><span class="nav-number">9.</span> <span class="nav-text">被破坏的相关度</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

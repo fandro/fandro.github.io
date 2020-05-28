@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 Elasticsearch 简介Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中. 1. 你知道，为了搜索1.1 Elasticsearch简介Apache Lucene是当下最先进，高性能，全功能的搜">
+<meta property="og:type" content="article">
+<meta property="og:title" content="01 基础入门">
+<meta property="og:url" content="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/01-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%8C%E4%B8%BA%E4%BA%86%E6%90%9C%E7%B4%A2/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 Elasticsearch 简介Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中. 1. 你知道，为了搜索1.1 Elasticsearch简介Apache Lucene是当下最先进，高性能，全功能的搜">
+<meta property="article:published_time" content="2020-01-13T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:51:05.966Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/01-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%8C%E4%B8%BA%E4%BA%86%E6%90%9C%E7%B4%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>01 基础入门 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/01-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%8C%E4%B8%BA%E4%BA%86%E6%90%9C%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          01 基础入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-13 09:52:57" itemprop="dateCreated datePublished" datetime="2020-01-13T09:52:57+08:00">2020-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:51:05" itemprop="dateModified" datetime="2020-05-26T13:51:05+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="Elasticsearch-简介"><a href="#Elasticsearch-简介" class="headerlink" title="Elasticsearch 简介"></a>Elasticsearch 简介</h3><p>Elasticsearch 是一个实时的分布式搜索引擎。主要功能：全文检索、结构化搜索、分析以及这三功能的结合。<br>Elasticsearch 没有一个单独的组件是全新的，他革命性地把有用组件融合到一个单一的、一致的、实时的应用中.</p>
+<h3 id="1-你知道，为了搜索"><a href="#1-你知道，为了搜索" class="headerlink" title="1. 你知道，为了搜索"></a>1. 你知道，为了搜索</h3><h4 id="1-1-Elasticsearch简介"><a href="#1-1-Elasticsearch简介" class="headerlink" title="1.1 Elasticsearch简介"></a>1.1 Elasticsearch简介</h4><p>Apache Lucene是当下最先进，高性能，全功能的搜索引擎库。<br>Elasticsearch 是一个开源搜索引擎，建立在Apache Lucene基础之上。<br>ES隐藏了Lucene的复杂性，对外提供统一的RESTful API，使得全文检索变得简单。<br>分布式特性:</p>
+<ul>
+<li>一个分布式的实时文档存储，每个字段都可以被索引和搜索</li>
+<li>一个分布式的实时分析搜索引擎</li>
+</ul>
+<p>扩展性： 能胜任上百个服务节点的扩展，并支持PB级别的结构化或非结构化数据。</p>
+<h4 id="1-2-安装并运行-Elasticsearch"><a href="#1-2-安装并运行-Elasticsearch" class="headerlink" title="1.2 安装并运行 Elasticsearch"></a>1.2 安装并运行 Elasticsearch</h4><ol>
+<li>下载 <a href="https://www.elastic.co/cn/downloads/elasticsearch" target="_blank" rel="noopener">Elasticsearch</a></li>
+<li>系统上安装</li>
+<li>启动ES ：./bin/elasticsearch， window是elasticsearch.bat</li>
+<li>使用curl或浏览器访问 <a href="http://localhost:9200/?pretty" target="_blank" rel="noopener">http://localhost:9200/?pretty</a><br>返回报文:<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"Tom Foster"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"2.1.0"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"72cd1f1a3eee09505e036106146dc1949dc5dc87"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2015-11-18T22:40:03Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"5.3.1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>安装Kibana，新版kibana的devTool提供交互式控制台，通过浏览器向ES提交请求。<br><a href="http://localhost:5601/app/kibana#/dev_tools/console?_g=()" target="_blank" rel="noopener">http://localhost:5601/app/kibana#/dev_tools/console?_g=()</a></li>
+</ol>
+<h4 id="1-3-与Elasticsearch交互"><a href="#1-3-与Elasticsearch交互" class="headerlink" title="1.3 与Elasticsearch交互"></a>1.3 与Elasticsearch交互</h4><h5 id="1-3-1-java-api中的两个客户端："><a href="#1-3-1-java-api中的两个客户端：" class="headerlink" title="1.3.1 java api中的两个客户端："></a>1.3.1 java api中的两个客户端：</h5><ol>
+<li>节点客户端 (node client)<br>节点客户端特点：<ul>
+<li>在集群中</li>
+<li>非数据节点，不保存数据只转发请求<br>如下图：N1就是节点客户端</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">  n1((N1-非数据节点)) -- 通讯 --- n2((N2-数据节点))</span><br><span class="line">  --通讯--- n3((N3-数据节点))</span><br><span class="line">  --通讯--- n1</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>传输客户端 (Transport client)<br>特点：<ul>
+<li>不在集群中</li>
+<li>可以把请求发送到远程集群中的一个节点上</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">  tc[传输客户端] -- 发送请求 --- n1</span><br><span class="line">  subgraph 远程集群</span><br><span class="line">  n1((N1)) --- n2((N2))--- n3((N3)) ---n1</span><br><span class="line">  end</span><br></pre></td></tr></table></figure>
+<h5 id="1-3-2-通过http访问RESTful-API"><a href="#1-3-2-通过http访问RESTful-API" class="headerlink" title="1.3.2 通过http访问RESTful API"></a>1.3.2 通过http访问RESTful API</h5><p>通过9200端口可以与ES进行http通讯。可以用多种客户端访问，各主流语言客户端，web浏览器，curl命令等。</p>
+<h4 id="1-4-面向文档"><a href="#1-4-面向文档" class="headerlink" title="1.4 面向文档"></a>1.4 面向文档</h4><p>Elasticsearch 是面向文档的，使用JSON存储整个对象或文档。<br>ES不仅存储文档，而且还索引每个文档的内容，使之能被检索。<br>ES对文档进行索引、检索、排序和过滤的，与关系数据库的行列数据不同。</p>
+<h4 id="1-5-适应新环境"><a href="#1-5-适应新环境" class="headerlink" title="1.5 适应新环境"></a>1.5 适应新环境</h4><p>通过雇员示例来介绍ES基本概念。</p>
+<h4 id="1-6-索引员工文档"><a href="#1-6-索引员工文档" class="headerlink" title="1.6 索引员工文档"></a>1.6 索引员工文档</h4><p>一个集群可以包含多个索引，每个索引包含多个类型，每个类型包含多个文档。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">  ES[ES集群] --&gt; i1[索引 Index01]</span><br><span class="line">  ES --&gt; i2[索引 Index02]</span><br><span class="line">  i1 --&gt; t1[类型 Type01]</span><br><span class="line">  i1 --&gt; t2[类型 Type02]</span><br><span class="line">  t1 --&gt; d1[文档 document01]</span><br><span class="line">  t1 --&gt; d2[文档 document02]</span><br></pre></td></tr></table></figure>
+
+<p>  <strong>索引(index)</strong></p>
+<ul>
+<li><p>名词时 ：一个索引类似于关系型数据库中一个数据库，是存储关系型文档的地方。索引复数：indices 或 indexes</p>
+</li>
+<li><p>动词时： 索引一个文档就是存储一个文档到索引(名词)中以便被检索和查询。</p>
+<p>创建员工信息</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PUT /megacorp/employee/1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"first_name"</span> : <span class="string">"John"</span>,</span><br><span class="line">    <span class="attr">"last_name"</span> :  <span class="string">"Smith"</span>,</span><br><span class="line">    <span class="attr">"age"</span> :        <span class="number">25</span>,</span><br><span class="line">    <span class="attr">"about"</span> :      <span class="string">"I love to go rock climbing"</span>,</span><br><span class="line">    <span class="attr">"interests"</span>: [ <span class="string">"sports"</span>, <span class="string">"music"</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>/megacorp/employee/1 包含了三部分的信息：<br>megacorp : 索引名称<br>employee : 类型名称<br>1 : 特定雇员的ID<br>请求体: JSON 文档 员工信息</p>
+<h4 id="1-7-检索文档"><a href="#1-7-检索文档" class="headerlink" title="1.7 检索文档"></a>1.7 检索文档</h4><p>检索员工1信息</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/1</span><br></pre></td></tr></table></figure>
+<p>删除员工1信息</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete /megacorp/employee/1</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-8-轻量搜索"><a href="#1-8-轻量搜索" class="headerlink" title="1.8 轻量搜索"></a>1.8 轻量搜索</h4><p>搜索所有员工</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br></pre></td></tr></table></figure>
+<p>检索员工simth信息,使用了查询字符串(query-string) :  q=last_name:Smith</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search?q=last_name:Smith</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search?q=Smith</span><br></pre></td></tr></table></figure>
+<p>Query-string 搜索通过命令非常方便地进行临时性的即席搜索 ，但它有自身的局限性。</p>
+<h4 id="1-9-使用查询表达式查询"><a href="#1-9-使用查询表达式查询" class="headerlink" title="1.9 使用查询表达式查询"></a>1.9 使用查询表达式查询</h4><p>ES提供了一个丰富灵活的查询语言叫 查询表达式，它支持更加复杂和健壮的查询。使用查询表达式重写之前的查询：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match"</span> : &#123;</span><br><span class="line">      <span class="attr">"last_name"</span> : <span class="string">"Smith"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-0-更复杂的查询"><a href="#2-0-更复杂的查询" class="headerlink" title="2.0 更复杂的查询"></a>2.0 更复杂的查询</h4><p>查询条件：名称Smith，年龄大于30。<br>使用：1. bool模型 2. match查询 3. range filter</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"bool"</span> : &#123;</span><br><span class="line">      <span class="attr">"must"</span> : &#123;</span><br><span class="line">        <span class="attr">"match"</span> :&#123;</span><br><span class="line">          <span class="attr">"last_name"</span> : <span class="string">"Smith"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"filter"</span> : &#123;</span><br><span class="line">        <span class="attr">"range"</span> : &#123;</span><br><span class="line">          <span class="attr">"age"</span> : &#123;</span><br><span class="line">            <span class="attr">"gt"</span> : <span class="number">30</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-全文检索"><a href="#2-1-全文检索" class="headerlink" title="2.1 全文检索"></a>2.1 全文检索</h4><p>查询条件：所有喜欢攀岩(rock climbing)的员工.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match"</span> : &#123;</span><br><span class="line">      <span class="attr">"about"</span> : <span class="string">"rock climbing"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">结果有两条：1. 包含"rock climbing" 2. 包含 "rock"。</span><br><span class="line">原因是查询分词为'rock' 'climbing',匹配度最高的'rock climbing'在前，只包含'rock'在后。</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-短语查询"><a href="#2-2-短语查询" class="headerlink" title="2.2 短语查询"></a>2.2 短语查询</h4><p>使用match_phrase进行短语查询，只会返回一个包含’rock climbing’的结果</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match_phrase"</span> : &#123;</span><br><span class="line">      <span class="attr">"about"</span> : <span class="string">"rock climbing"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-高亮查询"><a href="#2-3-高亮查询" class="headerlink" title="2.3 高亮查询"></a>2.3 高亮查询</h4><p>使用highlight表示需要高亮的字段。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match_phrase"</span> : &#123;</span><br><span class="line">      <span class="attr">"about"</span> : <span class="string">"rock climbing"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"highlight"</span> : &#123;</span><br><span class="line">    <span class="attr">"fields"</span> : &#123;</span><br><span class="line">      <span class="attr">"about"</span> : &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">返回结果中包含高亮：</span><br><span class="line">&#123; <span class="attr">"highlight"</span>: &#123;</span><br><span class="line">     <span class="attr">"about"</span>: [</span><br><span class="line">        <span class="string">"I love to go &lt;em&gt;rock&lt;/em&gt; &lt;em&gt;climbing&lt;/em&gt;"</span></span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2-4-分析"><a href="#2-4-分析" class="headerlink" title="2.4 分析"></a>2.4 分析</h4><p>利用ES中的聚合(aggregations)进行数据分析。</p>
+<ol>
+<li>分析员工最受欢迎的兴趣爱好.<br>新版ES需要设置fielddata=true</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /megacrop/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">"aggs"</span> : &#123;</span><br><span class="line">		<span class="attr">"all_interests"</span> : &#123;</span><br><span class="line">			<span class="attr">"terms"</span> : &#123;</span><br><span class="line">				<span class="attr">"field"</span> : <span class="string">"interests"</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>查询名称Smith的员工的最受欢迎的兴趣，先查询再聚合分析</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /megacrop/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match"</span> : &#123;</span><br><span class="line">      <span class="attr">"last_name"</span>: <span class="string">"smith"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">	<span class="attr">"aggs"</span> : &#123;</span><br><span class="line">		<span class="attr">"all_interests"</span> : &#123;</span><br><span class="line">			<span class="attr">"terms"</span> : &#123;</span><br><span class="line">				<span class="attr">"field"</span> : <span class="string">"interests"</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>聚合时进行汇总</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">    <span class="attr">"all_interests"</span> : &#123;</span><br><span class="line">      <span class="attr">"terms"</span> : &#123;<span class="attr">"field"</span> : <span class="string">"interests"</span>&#125;,</span><br><span class="line">      <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"avg_age"</span> : &#123;</span><br><span class="line">          <span class="attr">"avg"</span> : &#123;<span class="attr">"field"</span> : <span class="string">"age"</span>&#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="2-5-分布式特性"><a href="#2-5-分布式特性" class="headerlink" title="2.5 分布式特性"></a>2.5 分布式特性</h4><p>ES在后台做了大量工作尽可能地屏蔽分布式系统的复杂性，后台做的工作：</p>
+<ol>
+<li>分配文档到不同的容器或分片中，文档可以存储在一个或多个节点中</li>
+<li>均衡分配分片，对索引和搜索过程进行负载均衡</li>
+<li>复制每个分片以支持数据冗余，防止硬件故障导致的数据丢失</li>
+<li>任意节点的请求都可以路由到相关数据的节点</li>
+<li>集群扩容时无缝整合新节点，重新分配分片以便从离群节点恢复</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/13/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/00-%E5%89%8D%E8%A8%80/" rel="prev" title="00 前言">
+      <i class="fa fa-chevron-left"></i> 00 前言
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/01/14/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/02-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%8E%9F%E7%90%86/" rel="next" title="02 基础入门 - 集群内的原来">
+      02 基础入门 - 集群内的原来 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Elasticsearch-简介"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-你知道，为了搜索"><span class="nav-number">2.</span> <span class="nav-text">1. 你知道，为了搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-Elasticsearch简介"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 Elasticsearch简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-安装并运行-Elasticsearch"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 安装并运行 Elasticsearch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-与Elasticsearch交互"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 与Elasticsearch交互</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-java-api中的两个客户端："><span class="nav-number">2.3.1.</span> <span class="nav-text">1.3.1 java api中的两个客户端：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-2-通过http访问RESTful-API"><span class="nav-number">2.3.2.</span> <span class="nav-text">1.3.2 通过http访问RESTful API</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-面向文档"><span class="nav-number">2.4.</span> <span class="nav-text">1.4 面向文档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-适应新环境"><span class="nav-number">2.5.</span> <span class="nav-text">1.5 适应新环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-索引员工文档"><span class="nav-number">2.6.</span> <span class="nav-text">1.6 索引员工文档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-7-检索文档"><span class="nav-number">2.7.</span> <span class="nav-text">1.7 检索文档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-8-轻量搜索"><span class="nav-number">2.8.</span> <span class="nav-text">1.8 轻量搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-9-使用查询表达式查询"><span class="nav-number">2.9.</span> <span class="nav-text">1.9 使用查询表达式查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-0-更复杂的查询"><span class="nav-number">2.10.</span> <span class="nav-text">2.0 更复杂的查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-全文检索"><span class="nav-number">2.11.</span> <span class="nav-text">2.1 全文检索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-短语查询"><span class="nav-number">2.12.</span> <span class="nav-text">2.2 短语查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-高亮查询"><span class="nav-number">2.13.</span> <span class="nav-text">2.3 高亮查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-分析"><span class="nav-number">2.14.</span> <span class="nav-text">2.4 分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-分布式特性"><span class="nav-number">2.15.</span> <span class="nav-text">2.5 分布式特性</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 Doc Values Doc Values数据结构可以使用聚合更快、更高效并且内存友好。 倒排索引的优势是通过某个项(term)找文档，而相反操作并不高效，即：确定哪些项是否存在单个文档里，聚合需要这种次级的访问模式。 搜索使用倒排索引查找文档，聚合操作使用doc values数据进行收集和聚合。 Doc values 使用场景：1. 聚合 2. 排序 3. 访问字段值的脚本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="36-聚合-Doc Values and Fielddata">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/36-%E8%81%9A%E5%90%88-Doc%20Values%20and%20Fielddata/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 Doc Values Doc Values数据结构可以使用聚合更快、更高效并且内存友好。 倒排索引的优势是通过某个项(term)找文档，而相反操作并不高效，即：确定哪些项是否存在单个文档里，聚合需要这种次级的访问模式。 搜索使用倒排索引查找文档，聚合操作使用doc values数据进行收集和聚合。 Doc values 使用场景：1. 聚合 2. 排序 3. 访问字段值的脚本">
+<meta property="article:published_time" content="2020-03-16T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:54:42.429Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/36-%E8%81%9A%E5%90%88-Doc%20Values%20and%20Fielddata/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>36-聚合-Doc Values and Fielddata | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/36-%E8%81%9A%E5%90%88-Doc%20Values%20and%20Fielddata/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          36-聚合-Doc Values and Fielddata
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-16 09:52:57" itemprop="dateCreated datePublished" datetime="2020-03-16T09:52:57+08:00">2020-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:54:42" itemprop="dateModified" datetime="2020-05-26T13:54:42+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>8.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>8 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/docvalues-and-fielddata.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/90_docvalues.asciidoc" target="_blank" rel="noopener">英文参考</a></p>
+<h3 id="Doc-Values"><a href="#Doc-Values" class="headerlink" title="Doc Values"></a>Doc Values</h3><ul>
+<li>Doc Values数据结构可以使用聚合更快、更高效并且内存友好。</li>
+<li>倒排索引的优势是通过某个项(term)找文档，而相反操作并不高效，即：确定哪些项是否存在单个文档里，聚合需要这种次级的访问模式。</li>
+<li>搜索使用倒排索引查找文档，聚合操作使用doc values数据进行收集和聚合。</li>
+<li>Doc values 使用场景：1. 聚合 2. 排序 3. 访问字段值的脚本 4. 处理父子关系，任何需要查找某个文档包含的值的操作都必须使用它。</li>
+</ul>
+<p>倒排索引：<br>|Term   | Doc_1| Doc_2 | Doc_3|<br>| :—  |:—  | :—  |:—  |<br>|brown   |   X   |   X   | |<br>|dog     |   X   |       |   X|<br>|dogs    |       |   X   |   X|<br>|fox     |   X   |       |   X|<br>|foxes   |       |   X   |    |<br>|in      |       |   X   |    |<br>|jumped  |   X   |       |   X|<br>|lazy    |   X   |   X   |    |<br>|leap    |       |   X   |    |<br>|over    |   X   |   X   |   X|<br>|quick   |   X   |   X   |   X|<br>|summer  |       |   X   |    |<br>|the     |   X   |       |   X|</p>
+<p>doc values 结构：<br>| doc | terms    |<br>| :— | :————- |<br>|Doc_1 | brown, dog, fox, jumped, lazy, over, quick, the      |<br>|Doc_2 | brown, dogs, foxes, in, lazy, leap, over, quick, summer  |<br>|Doc_3 | dog, dogs, fox, jumped, over, quick, the  |</p>
+<p>查询语句：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"match"</span> : &#123;</span><br><span class="line">      <span class="attr">"body"</span> : <span class="string">"brown"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">    <span class="attr">"popular_terms"</span>: &#123;</span><br><span class="line">      <span class="attr">"terms"</span> : &#123;</span><br><span class="line">        <span class="attr">"field"</span> : <span class="string">"body"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>步骤：</p>
+<ol>
+<li>查询部分：查询时在倒排索引的词项列表(已排序)中查找brown，找到brown后扫描所有列，找到包含brown的文档(Doc_1,Doc_2)。</li>
+<li>聚合部分：利用doc Values数据结构，找到Doc_1,Doc_2，然后获取对应文档行，获取文档行中所有的词项，求两个集合的并集。</li>
+</ol>
+<h3 id="深入理解-Doc-Values"><a href="#深入理解-Doc-Values" class="headerlink" title="深入理解 Doc Values"></a>深入理解 Doc Values</h3><ul>
+<li>Doc Values与倒排索引一样，是在索引时生成。</li>
+<li>Doc Values与倒排索引一样，基于segement生成并且是不可变的。</li>
+<li>Doc Values与倒排索引一样，会序列化到磁盘，对性能和扩展性很有帮助。</li>
+<li>Doc Values通过序列化把数据持久到磁盘，它的好处是可以充分利用操作系统的内存，而不是JVM的heap。当Doc Valus很小时系统自动将它驻留内存，当Doc Valus 大于系统可用内存时，系统会根据需求从磁盘读取Doc Valus，然后选择性放到分页缓存中。</li>
+<li>因为 Doc Values 不是由 JVM 来管理，所以 Elasticsearch 实例可以配置一个很小的 JVM Heap，这样给系统留出来更多的内存。同时更小的 Heap 可以让 JVM 更加快速和高效的回收。</li>
+</ul>
+<h5 id="列式存储的压缩-Column-store-compression"><a href="#列式存储的压缩-Column-store-compression" class="headerlink" title="列式存储的压缩(Column-store compression)"></a>列式存储的压缩(Column-store compression)</h5><ul>
+<li>Doc Values本质上是一个序列化的列式存储。列式存储适用于 聚合、排序、脚本等操作。</li>
+<li>列式存储也便于压缩，特别是数字类型。压缩后好处：减少磁盘空间，提高访问速度。</li>
+</ul>
+<p>Doc Values 在压缩过程中使用如下技巧。依次检测以下压缩模式:</p>
+<ol>
+<li>如果所有的数值各不相同（或缺失），设置一个标记并记录这些值</li>
+<li>如果这些值小于 256，将使用一个简单的编码表</li>
+<li>如果这些值大于 256，检测是否存在一个最大公约数</li>
+<li>如果没有存在最大公约数，从最小的数值开始，统一计算偏移量进行编码</li>
+</ol>
+<h5 id="禁用Doc-Values"><a href="#禁用Doc-Values" class="headerlink" title="禁用Doc Values"></a>禁用Doc Values</h5><ul>
+<li>Doc Values 默认对所有字段启用(除了 analyzed strings)。analyzed strings使用fielddata。</li>
+<li>对不需要聚合、排序和脚本操作的字段禁用Doc Values，可以节省磁盘空间，提升索引的速度</li>
+</ul>
+<p>使用doc_values :false禁用Doc Values</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PUT my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"session_id"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:       <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"index"</span>:      <span class="string">"not_analyzed"</span>,</span><br><span class="line">          <span class="attr">"doc_values"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以设置字段 doc_values: true 和 index: no ，该字段无法被搜索到，只能被用于聚合、排序、脚本操作。</p>
+<h3 id="聚合与分析-Aggregations-and-Analysis"><a href="#聚合与分析-Aggregations-and-Analysis" class="headerlink" title="聚合与分析(Aggregations and Analysis)"></a>聚合与分析(Aggregations and Analysis)</h3><p>如果对analyzed字符串进行聚合，有两个原因会影响聚合：分析影响聚合中使用的 tokens ，并且 doc values 不能使用于 分析字符串。</p>
+<h5 id="分析字符串和Fielddata-Analyzed-strings-and-Fielddata"><a href="#分析字符串和Fielddata-Analyzed-strings-and-Fielddata" class="headerlink" title="分析字符串和Fielddata(Analyzed strings and Fielddata)"></a>分析字符串和Fielddata(Analyzed strings and Fielddata)</h5><ul>
+<li>Doc values 不支持 analyzed 字符串字段，因为它们不能很有效的表示多值字符串。Doc values 最有效的是，当每个文档都有一个或几个tokens时， 但不是无数的分析字符串（想象一个 PDF ，可能有几兆字节并有数以千计的独特 tokens）。</li>
+<li>如果对分析字符串使用聚合？ 答案是：使用fielddata数据结构。</li>
+<li>fielddata构建和管理100%在内存中，常驻于JVM内存堆。</li>
+<li>从历史上看，fielddata 是 所有 字段的默认设置。但是 Elasticsearch 已迁移到 doc values 以减少 OOM 的几率。分析的字符串是仍然使用 fielddata 的最后一块阵地。 最终目标是建立一个序列化的数据结构类似于 doc values ，可以处理高维度的分析字符串，逐步淘汰 fielddata。</li>
+</ul>
+<h5 id="高基数内存的影响-High-Cardinality-Memory-Implications"><a href="#高基数内存的影响-High-Cardinality-Memory-Implications" class="headerlink" title="高基数内存的影响(High-Cardinality Memory Implications)"></a>高基数内存的影响(High-Cardinality Memory Implications)</h5><p>避免分析字段的另外一个原因就是：高基数字段在加载到 fielddata 时会消耗大量内存。<br>分析的过程会经常（尽管不总是这样）生成大量的 token，这些 token 大多都是唯一的。 这会增加字段的整体基数并且带来更大的内存压力。</p>
+<p>因此，在聚合字符串字段之前，请评估情况：</p>
+<ul>
+<li>这是一个 not_analyzed 字段吗？如果是，可以通过 doc values 节省内存 。</li>
+<li>否则，这是一个 analyzed 字段，它将使用 fielddata 并加载到内存中。这个字段因为 ngrams 有一个非常大的基数？如果是，这对于内存来说极度不友好。</li>
+</ul>
+<h3 id="circuit-breaker-fd-settings"><a href="#circuit-breaker-fd-settings" class="headerlink" title="circuit_breaker_fd_settings"></a>circuit_breaker_fd_settings</h3><h3 id="限制内存使用-Limiting-Memory-Usage"><a href="#限制内存使用-Limiting-Memory-Usage" class="headerlink" title="限制内存使用(Limiting Memory Usage)"></a>限制内存使用(Limiting Memory Usage)</h3><ul>
+<li>Fielddata 是 延迟 加载。没聚合过分析字符串就不会加载fielddata到内存中。</li>
+<li>fielddata 是基于字段加载的， 这意味着只有很活跃地使用字段才会增加 fielddata 的负担。</li>
+<li>即是你查询少数几个文档，但fielddata 会加载索引中（针对该特定字段的）所有的文档。</li>
+<li>fielddata 在查询运行时，动态填充。</li>
+<li>fielddata使用的是JVM堆资源</li>
+</ul>
+<p>在设置 Elasticsearch 堆大小时需要通过 $ES_HEAP_SIZE 环境变量应用两个规则：</p>
+<h5 id="选择堆大小（Choosing-a-Heap-Size）"><a href="#选择堆大小（Choosing-a-Heap-Size）" class="headerlink" title="选择堆大小（Choosing a Heap Size）"></a>选择堆大小（Choosing a Heap Size）</h5><ul>
+<li>不要超过可用 RAM 的 50%。Lucene 能很好利用文件系统的缓存，它是通过系统内核管理的。如果没有足够的文件系统缓存空间，性能会受到影响。 此外，专用于堆的内存越多意味着其他所有使用 doc values 的字段内存越少。</li>
+<li>不要超过 32 GB。 如果堆大小小于 32 GB，JVM 可以利用指针压缩，这可以大大降低内存的使用：每个指针 4 字节而不是 8 字节。</li>
+</ul>
+<h5 id="Fielddata的大小"><a href="#Fielddata的大小" class="headerlink" title="Fielddata的大小"></a>Fielddata的大小</h5><ul>
+<li>indices.fielddata.cache.size 控制为 fielddata 分配的堆空间大小。</li>
+<li>indices.fielddata.cache.size 默认情况下，设置都是 unbounded ，Elasticsearch 永远都不会从 fielddata 中回收数据。</li>
+<li>一个有界的大小会强制数据结构回收数据。</li>
+<li>一个使用场景：日志，每天使用新索引，只对最近几天数据感兴趣。</li>
+</ul>
+<blockquote>
+<p>如果没有足够空间可以将 fielddata 保留在内存中，Elasticsearch 就会时刻从磁盘重载数据，并回收其他数据以获得更多空间。内存的回收机制会导致重度磁盘I/O，并且在内存中生成很多垃圾，这些垃圾必须在晚些时候被回收掉。</p>
+</blockquote>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 可以设置堆大小的百分比，也可以是某个值，例如： 5gb 。</span></span><br><span class="line"><span class="comment"># 最久未使用（LRU）的 fielddata 会被回收为新数据腾出空间。</span></span><br><span class="line"><span class="meta">indices.fielddata.cache.size</span>:  <span class="string">20%</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="监控fielddata-Monitoring-fielddata"><a href="#监控fielddata-Monitoring-fielddata" class="headerlink" title="监控fielddata(Monitoring fielddata)"></a>监控fielddata(Monitoring fielddata)</h5><p>监控fielddata的内存使用情况，监控数据被回收情况。</p>
+<p>监控方法：</p>
+<ul>
+<li>按索引使用 <a href="http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html" target="_blank" rel="noopener">indices-stats API</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;_stats&#x2F;fielddata?fields&#x3D;*</span><br></pre></td></tr></table></figure></li>
+<li>按节点使用 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/cluster-nodes-stats.html" target="_blank" rel="noopener">nodes-stats API</a> ：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;_nodes&#x2F;stats&#x2F;indices&#x2F;fielddata?fields&#x3D;*</span><br></pre></td></tr></table></figure></li>
+<li>按索引节点<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;_nodes&#x2F;stats&#x2F;indices&#x2F;fielddata?level&#x3D;indices&amp;fields&#x3D;*</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="断路器-Circuit-Breaker"><a href="#断路器-Circuit-Breaker" class="headerlink" title="断路器(Circuit Breaker)"></a>断路器(Circuit Breaker)</h5><p>面临的问题：fielddata大小设置是在数据加载之后才检查的，如果加载的数据大于内存，就会发生OutOfMemoryException。<br>解决方法：使用 fielddata 断路器(Circuit Breaker)。</p>
+<p>断路器工作原理：断路器通过内部检查(字段类型，基数，大小等)来估算一个查询需要的内存大小，判断加载的数据是否超出配置比例，如果超出限制就会触发断路器，中止查询并返回异常。<br>断路器工作发生在加载之前，不会引起OutOfMemoryException。</p>
+<p>可用的断路器（Available Circuit Breakers）,修改配置config/elasticsearch.yml</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># fielddata 断路器, 默认设置堆的 60% 作为 fielddata 大小的上限。</span></span><br><span class="line"><span class="meta">indices.breaker.fielddata.limit</span> : <span class="string">60%</span></span><br><span class="line"><span class="comment"># request 断路器, 估算需要完成其他请求部分的结构大小，例如创建一个聚合桶，默认限制是堆内存的 40%。</span></span><br><span class="line"><span class="meta">indices.breaker.request.limit</span> : <span class="string">40%</span></span><br><span class="line"><span class="comment"># total 结合 request 和 fielddata 断路器保证两者组合起来不会使用超过堆内存的 70%。</span></span><br><span class="line"><span class="meta">indices.breaker.total.limit</span> : <span class="string">70%</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以动态修改</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /_cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"persistent"</span> : &#123;</span><br><span class="line">    <span class="attr">"indices.breaker.fielddata.limit"</span> : <span class="string">"40%"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最好为断路器设置一个相对保守点的值。</p>
+<blockquote>
+<p>记住 fielddata 需要与 request 断路器共享堆内存、索引缓冲内存和过滤器缓存。<br>Lucene 的数据被用来构造索引，以及各种其他临时的数据结构。 正因如此，它默认值非常保守，只有 60% 。过于乐观的设置可能会引起潜在的堆栈溢出（OOM）异常，这会使整个节点宕掉。<br>另一方面，过度保守的值只会返回查询异常，应用程序可以对异常做相应处理。异常比服务器崩溃要好。这些异常应该也能促进我们对查询进行重新评估：为什么单个查询需要超过堆内存的 60% 之多？</p>
+</blockquote>
+<p>断路器的限制 必须 要比缓存大小要高.</p>
+<blockquote>
+<p>在 Fielddata的大小 中，我们提过关于给 fielddata 的大小加一个限制，从而确保旧的无用 fielddata 被回收的方法。 indices.fielddata.cache.size 和 indices.breaker.fielddata.limit 之间的关系非常重要。 如果断路器的限制低于缓存大小，没有数据会被回收。为了能正常工作，断路器的限制 必须 要比缓存大小要高。</p>
+</blockquote>
+<h3 id="Fielddata-的过滤"><a href="#Fielddata-的过滤" class="headerlink" title="Fielddata 的过滤"></a>Fielddata 的过滤</h3><p>Fielddata过滤实际上是在忽略数据，避免大量的无用的长尾项，也可以节省内存。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /music/_mapping/song</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"properties"</span>: &#123;</span><br><span class="line">    <span class="attr">"tag"</span>: &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">      <span class="attr">"fielddata"</span>: &#123;</span><br><span class="line">        <span class="attr">"filter"</span>: &#123;</span><br><span class="line">          <span class="attr">"frequency"</span>: &#123;</span><br><span class="line">            <span class="attr">"min"</span>:              <span class="number">0.01</span>,</span><br><span class="line">            <span class="attr">"min_segment_size"</span>: <span class="number">500</span>  </span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>fielddata 关键字允许我们配置 fielddata 处理该字段的方式。</li>
+<li>frequency 过滤器允许我们基于项频率过滤加载 fielddata。</li>
+<li>min：0.01 只加载那些至少在本段文档中出现 1% 的项。</li>
+<li>min_segment_size :500 忽略任何文档个数小于 500 的段。</li>
+</ul>
+<p>词频是按照段来计算的。这是实现的一个限制：fielddata 是按段来加载的，所以可见的词频只是该段内的频率。但是，这个限制也有些有趣的特性：它可以让受欢迎的新项迅速提升到顶部。</p>
+<p>min_segment_size 参数要求 Elasticsearch 忽略某个大小以下的段。 如果一个段内只有少量文档，它的词频会非常粗略没有任何意义。 小的分段会很快被合并到更大的分段中，某一刻超过这个限制，将会被纳入计算。</p>
+<blockquote>
+<p>通过频次来过滤项并不是唯一的选择，我们也可以使用正则式来决定只加载那些匹配的项。例如，我们可以用 regex 过滤器 处理 twitte 上的消息只将以 # 号开始的标签加载到内存中。 这假设我们使用的分析器会保留标点符号，像 whitespace 分析器。</p>
+</blockquote>
+<h3 id="预加载fielddata"><a href="#预加载fielddata" class="headerlink" title="预加载fielddata"></a>预加载fielddata</h3><p>fielddata加载到内存，默认是 延迟 加载。<br>延迟加载：当ES第一次查询某个字段时，它将会完整加载这个字段所有segment中的倒排索引到内存中，以便于以后的查询能够获取更好的性能。</p>
+<p>解决延时高峰三种方式:</p>
+<ul>
+<li>预加载fielddata</li>
+<li>预加载全局序号</li>
+<li>缓存预热<br>三种方式都基于同一概念：预加载fielddata</li>
+</ul>
+<h5 id="预加载fielddata-Eagerly-Loading-Fielddata"><a href="#预加载fielddata-Eagerly-Loading-Fielddata" class="headerlink" title="预加载fielddata(Eagerly Loading Fielddata)"></a>预加载fielddata(Eagerly Loading Fielddata)</h5><p>启动字段预加载就是对分段里的fielddata提取加载。<br>预加载是按字段启用的</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /music/_mapping/_song</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"tags"</span>: &#123;</span><br><span class="line">    <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">    <span class="attr">"fielddata"</span>: &#123;</span><br><span class="line">      <span class="attr">"loading"</span> : <span class="string">"eager"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>设置 fielddata.loading: eager 可以告诉 Elasticsearch 预先将此字段的内容载入内存中。</li>
+<li>fielddata.loading 支持 lazy, eager 两种模式。</li>
+</ul>
+<h5 id="全局序号-Global-Ordinals"><a href="#全局序号-Global-Ordinals" class="headerlink" title="全局序号(Global Ordinals)"></a>全局序号(Global Ordinals)</h5><ul>
+<li>有一种可以用来降低字符串fielddata内存使用的技术叫做 序号。</li>
+<li>字段中包含的所有值用序号来一一对应，加载fielddata时使用序号代替原始值。序号的构建只被应用于字符串。</li>
+<li>全局序号是一个构建在 fielddata 之上的数据结构，它只占用少量内存。</li>
+<li>唯一值是 跨所有分段 识别的，然后将它们存入一个序号列表中。</li>
+<li>terms 聚合可以对全局序号进行聚合操作，将序号转换成真实字符串值的过程只会在聚合结束时发生一次。这会将聚合（和排序）的性能提高三到四倍。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Ordinal</th>
+<th align="left">Term</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">0</td>
+<td align="left">status_deleted</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="left">status_pending</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">status_published</td>
+</tr>
+</tbody></table>
+<h5 id="构建全局序号-Building-global-ordinals"><a href="#构建全局序号-Building-global-ordinals" class="headerlink" title="构建全局序号(Building global ordinals)"></a>构建全局序号(Building global ordinals)</h5><ul>
+<li>全局序号分布在索引的所有段中，所以如果新增或删除一个分段时，需要对全局序号进行重建。</li>
+<li>重建需要读取每个分段的每个唯一项，基数越高（即存在更多的唯一项）这个过程会越长。</li>
+<li>全局序号默认也是延迟构建的。首次访问索引内 fielddata 的请求会促发全局序号的构建。</li>
+<li>一旦全局序号发生重建，仍会使用旧的全局序号，直到索引中的分段产生变化：在刷新、写入或合并之后。</li>
+</ul>
+<h5 id="预构建全局序号-Eager-global-ordinals"><a href="#预构建全局序号-Eager-global-ordinals" class="headerlink" title="预构建全局序号(Eager global ordinals)"></a>预构建全局序号(Eager global ordinals)</h5><p>单个字符串字段 可以通过配置预先构建全局序号：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /music/_mapping/_song</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"song_title"</span>: &#123;</span><br><span class="line">    <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">    <span class="attr">"fielddata"</span>: &#123;</span><br><span class="line">      <span class="attr">"loading"</span> : <span class="string">"eager_global_ordinals"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>预建全局序号会对数据的 实时性 产生影响，构建一个高基数的全局序号会使一个刷新延时数秒。 选择在于是每次刷新时付出代价，还是在刷新后的第一次查询时。如果经常索引而查询较少，那么在查询时付出代价要比每次刷新时要好。如果写大于读，那么在选择在查询时重建全局序号将会是一个更好的选择。</p>
+<blockquote>
+<p>针对实际场景优化全局序号的重建频次。如果我们有高基数字段需要花数秒钟重建，增加 refresh_interval 的刷新的时间从而可以使我们的全局序号保留更长的有效期，这也会节省 CPU 资源，因为我们重建的频次下降了。</p>
+</blockquote>
+<h3 id="索引预热器-Index-Warmers"><a href="#索引预热器-Index-Warmers" class="headerlink" title="索引预热器(Index Warmers)"></a>索引预热器(Index Warmers)</h3><ul>
+<li>预热器早于 fielddata 预加载和全局序号预加载之前出现，它们仍然有其存在的理由。</li>
+<li>一个索引预热器允许我们指定一个查询和聚合须要在新分片对于搜索可见之前执行。 这个想法是通过预先填充或 预热缓存 让用户永远无法遇到延迟的波峰。</li>
+<li>预热器是根据具体索引注册的， 每个预热器都有唯一的 ID ，因为每个索引可能有多个预热器。</li>
+<li>预热器主要用来预建过滤器缓存，也可以用它来预加载 fielddata。</li>
+<li>当新建一个分段时，Elasticsearch 将会执行注册在预热器中的查询。执行这些查询会强制加载缓存，只有在所有预热器执行完，这个分段才会对搜索可见。</li>
+</ul>
+<p>注册一个预热器然后解释发生了什么：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">PUT /music/_warmer/warmer_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span> : &#123;</span><br><span class="line">    <span class="attr">"bool"</span> : &#123;</span><br><span class="line">      <span class="attr">"filter"</span> : &#123;</span><br><span class="line">        <span class="attr">"bool"</span>: &#123;</span><br><span class="line">          <span class="attr">"should"</span>: [</span><br><span class="line">            &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"tag"</span>: <span class="string">"rock"</span>        &#125;&#125;,</span><br><span class="line">            &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"tag"</span>: <span class="string">"hiphop"</span>      &#125;&#125;,</span><br><span class="line">            &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"tag"</span>: <span class="string">"electronics"</span> &#125;&#125;</span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">    <span class="attr">"price"</span> : &#123;</span><br><span class="line">      <span class="attr">"histogram"</span> : &#123;</span><br><span class="line">        <span class="attr">"field"</span> : <span class="string">"price"</span>,</span><br><span class="line">        <span class="attr">"interval"</span> : <span class="number">10</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>预热器被关联到索引（ music ）上，使用接入口 <code>_warmer</code> 以及 ID （ warmer_1 ）。</li>
+<li>should 为三种最受欢迎的曲风预建过滤器缓存。</li>
+<li>字段 price 的 fielddata 和全局序号会被预加载。</li>
+</ul>
+<h3 id="优化聚合查询"><a href="#优化聚合查询" class="headerlink" title="优化聚合查询"></a>优化聚合查询</h3><h5 id="Preventing-Combinatorial-Explosions"><a href="#Preventing-Combinatorial-Explosions" class="headerlink" title="Preventing Combinatorial Explosions"></a>Preventing Combinatorial Explosions</h5><h5 id="深度优先与广度优先-Depth-First-Versus-Breadth-First"><a href="#深度优先与广度优先-Depth-First-Versus-Breadth-First" class="headerlink" title="深度优先与广度优先(Depth-First Versus Breadth-First)"></a>深度优先与广度优先(Depth-First Versus Breadth-First)</h5><ul>
+<li>Elasticsearch默认集合模式(collection mode)是 深度优先，它先构建完整的树，然后修剪无用节点。</li>
+<li>某些应用场景需要使用 广度优先，广度优先先执行第一层聚合，做修剪完后再继续下一层聚合。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">    <span class="attr">"actors"</span> : &#123;</span><br><span class="line">      <span class="attr">"terms"</span> : &#123;</span><br><span class="line">         <span class="attr">"field"</span> :        <span class="string">"actors"</span>,</span><br><span class="line">         <span class="attr">"size"</span> :         <span class="number">10</span>,</span><br><span class="line">         <span class="attr">"collect_mode"</span> : <span class="string">"breadth_first"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"costars"</span> : &#123;</span><br><span class="line">          <span class="attr">"terms"</span> : &#123;</span><br><span class="line">            <span class="attr">"field"</span> : <span class="string">"actors"</span>,</span><br><span class="line">            <span class="attr">"size"</span> :  <span class="number">5</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>广度优先仅仅适用于每个组的聚合数量远远小于当前总组数的情况下，因为广度优先会在内存中缓存裁剪后的仅仅需要缓存的每个组的所有数据，以便于它的子聚合分组查询可以复用上级聚合的数据。</p>
+<p>广度优先的内存使用情况与裁剪后的缓存分组数据量是成线性的。对于很多聚合来说，每个桶内的文档数量是相当大的。 想象一种按月分组的直方图，总组数肯定是固定的，因为每年只有12个月，这个时候每个月下的数据量可能非常大。这使广度优先不是一个好的选择，这也是为什么深度优先作为默认策略的原因。</p>
+<p>针对上面演员的例子，如果数据量越大，那么默认的使用深度优先的聚合模式生成的总分组数就会非常多，但是预估二级的聚合字段分组后的数据量相比总的分组数会小很多所以这种情况下使用广度优先的模式能大大节省内存，从而通过优化聚合模式来大大提高了在某些特定场景下聚合查询的成功率。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>桶与度量的嵌套能力，</li>
+<li>基数与百分位数的快速估算能力，定位信息中统计异常的能力</li>
+<li>只有不分词的 string 类型的字段才能使用Doc Values</li>
+</ul>
+<p>内存的管理形式有多种形式，这取决于我们特定的应用场景：</p>
+<ul>
+<li>在规划时，组织好数据，使聚合运行在 not_analyzed 字符串而不是 analyzed 字符串，这样可以有效的利用 doc values 。</li>
+<li>在测试时，验证分析链不会在之后的聚合计算中创建高基数字段。</li>
+<li>在搜索时，合理利用近似聚合和数据过滤。</li>
+<li>在节点层，设置硬内存大小以及动态的断熔限制。</li>
+<li>在应用层，通过监控集群内存的使用情况和 Full GC 的发生频率，来调整是否需要给集群资源添加更多的机器节点</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/37-%E8%81%9A%E5%90%88-%E6%80%BB%E7%BB%93/" rel="prev" title="37-聚合-总结">
+      <i class="fa fa-chevron-left"></i> 37-聚合-总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/33-%E8%81%9A%E5%90%88-%E5%A4%9A%E6%A1%B6%E6%8E%92%E5%BA%8F/" rel="next" title="33-聚合-多桶排序">
+      33-聚合-多桶排序 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Doc-Values"><span class="nav-number">1.</span> <span class="nav-text">Doc Values</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深入理解-Doc-Values"><span class="nav-number">2.</span> <span class="nav-text">深入理解 Doc Values</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#列式存储的压缩-Column-store-compression"><span class="nav-number">2.0.1.</span> <span class="nav-text">列式存储的压缩(Column-store compression)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#禁用Doc-Values"><span class="nav-number">2.0.2.</span> <span class="nav-text">禁用Doc Values</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#聚合与分析-Aggregations-and-Analysis"><span class="nav-number">3.</span> <span class="nav-text">聚合与分析(Aggregations and Analysis)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分析字符串和Fielddata-Analyzed-strings-and-Fielddata"><span class="nav-number">3.0.1.</span> <span class="nav-text">分析字符串和Fielddata(Analyzed strings and Fielddata)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#高基数内存的影响-High-Cardinality-Memory-Implications"><span class="nav-number">3.0.2.</span> <span class="nav-text">高基数内存的影响(High-Cardinality Memory Implications)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#circuit-breaker-fd-settings"><span class="nav-number">4.</span> <span class="nav-text">circuit_breaker_fd_settings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#限制内存使用-Limiting-Memory-Usage"><span class="nav-number">5.</span> <span class="nav-text">限制内存使用(Limiting Memory Usage)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#选择堆大小（Choosing-a-Heap-Size）"><span class="nav-number">5.0.1.</span> <span class="nav-text">选择堆大小（Choosing a Heap Size）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Fielddata的大小"><span class="nav-number">5.0.2.</span> <span class="nav-text">Fielddata的大小</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#监控fielddata-Monitoring-fielddata"><span class="nav-number">5.0.3.</span> <span class="nav-text">监控fielddata(Monitoring fielddata)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#断路器-Circuit-Breaker"><span class="nav-number">5.0.4.</span> <span class="nav-text">断路器(Circuit Breaker)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fielddata-的过滤"><span class="nav-number">6.</span> <span class="nav-text">Fielddata 的过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预加载fielddata"><span class="nav-number">7.</span> <span class="nav-text">预加载fielddata</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#预加载fielddata-Eagerly-Loading-Fielddata"><span class="nav-number">7.0.1.</span> <span class="nav-text">预加载fielddata(Eagerly Loading Fielddata)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#全局序号-Global-Ordinals"><span class="nav-number">7.0.2.</span> <span class="nav-text">全局序号(Global Ordinals)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#构建全局序号-Building-global-ordinals"><span class="nav-number">7.0.3.</span> <span class="nav-text">构建全局序号(Building global ordinals)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#预构建全局序号-Eager-global-ordinals"><span class="nav-number">7.0.4.</span> <span class="nav-text">预构建全局序号(Eager global ordinals)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引预热器-Index-Warmers"><span class="nav-number">8.</span> <span class="nav-text">索引预热器(Index Warmers)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化聚合查询"><span class="nav-number">9.</span> <span class="nav-text">优化聚合查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Preventing-Combinatorial-Explosions"><span class="nav-number">9.0.1.</span> <span class="nav-text">Preventing Combinatorial Explosions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#深度优先与广度优先-Depth-First-Versus-Breadth-First"><span class="nav-number">9.0.2.</span> <span class="nav-text">深度优先与广度优先(Depth-First Versus Breadth-First)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

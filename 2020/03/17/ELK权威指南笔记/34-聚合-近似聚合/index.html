@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考英文参考2 近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。 三角因子模型：大数据、精确性和实时性。选择其中两项：  精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级">
+<meta property="og:type" content="article">
+<meta property="og:title" content="34-聚合-近似聚合">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考英文参考2 近似聚合(Approximate Aggregations)在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。 三角因子模型：大数据、精确性和实时性。选择其中两项：  精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。 大数据 + 精确 ：传统的 Hadoop可以处理 PB 级">
+<meta property="article:published_time" content="2020-03-17T07:25:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:54:33.678Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>34-聚合-近似聚合 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/34-%E8%81%9A%E5%90%88-%E8%BF%91%E4%BC%BC%E8%81%9A%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          34-聚合-近似聚合
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-17 15:25:57" itemprop="dateCreated datePublished" datetime="2020-03-17T15:25:57+08:00">2020-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:54:33" itemprop="dateModified" datetime="2020-05-26T13:54:33+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_approximate_aggregations.html" target="_blank" rel="noopener">中文参考</a>，<a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/55_approx_intro.asciidoc" target="_blank" rel="noopener">英文参考</a><br><a href="https://github.com/elastic/elasticsearch-definitive-guide/blob/master/300_Aggregations/60_cardinality.asciidoc" target="_blank" rel="noopener">英文参考2</a></p>
+<h3 id="近似聚合-Approximate-Aggregations"><a href="#近似聚合-Approximate-Aggregations" class="headerlink" title="近似聚合(Approximate Aggregations)"></a>近似聚合(Approximate Aggregations)</h3><p>在分布式环境中，有些算法可以精确计算，有些算法无法精确计算，各算法还需在性能、内存、实现性做出权衡。</p>
+<p>三角因子模型：大数据、精确性和实时性。<br>选择其中两项：</p>
+<ul>
+<li>精确 + 实时 ：数据存入单台机器内存中，使用任何算法都会结果100%精确，响应会相对快速。</li>
+<li>大数据 + 精确 ：传统的 Hadoop可以处理 PB 级的数据并且为提供精确答案，但响应不够及时。</li>
+<li>大数据 + 实时 ：近似算法为我们提供准确但不精确的结果。</li>
+</ul>
+<p>Elasticsearch 目前支持两种近似算法：cardinality ， percentiles。<br>它们会提供准确但不是 100% 精确的结果。 以牺牲一点小小的估算错误为代价，这些算法可以为我们换来高速的执行效率和极小的内存消耗。</p>
+<h2 id="近似算法：cardinality"><a href="#近似算法：cardinality" class="headerlink" title="近似算法：cardinality"></a>近似算法：cardinality</h2><h3 id="统计去重后的数量-Finding-Distinct-Counts"><a href="#统计去重后的数量-Finding-Distinct-Counts" class="headerlink" title="统计去重后的数量(Finding Distinct Counts)"></a>统计去重后的数量(Finding Distinct Counts)</h3><p>近似聚合 cardinality(基数）度量: 它提供一个字段的基数，即该字段的distinct或unique值的数目。<br>类似SQL:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">DISTINCT</span> color)</span><br><span class="line"><span class="keyword">FROM</span> cars</span><br></pre></td></tr></table></figure>
+<p>去重</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "distinct_colors": &#123;</span><br><span class="line">     "value": 3</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每月有多少颜色的车被售出，将一个 cardinality 度量嵌入一个 date_histogram。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">      <span class="attr">"months"</span> : &#123;</span><br><span class="line">        <span class="attr">"date_histogram"</span>: &#123;</span><br><span class="line">          <span class="attr">"field"</span>: <span class="string">"sold"</span>,</span><br><span class="line">          <span class="attr">"interval"</span>: <span class="string">"month"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"aggs"</span>: &#123;</span><br><span class="line">          <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">              <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"color"</span></span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="学会权衡-Understanding-the-Trade-offs"><a href="#学会权衡-Understanding-the-Trade-offs" class="headerlink" title="学会权衡(Understanding the Trade-offs)"></a>学会权衡(Understanding the Trade-offs)</h5><p>cardinality 度量是一个近似算法。 它是基于 <a href="http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/40671.pdf" target="_blank" rel="noopener">HyperLogLog++</a> （HLL）算法的。 HLL 会先对我们的输入作哈希运算，然后根据哈希运算的结果中的 bits 做概率估算从而得到基数。</p>
+<p>这个算法的 特性 ：</p>
+<ul>
+<li>可配置的精度，用来控制内存的使用（更精确 ＝ 更多内存）。</li>
+<li>小的数据集精度是非常高的。</li>
+<li>我们可以通过配置参数，来设置去重需要的固定内存使用量。无论数千还是数十亿的唯一值，内存使用量只与你配置的精确度相关。</li>
+</ul>
+<p>通过 precision_threshold 参数来配置精度。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color"</span>,</span><br><span class="line">              <span class="attr">"precision_threshold"</span> : <span class="number">100</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>precision_threshold=100 表示100 以内时会得到非常准确的结果。</li>
+<li>precision_threshold 接受 0–40,000 之间的数字，更大的值还是会被当作 40,000 来处理。</li>
+<li>高于阈值的基数会节省内存而牺牲准确度，同时也会对度量结果带入误差。</li>
+<li>在实际应用中， 100 的阈值可以在唯一值为百万的情况下仍然将误差维持 5% 以内。</li>
+</ul>
+<h5 id="速度优化-Optimizing-for-Speed"><a href="#速度优化-Optimizing-for-Speed" class="headerlink" title="速度优化(Optimizing for Speed)"></a>速度优化(Optimizing for Speed)</h5><ul>
+<li>HyperLogLog 的速度已经很快了，它只是在统计时对数据做哈希以及一些位操作。如果做进一步优化，索引时预先计算好字段内容的哈希值，查询时跳过哈希计算然后将哈希值从fielddata直接加载。</li>
+<li>预先计算哈希值只对内容很长或者基数很高的字段有用，计算这些字段的哈希值的消耗在查询时是无法忽略的。</li>
+<li>预先计算并不能保证所有的字段都更快，它只对那些具有高基数和/或者内容很长的字符串字段有作用。</li>
+</ul>
+<p>创建索引时新增一个字段映射，该映射包括哈希值字段。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">PUT /cars/</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"transactions"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"color"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"fields"</span>: &#123;</span><br><span class="line">            <span class="attr">"hash"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"murmur3"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>多值字段的类型是 murmur3 ，这是一个哈希函数。</li>
+<li>使用murmur3需要安装插件 map-murmur3 (执行命令 sudo bin/elasticsearch-plugin install mapper-murmur3)</li>
+</ul>
+<p>使用 color.hash 字段进行去重。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /cars/transactions/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"distinct_colors"</span> : &#123;</span><br><span class="line">            <span class="attr">"cardinality"</span> : &#123;</span><br><span class="line">              <span class="attr">"field"</span> : <span class="string">"color.hash"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="百分位数-计算-Calculating-Percentiles"><a href="#百分位数-计算-Calculating-Percentiles" class="headerlink" title="百分位数 计算(Calculating Percentiles)"></a>百分位数 计算(Calculating Percentiles)</h3><p>percentiles 百分位数 度量也是一个近似度量。<br>百分位数展现某以具体百分比下观察到的数值。例如，第95个百分位上的数值，是高于 95% 的数据总和。<br>百分位数通常用来找出异常。</p>
+<p>新增测试数据,包含三个值：延时、数据中心的区域以及时间戳。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">POST /website/logs/_bulk</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">100</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">80</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">99</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">102</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">75</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">82</span>, <span class="attr">"zone"</span> : <span class="string">"US"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">100</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">280</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">155</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">623</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">380</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-28"</span> &#125;</span><br><span class="line">&#123; <span class="attr">"index"</span>: &#123;&#125;&#125;</span><br><span class="line">&#123; <span class="attr">"latency"</span> : <span class="number">319</span>, <span class="attr">"zone"</span> : <span class="string">"EU"</span>, <span class="attr">"timestamp"</span> : <span class="string">"2014-10-29"</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>查询百分位数</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /website/logs/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"load_times"</span> : &#123;</span><br><span class="line">            <span class="attr">"percentiles"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"latency"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"avg_load_time"</span> : &#123;</span><br><span class="line">            <span class="attr">"avg"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"latency"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>percentiles 度量会返回一组预定义的百分位数值： [1, 5, 25, 50, 75, 95, 99],它们表示了人们感兴趣的常用百分位数值，极端的百分位数在范围的两边，其他的一些处于中部。</li>
+</ul>
+<p>返回结果：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "zones": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"eu"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"50.0"</span>: <span class="number">299.5</span>,</span><br><span class="line">                 <span class="attr">"95.0"</span>: <span class="number">562.25</span>,</span><br><span class="line">                 <span class="attr">"99.0"</span>: <span class="number">610.85</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="attr">"load_avg"</span>: &#123;</span><br><span class="line">              <span class="attr">"value"</span>: <span class="number">309.5</span></span><br><span class="line">           &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"us"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"50.0"</span>: <span class="number">90.5</span>,</span><br><span class="line">                 <span class="attr">"95.0"</span>: <span class="number">101.5</span>,</span><br><span class="line">                 <span class="attr">"99.0"</span>: <span class="number">101.9</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;,</span><br><span class="line">           <span class="attr">"load_avg"</span>: &#123;</span><br><span class="line">              <span class="attr">"value"</span>: <span class="number">89.66666666666667</span></span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="百分位数-排行-Percentile-Ranks"><a href="#百分位数-排行-Percentile-Ranks" class="headerlink" title="百分位数 排行(Percentile Ranks)"></a>百分位数 排行(Percentile Ranks)</h5><ul>
+<li>percentile_ranks : percentile_ranks度量告诉我们落在某个百分比一下的所有文档的最小值。</li>
+<li>percentile_ranks 与 percentile 是双向关系，percentile给出百分比对应的数据，percentile_ranks给出数据对应的百分比。</li>
+</ul>
+<p>查询 200和800对应点百分位</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /website/logs/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"size"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">        <span class="attr">"zones"</span> : &#123;</span><br><span class="line">            <span class="attr">"terms"</span> : &#123;</span><br><span class="line">                <span class="attr">"field"</span> : <span class="string">"zone"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"aggs"</span> : &#123;</span><br><span class="line">                <span class="attr">"load_times"</span> : &#123;</span><br><span class="line">                    <span class="attr">"percentile_ranks"</span> : &#123;</span><br><span class="line">                      <span class="attr">"field"</span> : <span class="string">"latency"</span>,</span><br><span class="line">                      <span class="attr">"values"</span> : [<span class="number">210</span>, <span class="number">800</span>]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">"aggregations": &#123;</span><br><span class="line">  "zones": &#123;</span><br><span class="line">     "buckets": [</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"eu"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"210.0"</span>: <span class="number">31.944444444444443</span>,</span><br><span class="line">                 <span class="attr">"800.0"</span>: <span class="number">100</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">           <span class="attr">"key"</span>: <span class="string">"us"</span>,</span><br><span class="line">           <span class="attr">"doc_count"</span>: <span class="number">6</span>,</span><br><span class="line">           <span class="attr">"load_times"</span>: &#123;</span><br><span class="line">              <span class="attr">"values"</span>: &#123;</span><br><span class="line">                 <span class="attr">"210.0"</span>: <span class="number">100</span>,</span><br><span class="line">                 <span class="attr">"800.0"</span>: <span class="number">100</span></span><br><span class="line">              &#125;</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>“800”:100,表示800秒的要求所有请求都满足了</li>
+<li>eu欧洲 小于210秒的只有31%。</li>
+</ul>
+<h5 id="学会平衡-Understanding-the-Trade-offs"><a href="#学会平衡-Understanding-the-Trade-offs" class="headerlink" title="学会平衡(Understanding the Trade-offs)"></a>学会平衡(Understanding the Trade-offs)</h5><ul>
+<li>计算百分位需要一个近似算法。 朴素的 实现会维护一个所有值的有序列表， 但当我们有几十亿数据分布在几十个节点时，这几乎是不可能的。</li>
+<li>percentiles 使用一个 TDigest 算法，（由 Ted Dunning 在 <a href="https://github.com/tdunning/t-digest/blob/master/docs/t-digest-paper/histo.pdf" target="_blank" rel="noopener">Computing Extremely Accurate Quantiles Using T-Digests</a> 里面提出的）。</li>
+<li>TDigest 算法特性：<ul>
+<li>百分位的准确度与百分位的 极端程度 相关，也就是说 1 或 99 的百分位要比 50 百分位要准确。这只是数据结构内部机制的一种特性，但这是一个好的特性，因为多数人只关心极端的百分位。</li>
+<li>对于数值集合较小的情况，百分位非常准确。如果数据集足够小，百分位可能 100% 精确。</li>
+<li>随着桶里数值的增长，算法会开始对百分位进行估算。它能有效在准确度和内存节省之间做出权衡。 不准确的程度比较难以总结，因为它依赖于 聚合时数据的分布以及数据量的大小。</li>
+</ul>
+</li>
+<li>percentiles中可以通过修改参数 compression 来控制内存与准确度之间的比值。</li>
+<li>TDigest 算法用节点近似计算百分比：节点越多，准确度越高（同时内存消耗也越大），这都与数据量成正比。 compression 参数限制节点的最大数目为 20 * compression 。</li>
+<li>压缩比值：默认的压缩比值是 100，通过增加压缩比值，可以以消耗更多内存为代价提高百分位数准确性。更大的压缩比值会使算法运行更慢，因为底层的树形数据结构的存储也会增长，也导致操作的代价更高。</li>
+</ul>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/17/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/32-%E8%81%9A%E5%90%88-%E8%BF%87%E6%BB%A4%E5%92%8C%E8%81%9A%E5%90%88/" rel="prev" title="32-聚合-过滤和聚合">
+      <i class="fa fa-chevron-left"></i> 32-聚合-过滤和聚合
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/18/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/35-%E8%81%9A%E5%90%88-%E9%80%9A%E8%BF%87%E8%81%9A%E5%90%88%E5%8F%91%E7%8E%B0%E5%BC%82%E5%B8%B8%E6%8C%87%E6%A0%87/" rel="next" title="35-聚合-通过聚合发现异常指标">
+      35-聚合-通过聚合发现异常指标 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#近似聚合-Approximate-Aggregations"><span class="nav-number">1.</span> <span class="nav-text">近似聚合(Approximate Aggregations)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#近似算法：cardinality"><span class="nav-number"></span> <span class="nav-text">近似算法：cardinality</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#统计去重后的数量-Finding-Distinct-Counts"><span class="nav-number">1.</span> <span class="nav-text">统计去重后的数量(Finding Distinct Counts)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#学会权衡-Understanding-the-Trade-offs"><span class="nav-number">1.0.1.</span> <span class="nav-text">学会权衡(Understanding the Trade-offs)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#速度优化-Optimizing-for-Speed"><span class="nav-number">1.0.2.</span> <span class="nav-text">速度优化(Optimizing for Speed)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#百分位数-计算-Calculating-Percentiles"><span class="nav-number">2.</span> <span class="nav-text">百分位数 计算(Calculating Percentiles)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#百分位数-排行-Percentile-Ranks"><span class="nav-number">2.0.1.</span> <span class="nav-text">百分位数 排行(Percentile Ranks)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#学会平衡-Understanding-the-Trade-offs"><span class="nav-number">2.0.2.</span> <span class="nav-text">学会平衡(Understanding the Trade-offs)</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

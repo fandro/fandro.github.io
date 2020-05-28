@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 控制相关度简介全文相关的公式或 相似算法（similarity algorithms） 会将多个因素合并起来，为每个文档生成一个相关度评分 _score。 当然，相关度不只与全文查询有关，也需要将结构化的数据考虑其中。 相关度评分背后的理论(Theory Behind Relevance Scoring) 使用布尔模型(Boolean model)查询文档 用实用评分函数(pr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="18-深入搜索-控制相关度">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/11/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/18-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A61/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 控制相关度简介全文相关的公式或 相似算法（similarity algorithms） 会将多个因素合并起来，为每个文档生成一个相关度评分 _score。 当然，相关度不只与全文查询有关，也需要将结构化的数据考虑其中。 相关度评分背后的理论(Theory Behind Relevance Scoring) 使用布尔模型(Boolean model)查询文档 用实用评分函数(pr">
+<meta property="article:published_time" content="2020-03-11T01:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T08:57:14.023Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/11/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/18-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A61/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>18-深入搜索-控制相关度 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/11/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/18-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A61/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          18-深入搜索-控制相关度
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-11 09:52:57" itemprop="dateCreated datePublished" datetime="2020-03-11T09:52:57+08:00">2020-03-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 16:57:14" itemprop="dateModified" datetime="2020-05-26T16:57:14+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>6.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="控制相关度简介"><a href="#控制相关度简介" class="headerlink" title="控制相关度简介"></a>控制相关度简介</h3><p>全文相关的公式或 相似算法（similarity algorithms） 会将多个因素合并起来，为每个文档生成一个相关度评分 <code>_score</code>。</p>
+<p>当然，相关度不只与全文查询有关，也需要将结构化的数据考虑其中。</p>
+<h3 id="相关度评分背后的理论-Theory-Behind-Relevance-Scoring"><a href="#相关度评分背后的理论-Theory-Behind-Relevance-Scoring" class="headerlink" title="相关度评分背后的理论(Theory Behind Relevance Scoring)"></a>相关度评分背后的理论(Theory Behind Relevance Scoring)</h3><ol>
+<li>使用<a href="http://en.wikipedia.org/wiki/Standard_Boolean_model" target="_blank" rel="noopener">布尔模型(Boolean model)</a>查询文档</li>
+<li>用<a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/practical-scoring-function.html" target="_blank" rel="noopener">实用评分函数(practical scoring function)</a>的公式计算相关度。</li>
+</ol>
+<p>实用评分函数：</p>
+<ol>
+<li>借鉴 <a href="http://en.wikipedia.org/wiki/Tfidf" target="_blank" rel="noopener">词频/逆向文档频率（term frequency/inverse document frequency）</a> 和 <a href="http://en.wikipedia.org/wiki/Vector_space_model" target="_blank" rel="noopener">向量空间模型（vector space model)</a></li>
+<li>现代新特性1: 协调因子（coordination factor）</li>
+<li>现代新特性2: 字段长度归一化（field length normalization）</li>
+<li>词或查询语句权重提升</li>
+</ol>
+<h5 id="词频-逆向文档频率-TF-IDF"><a href="#词频-逆向文档频率-TF-IDF" class="headerlink" title="词频/逆向文档频率(TF/IDF)"></a>词频/逆向文档频率(TF/IDF)</h5><p>一个文档的相关度部分取决于每个查询词在文档中的权重。<br>词权重由三个因素决定：词频(TF),反向文档频率(IDF),字段长度</p>
+<h5 id="词频-Term-frequency"><a href="#词频-Term-frequency" class="headerlink" title="词频(Term frequency)"></a>词频(Term frequency)</h5><ul>
+<li>词频:词在文档中出现的频度,频道越高，权重越高。</li>
+<li>禁止使用词频，配置index_options为docs，</li>
+<li>禁止词频后索引不会记录词频和词频位置，短语和近似查询也不可用</li>
+<li>禁用词频配置：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"text"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:          <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"index_options"</span>: <span class="string">"docs"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="反向文档频率-Inverse-document-frequency"><a href="#反向文档频率-Inverse-document-frequency" class="headerlink" title="反向文档频率(Inverse document frequency)"></a>反向文档频率(Inverse document frequency)</h5><ul>
+<li>反向文档频率： 包含词的文档在文档集合中出现的频率，频次越高，权重越低。</li>
+<li>公式：idf(t) = 1 + log ( numDocs / (docFreq + 1))，<ul>
+<li>idf(t) : 词t的逆向文档频率</li>
+<li>numDocs ：索引中的文档数</li>
+<li>docFreq ：包含词的文档数</li>
+</ul>
+</li>
+</ul>
+<h5 id="字段长度归一值-Field-length-norm"><a href="#字段长度归一值-Field-length-norm" class="headerlink" title="字段长度归一值 (Field-length norm)"></a>字段长度归一值 (Field-length norm)</h5><ul>
+<li>字段(field)的长度是多少？字段越短，字段的权重 越高 。</li>
+<li>字段长度的归一值对全文搜索非常重要</li>
+<li>字段长度的归一值，索引中每个文档的每个 string 字段都大约占用 1 个 byte 的空间。</li>
+<li>not_analyzed(keyword)字段归一值默认是禁用的，analyzed也可以修改映射禁止归一值</li>
+<li>日志的应用场景只关心是否包含错误码或其他唯一标识，不关心字段长度，禁用归一值可以节省大量内存空间。</li>
+</ul>
+<p>公式(平方根的倒数)：<br>norm(d) = 1 / √numTerms</p>
+<p>修改映射禁止归一值</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"text"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">          <span class="attr">"norms"</span>: &#123; <span class="attr">"enabled"</span>: <span class="literal">false</span> &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="结合使用"><a href="#结合使用" class="headerlink" title="结合使用"></a>结合使用</h5><p>以下三个因素：词频、逆向文档频率和字段长度归一值（field-length norm），词频和字段长度归一值在索引时计算并存储的。查询时把他们结合在一起计算单个词在特定文档中的 权重。</p>
+<p>查看相关度评分因子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/doc/_search?explain</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"term"</span>: &#123;</span><br><span class="line">      <span class="attr">"text"</span>: <span class="string">"fox"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="向量空间模型-vector-space-model"><a href="#向量空间模型-vector-space-model" class="headerlink" title="向量空间模型(vector space model)"></a>向量空间模型(vector space model)</h5><ul>
+<li>向量空间模型(vector space model)提供了一种比较多词查询的方式，单个评分代表文档与查询的匹配程度。</li>
+<li>向量值：每个词在查询语句中权重值</li>
+<li>两类向量是：1. 全部查询词组成的一个向量 2. 每个匹配文档组成一个向量，包含的词在向量中为权重值，没包含的词在向量中为0。</li>
+</ul>
+<p>例如：<br>查询语句： “happy hippopotamus”,happy权重为2，hippopotamus权重为5。<br>文档如下：</p>
+<ol>
+<li>I am happy in summer 。</li>
+<li>After Christmas I’m a hippopotamus 。</li>
+<li>The happy hippopotamus helped Harry 。</li>
+</ol>
+<p>向量如下：<br>查询向量: happy hippopotamus — (2,5) – query[2,5]<br>文档1：(happy,             ) — (2,0) – doc1 [2,0]<br>文档2：(     , hippopotamus) — (0,5) – doc2 [0,5]<br>文档1：(happy, hippopotamus) — (2,5) – doc3 [2,5]</p>
+<p>把4个向量都放入坐标系中，以(0,0)为起点做直线，计算doc1,doc2,doc3与query之间的夹角就可以得出相关度。夹角越小，相关度越高，夹角越大，相关度越低。</p>
+<p>关于比较两个向量的更多信息可以参考 : <a href="http://en.wikipedia.org/wiki/Cosine_similarity" target="_blank" rel="noopener">余弦近似度（cosine similarity）</a>。</p>
+<h3 id="Lucene-的实用评分函数"><a href="#Lucene-的实用评分函数" class="headerlink" title="Lucene 的实用评分函数"></a>Lucene 的实用评分函数</h3><p>对于多词查询， Lucene 使用 布尔模型（Boolean model） 、 TF/IDF 以及 向量空间模型（vector space model） ，然后将它们组合到单个高效的包里以收集匹配文档并进行评分计算。</p>
+<p>一个多词查询最终转换为bool模型</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/doc/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"text"</span>: <span class="string">"quick fox"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/doc/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123;<span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"quick"</span> &#125;&#125;,</span><br><span class="line">        &#123;<span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"fox"</span>   &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="实用评分函数（practical-scoring-function）"><a href="#实用评分函数（practical-scoring-function）" class="headerlink" title="实用评分函数（practical scoring function）"></a>实用评分函数（practical scoring function）</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">score(q,d)  &#x3D;                &#x2F;&#x2F; score(q,d) 是文档 d 与查询 q 的相关度评分。</span><br><span class="line">            queryNorm(q)     &#x2F;&#x2F; queryNorm(q) 是 查询归一化 因子。</span><br><span class="line">          · coord(q,d)       &#x2F;&#x2F; coord(q,d) 是 协调 因子。</span><br><span class="line">          · ∑ (              &#x2F;&#x2F; 查询 q 中每个词 t 对于文档 d 的权重和。</span><br><span class="line">                tf(t in d)   &#x2F;&#x2F; tf(t in d) 是词 t 在文档 d 中的 词频 。</span><br><span class="line">              · idf(t)²      &#x2F;&#x2F; idf(t) 是词 t 的 逆向文档频率 。</span><br><span class="line">              · t.getBoost() &#x2F;&#x2F; t.getBoost() 是查询中使用的 boost。</span><br><span class="line">              · norm(t,d)    &#x2F;&#x2F; norm(t,d)是字段长度归一值与索引时字段层boost（如果存在）的和。</span><br><span class="line">            ) (t in q)</span><br></pre></td></tr></table></figure>
+
+<h5 id="查询归一因子-Query-Normalization-Factor"><a href="#查询归一因子-Query-Normalization-Factor" class="headerlink" title="查询归一因子(Query Normalization Factor)"></a>查询归一因子(Query Normalization Factor)</h5><p>查询归一因子(queryNorm)试图将查询归一化，这样两个不同的结果可以比较。</p>
+<blockquote>
+<p>尽管查询归一值的目的是为了使查询结果之间能够相互比较，但是它并不十分有效，因为相关度评分<br><code>_score</code> 的目的是为了将当前查询的结果进行排序，比较不同查询结果的相关度评分没有太大意义。</p>
+</blockquote>
+<blockquote>
+<p>相同查询归一化因子会被应用到每个文档，不能被更改，总而言之，可以被忽略。</p>
+</blockquote>
+<h5 id="查询协调-Query-Coordination"><a href="#查询协调-Query-Coordination" class="headerlink" title="查询协调 (Query Coordination)"></a>查询协调 (Query Coordination)</h5><ul>
+<li>协调因子(coord)可以为查询词包含度高的文档提供奖励，扩大化分值差距，使匹配度高的成为更好的匹配结果。</li>
+<li>bool查询中should语句 默认会使用协调功能。</li>
+<li>协调因子使用场景：bool查询中有多个match查询时，希望匹配越多排序越靠前。</li>
+<li>协调因子禁用场景：不关心匹配多个查询词，例如：查找的是同义词时不关心文档中出现多少个同义词。</li>
+<li>当使用同义词时Lucene会重写的查询会禁用同义词的协调功能。大多数禁用操作的应用场景是自动处理的，无须为此担心。</li>
+</ul>
+<p>添加协调因子例如：<br>| Header One              | 原评分 | 加协调因子       |<br>| :————-          | :—- | :—-           |<br>| 文档里有 fox             | 1.5 | 1.5 * 1 / 3 = 0.5 |<br>| 文档里有 quick fox       | 3.0 |3.0 * 2 / 3 = 2.0  |<br>| 文档里有 quick brown fox | 4.5 |4.5 * 3 / 3 = 4.5  |</p>
+<p>禁用协调因子</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"disable_coord"</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"jump"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"hop"</span>  &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"leap"</span> &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="索引时字段层权重提升-Index-Time-Field-Level-Boosting"><a href="#索引时字段层权重提升-Index-Time-Field-Level-Boosting" class="headerlink" title="索引时字段层权重提升(Index-Time Field-Level Boosting)"></a>索引时字段层权重提升(Index-Time Field-Level Boosting)</h5><p>字段权重提升就是让某个字段比其他字段更重要,权重的提升会被应用到字段的每个词，而不是字段本身.</p>
+<p>不建议在建立索引时对字段提升权重,原因如下：</p>
+<ul>
+<li>归一值精度丢失。将提升值与字段长度归一值合在单个字节中存储会丢失字段长度归一值的精度，这样会导致 Elasticsearch 不知如何区分包含三个词的字段和包含五个词的字段。</li>
+<li>索引时提升值需要重构索引。要想改变索引时的提升值，就必须重新为所有文档建立索引，与此不同的是，查询时的提升值可以随着每次查询的不同而更改。</li>
+<li>会导致权重急剧上升。如果一个索引时权重提升的字段有多个值，提升值会按照每个值来自乘，这会导致该字段的权重急剧上升。</li>
+</ul>
+<h3 id="查询时权重提升-Query-Time-Boosting"><a href="#查询时权重提升-Query-Time-Boosting" class="headerlink" title="查询时权重提升(Query-Time Boosting)"></a>查询时权重提升(Query-Time Boosting)</h3><ul>
+<li>使用boost参数让一个查询语句比其他语句更重要。</li>
+<li>boost默认值为 1。</li>
+<li>boost 设置为 2 ，并不代表最终的评分 <code>_score</code> 是原值的两倍，因为权重值会经过归一化和一些其他内部优化过程。</li>
+<li>无法通过简单公式得出某个权重提升值，只能不断尝试。</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">"should": [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"title"</span>: &#123;</span><br><span class="line">        <span class="attr">"query"</span>: <span class="string">"quick brown fox"</span>,</span><br><span class="line">        <span class="attr">"boost"</span>: <span class="number">2</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"quick brown fox"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h5 id="提升索引权重-Boosting-an-Index"><a href="#提升索引权重-Boosting-an-Index" class="headerlink" title="提升索引权重(Boosting an Index)"></a>提升索引权重(Boosting an Index)</h5><ul>
+<li>在多个索引中搜索时，可以使用参数indices_boost来提升索引的权重。</li>
+<li>没配置时默认值为 1</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /docs_2014_*/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"indices_boost"</span>: &#123;</span><br><span class="line">    <span class="attr">"docs_2014_10"</span>: <span class="number">3</span>,</span><br><span class="line">    <span class="attr">"docs_2014_09"</span>: <span class="number">2</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"text"</span>: <span class="string">"quick brown fox"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="t-getBoost"><a href="#t-getBoost" class="headerlink" title="t.getBoost()"></a>t.getBoost()</h5><ul>
+<li>在Lucene中通过t.getBoost()获得实用评分函数的提升权限。</li>
+<li>权重提升不会被应用于它在查询表达式中出现的层，而是会被合并下转至每个词中。</li>
+<li>t.getBoost() 始终返回当前词的权重或当前分析链上查询的权重。</li>
+<li>explain中无法看boost值，因为权重值融入到queryNorm中并应用到每个词</li>
+</ul>
+<h3 id="使用查询结构修改相关度-Manipulating-Relevance-with-Query-Structure"><a href="#使用查询结构修改相关度-Manipulating-Relevance-with-Query-Structure" class="headerlink" title="使用查询结构修改相关度(Manipulating Relevance with Query Structure)"></a>使用查询结构修改相关度(Manipulating Relevance with Query Structure)</h3><p>通过调整查询语句的层次，可以改变其主要性。<br><code>quick OR brown OR red OR fox</code></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"quick"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"red"</span>   &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"fox"</span>   &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>quick OR (brown OR red) OR fox</code><br>red 和 brown 处于相互竞争的层次， quick 、 fox 以及 red OR brown 则是处于顶层且相互竞争的词.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"quick"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"fox"</span>   &#125;&#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"bool"</span>: &#123;</span><br><span class="line">            <span class="attr">"should"</span>: [</span><br><span class="line">              &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"brown"</span> &#125;&#125;,</span><br><span class="line">              &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"text"</span>: <span class="string">"red"</span>   &#125;&#125;</span><br><span class="line">            ]</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Not-Quite-Not"><a href="#Not-Quite-Not" class="headerlink" title="Not Quite Not"></a>Not Quite Not</h3><ul>
+<li>将某些查询语句的权重降低而不是排除。</li>
+<li>boost查询中 positive(正向提升) 和 negative(负向降低) 查询。</li>
+<li>negative_boost的值必须小于 1.0。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"must"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"text"</span>: <span class="string">"apple"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"must_not"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"text"</span>: <span class="string">"pie tart fruit crumble tree"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>boost查询的positive和</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"boosting"</span>: &#123;</span><br><span class="line">      <span class="attr">"positive"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"text"</span>: <span class="string">"apple"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"negative"</span>: &#123;</span><br><span class="line">        <span class="attr">"match"</span>: &#123;</span><br><span class="line">          <span class="attr">"text"</span>: <span class="string">"pie tart fruit crumble tree"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"negative_boost"</span>: <span class="number">0.5</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="忽略-TF-IDF"><a href="#忽略-TF-IDF" class="headerlink" title="忽略 TF/IDF"></a>忽略 TF/IDF</h3><ul>
+<li>如果只关心一个词是否在某个字段中出现过，那就忽略TF/IDF</li>
+<li>查询语句中使用constant_score忽略TF/IDF</li>
+<li>not_analyzed(keyword)字段每个词的IDF会使用，会禁用字段长度归一值（field-length norms)和禁用词频(index_options: docs)，</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"bool"</span>: &#123;</span><br><span class="line">      <span class="attr">"should"</span>: [</span><br><span class="line">        &#123; <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">          <span class="attr">"query"</span>: &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"description"</span>: <span class="string">"wifi"</span> &#125;&#125;</span><br><span class="line">        &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">          <span class="attr">"query"</span>: &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"description"</span>: <span class="string">"garden"</span> &#125;&#125;</span><br><span class="line">        &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"constant_score"</span>: &#123;</span><br><span class="line">          <span class="attr">"boost"</span>:   <span class="number">2</span>,</span><br><span class="line">          <span class="attr">"query"</span>: &#123; <span class="attr">"match"</span>: &#123; <span class="attr">"description"</span>: <span class="string">"pool"</span> &#125;&#125;</span><br><span class="line">        &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="function-score-查询"><a href="#function-score-查询" class="headerlink" title="function_score 查询"></a>function_score 查询</h3><p>过滤器无法计算评分。这样就需要寻求一种方式将过滤器和查询间的差异抹平。<br>function_score 查询不仅正好可以扮演这个角色，而且有更强大的功能。</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/10/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/17-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E9%83%A8%E5%88%86%E5%8C%B9%E9%85%8D/" rel="prev" title="17-深入搜索-部分匹配(Partial_Matching)">
+      <i class="fa fa-chevron-left"></i> 17-深入搜索-部分匹配(Partial_Matching)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/12/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/19-%E6%B7%B1%E5%85%A5%E6%90%9C%E7%B4%A2-%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%BA%A62/" rel="next" title="19-深入搜索-控制相关度">
+      19-深入搜索-控制相关度 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#控制相关度简介"><span class="nav-number">1.</span> <span class="nav-text">控制相关度简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#相关度评分背后的理论-Theory-Behind-Relevance-Scoring"><span class="nav-number">2.</span> <span class="nav-text">相关度评分背后的理论(Theory Behind Relevance Scoring)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#词频-逆向文档频率-TF-IDF"><span class="nav-number">2.0.1.</span> <span class="nav-text">词频&#x2F;逆向文档频率(TF&#x2F;IDF)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#词频-Term-frequency"><span class="nav-number">2.0.2.</span> <span class="nav-text">词频(Term frequency)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#反向文档频率-Inverse-document-frequency"><span class="nav-number">2.0.3.</span> <span class="nav-text">反向文档频率(Inverse document frequency)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字段长度归一值-Field-length-norm"><span class="nav-number">2.0.4.</span> <span class="nav-text">字段长度归一值 (Field-length norm)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#结合使用"><span class="nav-number">2.0.5.</span> <span class="nav-text">结合使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#向量空间模型-vector-space-model"><span class="nav-number">2.0.6.</span> <span class="nav-text">向量空间模型(vector space model)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lucene-的实用评分函数"><span class="nav-number">3.</span> <span class="nav-text">Lucene 的实用评分函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实用评分函数（practical-scoring-function）"><span class="nav-number">3.0.1.</span> <span class="nav-text">实用评分函数（practical scoring function）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查询归一因子-Query-Normalization-Factor"><span class="nav-number">3.0.2.</span> <span class="nav-text">查询归一因子(Query Normalization Factor)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查询协调-Query-Coordination"><span class="nav-number">3.0.3.</span> <span class="nav-text">查询协调 (Query Coordination)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引时字段层权重提升-Index-Time-Field-Level-Boosting"><span class="nav-number">3.0.4.</span> <span class="nav-text">索引时字段层权重提升(Index-Time Field-Level Boosting)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询时权重提升-Query-Time-Boosting"><span class="nav-number">4.</span> <span class="nav-text">查询时权重提升(Query-Time Boosting)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#提升索引权重-Boosting-an-Index"><span class="nav-number">4.0.1.</span> <span class="nav-text">提升索引权重(Boosting an Index)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#t-getBoost"><span class="nav-number">4.0.2.</span> <span class="nav-text">t.getBoost()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用查询结构修改相关度-Manipulating-Relevance-with-Query-Structure"><span class="nav-number">5.</span> <span class="nav-text">使用查询结构修改相关度(Manipulating Relevance with Query Structure)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Not-Quite-Not"><span class="nav-number">6.</span> <span class="nav-text">Not Quite Not</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#忽略-TF-IDF"><span class="nav-number">7.</span> <span class="nav-text">忽略 TF&#x2F;IDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#function-score-查询"><span class="nav-number">8.</span> <span class="nav-text">function_score 查询</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

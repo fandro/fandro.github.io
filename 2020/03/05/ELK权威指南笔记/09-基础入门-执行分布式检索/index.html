@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 执行分布式检索问题： 分布式环境中是怎么执行搜索的？两个步骤：  到所有相关的分片搜索结果 多分片的结果组合然后进行列表排序  查询阶段概念： 协调节点：请求发到哪个节点，该节点就变为协调节点 分布式查询过程：  客户端发送查询请求到Node3，此时Node3变为协调节点，协调节点创建空的优先队列 协调节点Node3将查询请求转发到索引的每个分片上（主或副本分片），每个分片在本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="09 基础入门 - 执行分布式检索">
+<meta property="og:url" content="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/09-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%89%A7%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%A3%80%E7%B4%A2/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 执行分布式检索问题： 分布式环境中是怎么执行搜索的？两个步骤：  到所有相关的分片搜索结果 多分片的结果组合然后进行列表排序  查询阶段概念： 协调节点：请求发到哪个节点，该节点就变为协调节点 分布式查询过程：  客户端发送查询请求到Node3，此时Node3变为协调节点，协调节点创建空的优先队列 协调节点Node3将查询请求转发到索引的每个分片上（主或副本分片），每个分片在本">
+<meta property="article:published_time" content="2020-03-05T07:30:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:52:43.977Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/09-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%89%A7%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%A3%80%E7%B4%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>09 基础入门 - 执行分布式检索 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/09-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%89%A7%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%A3%80%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          09 基础入门 - 执行分布式检索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-05 15:30:57" itemprop="dateCreated datePublished" datetime="2020-03-05T15:30:57+08:00">2020-03-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:52:43" itemprop="dateModified" datetime="2020-05-26T13:52:43+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="执行分布式检索"><a href="#执行分布式检索" class="headerlink" title="执行分布式检索"></a>执行分布式检索</h3><p>问题： 分布式环境中是怎么执行搜索的？<br>两个步骤：</p>
+<ol>
+<li>到所有相关的分片搜索结果</li>
+<li>多分片的结果组合然后进行列表排序</li>
+</ol>
+<h3 id="查询阶段"><a href="#查询阶段" class="headerlink" title="查询阶段"></a>查询阶段</h3><p>概念：<br> 协调节点：请求发到哪个节点，该节点就变为协调节点</p>
+<p>分布式查询过程：</p>
+<ol>
+<li>客户端发送查询请求到Node3，此时Node3变为协调节点，协调节点创建空的优先队列</li>
+<li>协调节点Node3将查询请求转发到索引的每个分片上（主或副本分片），每个分片在本地执行查询，<br>把大小为from+size的结果放到本地的优先队列中。</li>
+<li>每个分片把各自的优先队列中的结果返回给协调节点Node3，结果中包含文档Id和排序值，<br>Node3把所有结果放到自己的优先队列中产生一个全局的结果列表。</li>
+</ol>
+<h3 id="取回阶段"><a href="#取回阶段" class="headerlink" title="取回阶段"></a>取回阶段</h3><p>过程：</p>
+<ol>
+<li>协调节点Node3 辨别出那些文档需要被取回，并向相关分片提交多个GET请求</li>
+<li>每个分片加载并丰富文档，返回文档给协调节点</li>
+<li>等所有的文档都被取回后，协调节点返回结果给客户端</li>
+</ol>
+<p>深分页 (Deep Pagination)<br>查询{“from”:90,”size”:10}时，每个分片都需要查询100条记录返回给协调节点，<br>协调节点把所有结果排序后取出序号为[90,99]的记录，其他记录全部抛弃。<br>如果分页深度很大时，分片和协调节点排序变得很沉重，因为使用大量cpu、内存和带宽。<br>当需要取回大量文档时，可以使用scroll查询禁用排序，这样可以避免深分页问题。</p>
+<h3 id="搜索选项"><a href="#搜索选项" class="headerlink" title="搜索选项"></a>搜索选项</h3><p>影响搜索的几个参数：perference(偏好)，timeout(超时)，routing(路由)</p>
+<h5 id="perference-偏好"><a href="#perference-偏好" class="headerlink" title="perference(偏好)"></a>perference(偏好)</h5><p>preference 可以控制由那些分片或节点来处理搜索请求。<br>常用参数:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_primary, _primary_first, _local, _only_node:xyz, _prefer_node:xyz, 和 _shards:2,3</span><br></pre></td></tr></table></figure>
+<p>最有用的值是某些随机字符串，它可以避免Bouncing result问题(两次查询结果不同)。<br>(问题产生的原因：假如两个文档的字段A，它的值相同，如果每次查询跳到不同的分片上，会导致每次字段A的排序结果不同。<br>  要让用户每次查询都发到固定的分片上就可以保证每次查询结果都相同)</p>
+<h5 id="timeout-超时"><a href="#timeout-超时" class="headerlink" title="timeout(超时)"></a>timeout(超时)</h5><p>一次查询的时间 = 查询最慢的分片时间 + 协调节点处理时间<br>timeout 设置了分片的最大时间，如果超时就返回部分或空结果。<br>超时检查是基于每个文档做的。</p>
+<h5 id="routing-路由"><a href="#routing-路由" class="headerlink" title="routing(路由)"></a>routing(路由)</h5><p>路由是把请求路由到特定的分片中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;_search?routing&#x3D;user_1,user2</span><br></pre></td></tr></table></figure>
+
+<h5 id="搜索类型"><a href="#搜索类型" class="headerlink" title="搜索类型"></a>搜索类型</h5><p>缺省搜索类型 query_then_fetch<br>某些情况下明确使用dfs_query_then_fetch来改善相关性精确度</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_search?search_type=dfs_query_then_fetch</span><br></pre></td></tr></table></figure>
+
+<p>搜索类型 dfs_query_then_fetch 有预查询阶段，这个阶段可以从所有相关分片获取词频来计算全局词频。</p>
+<h3 id="游标查询-scroll"><a href="#游标查询-scroll" class="headerlink" title="游标查询 scroll"></a>游标查询 scroll</h3><p>游标查询用来进行大批量文档查询。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /old_index/_search?scroll=1m</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"query"</span>: &#123; <span class="attr">"match_all"</span>: &#123;&#125;&#125;,</span><br><span class="line">    <span class="attr">"sort"</span> : [<span class="string">"_doc"</span>],</span><br><span class="line">    <span class="attr">"size"</span>:  <span class="number">1000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>scroll 查询取的是某个时间点的快照数据</li>
+<li>scroll查询数据使用’_doc’排序</li>
+<li>scroll需要设置过期时间，过期时间会在每次做查询的时候刷新</li>
+<li>再次scroll查询时传入参数：过期时间和scroll_id</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /_search/scroll</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"scroll"</span>: <span class="string">"1m"</span>,</span><br><span class="line">    <span class="attr">"scroll_id"</span> : <span class="string">"cXVlcnlUaGVuRmV0Y2g7NTsxMDk5NDpkUmpiR2FjOFNhNnlCM1ZDMWpWYnRROzEwOTk1OmRSamJHYWM4U2E2eUIzVkMxalZidFE7MTA5OTM6ZFJqYkdhYzhTYTZ5QjNWQzFqVmJ0UTsxMTE5MDpBVUtwN2lxc1FLZV8yRGVjWlI2QUVBOzEwOTk2OmRSamJHYWM4U2E2eUIzVkMxalZidFE7MDs="</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>###</p>
+<p>###</p>
+<p>###</p>
+<p>###</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/08-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%8E%92%E5%BA%8F%E4%B8%8E%E7%9B%B8%E5%85%B3%E6%80%A7/" rel="prev" title="08 基础入门-排序与相关性">
+      <i class="fa fa-chevron-left"></i> 08 基础入门-排序与相关性
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/05/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/10-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B4%A2%E5%BC%95%E7%AE%A1%E7%90%86/" rel="next" title="10 基础入门-索引管理">
+      10 基础入门-索引管理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#执行分布式检索"><span class="nav-number">1.</span> <span class="nav-text">执行分布式检索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询阶段"><span class="nav-number">2.</span> <span class="nav-text">查询阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取回阶段"><span class="nav-number">3.</span> <span class="nav-text">取回阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#搜索选项"><span class="nav-number">4.</span> <span class="nav-text">搜索选项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#perference-偏好"><span class="nav-number">4.0.1.</span> <span class="nav-text">perference(偏好)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#timeout-超时"><span class="nav-number">4.0.2.</span> <span class="nav-text">timeout(超时)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#routing-路由"><span class="nav-number">4.0.3.</span> <span class="nav-text">routing(路由)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#搜索类型"><span class="nav-number">4.0.4.</span> <span class="nav-text">搜索类型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#游标查询-scroll"><span class="nav-number">5.</span> <span class="nav-text">游标查询 scroll</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/source/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/source/favicon/safari-pinned-tab.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.fwbo.me","root":"/","scheme":"Gemini","version":"8.0.0-rc.2","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中文参考，英文参考 输入和输出Elasticsearch是分布式的文档存储系统，它能存储和检索复杂的数据结构(JSON)。ES每个字段数据默认被索引，查询时使用倒排索引可以快速返回结果。在本章中，我们展示了用来创建，检索，更新和删除文档的 API 什么是文档？文档：是把最顶层或根对象序列号为JSON并存储到ES中，并指定唯一ID。 文档元数据文档元数据: 记录有关文档的信息。必须的三个元数据：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03 基础入门-数据输入和输出">
+<meta property="og:url" content="http://blog.fwbo.me/2020/01/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/03-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E8%BE%93%E5%85%A5%E5%92%8C%E8%BE%93%E5%87%BA/index.html">
+<meta property="og:site_name" content="细数星辰">
+<meta property="og:description" content="中文参考，英文参考 输入和输出Elasticsearch是分布式的文档存储系统，它能存储和检索复杂的数据结构(JSON)。ES每个字段数据默认被索引，查询时使用倒排索引可以快速返回结果。在本章中，我们展示了用来创建，检索，更新和删除文档的 API 什么是文档？文档：是把最顶层或根对象序列号为JSON并存储到ES中，并指定唯一ID。 文档元数据文档元数据: 记录有关文档的信息。必须的三个元数据：">
+<meta property="article:published_time" content="2020-01-16T02:52:57.000Z">
+<meta property="article:modified_time" content="2020-05-26T05:51:36.444Z">
+<meta property="article:author" content="fandro">
+<meta property="article:tag" content="ES">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.fwbo.me/2020/01/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/03-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E8%BE%93%E5%85%A5%E5%92%8C%E8%BE%93%E5%87%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>03 基础入门-数据输入和输出 | 细数星辰</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?47b947bf10473c2a2b8bacfeff762d0a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">细数星辰</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://blog.fwbo.me/2020/01/16/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/03-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E8%BE%93%E5%85%A5%E5%92%8C%E8%BE%93%E5%87%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+      <meta itemprop="name" content="fandro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="细数星辰">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          03 基础入门-数据输入和输出
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-16 10:52:57" itemprop="dateCreated datePublished" datetime="2020-01-16T10:52:57+08:00">2020-01-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-26 13:51:36" itemprop="dateModified" datetime="2020-05-26T13:51:36+08:00">2020-05-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ELK/" itemprop="url" rel="index"><span itemprop="name">ELK</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="">中文参考</a>，<a href="">英文参考</a></p>
+<h3 id="输入和输出"><a href="#输入和输出" class="headerlink" title="输入和输出"></a>输入和输出</h3><p>Elasticsearch是分布式的文档存储系统，它能存储和检索复杂的数据结构(JSON)。<br>ES每个字段数据默认被索引，查询时使用倒排索引可以快速返回结果。<br>在本章中，我们展示了用来创建，检索，更新和删除文档的 API</p>
+<h3 id="什么是文档？"><a href="#什么是文档？" class="headerlink" title="什么是文档？"></a>什么是文档？</h3><p>文档：是把最顶层或根对象序列号为JSON并存储到ES中，并指定唯一ID。</p>
+<h3 id="文档元数据"><a href="#文档元数据" class="headerlink" title="文档元数据"></a>文档元数据</h3><p>文档元数据: 记录有关文档的信息。<br>必须的三个元数据：</p>
+<ol>
+<li><p>_index</p>
+<blockquote>
+<p>索引表示文档在那存放。索引是因有共同特性被分到一起的文档集合。<br>   一个索引是逻辑上的命名空间，这个命名空间由一个或多个分片组合在一起。<br>   索引命名：1. 名字小写 2. 不能以下划线开头 3. 不包含逗号</p>
+</blockquote>
+</li>
+<li><p>_type</p>
+<blockquote>
+<p>type：类型，对索引进行逻辑区分，大部分字段相同，小部分字段不同的分为不同的type。<br>type命名 ：1. 大小写都可以 2.不能以下划线或句号开头 3. 不包含逗号</p>
+</blockquote>
+</li>
+<li><p>_id</p>
+<blockquote>
+<ol>
+<li>id是文档的唯一标识。</li>
+<li>_index、_type 和ID唯一确定一个文档。</li>
+<li>创建文档时可以指定id值，如果不指定ES会产生一个id。</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<h3 id="索引文档"><a href="#索引文档" class="headerlink" title="索引文档"></a>索引文档</h3><p>索引文档格式：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /&#123;index&#125;/&#123;type&#125;/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p>手动指定id</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/123</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ES自动生成id，使用POST请求，</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /website/blog</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"_index"</span>:    <span class="string">"website"</span>,</span><br><span class="line">   <span class="attr">"_type"</span>:     <span class="string">"blog"</span>,</span><br><span class="line">   <span class="attr">"_id"</span>:       <span class="string">"AVFgSgVHUP18jI2wRx0w"</span>,</span><br><span class="line">   <span class="attr">"_version"</span>:  <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"created"</span>:   <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>自动生成ID是是URL-safe、基于base64编码且长度为20的GUID字符串。</p>
+<p><strong><em>_version</em></strong></p>
+<blockquote>
+<ol>
+<li>version是使用乐观锁的方式解决并发冲突。</li>
+<li>文档修改和删除时version会递增</li>
+</ol>
+</blockquote>
+<h3 id="取回一个文档"><a href="#取回一个文档" class="headerlink" title="取回一个文档"></a>取回一个文档</h3><ol>
+<li>获取一个文档所有信息<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /website/blog/123?pretty</span><br></pre></td></tr></table></figure></li>
+<li>获取一个文档部分字段信息<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /website/blog/123?_source=title,text</span><br></pre></td></tr></table></figure></li>
+<li>获取一个文档部分字段信息<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /website/blog/123/_source</span><br></pre></td></tr></table></figure>
+<h3 id="检查文档是否存在"><a href="#检查文档是否存在" class="headerlink" title="检查文档是否存在"></a>检查文档是否存在</h3>使用Head 请求，通过响应返回码(200,404)判断文档是否存在。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HEAD /website/blog/123</span><br></pre></td></tr></table></figure>
+<h3 id="更新整个文档"><a href="#更新整个文档" class="headerlink" title="更新整个文档"></a>更新整个文档</h3>新增和更新的请求结构相同，通过结果中的result可以知道新增还是更新。</li>
+<li>新增<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"result": "created",</span><br></pre></td></tr></table></figure></li>
+<li>更新<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"result": "updated",</span><br></pre></td></tr></table></figure>
+由于ES中文档是不可变的，不能修改它们。这里的更新其实是删除后重建。<br>更新过程:  <blockquote>
+<ol>
+<li>从旧文档构建json</li>
+<li>更改该json</li>
+<li>删除旧文档</li>
+<li>索引一个新文档</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<p>删除的文档并不会马上消失，先标记为已删除，后续后台会清理这些已删除的文档。</p>
+<h3 id="创建新文档"><a href="#创建新文档" class="headerlink" title="创建新文档"></a>创建新文档</h3><p>新建文档时如何知道正在新建一个文档，而不是覆盖已有的文档？<br>有2种方式：op_type和_create, 响应码：201:创建成功; 409 : 文档已存在</p>
+<ol>
+<li><p>op_type 指定类型</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/126?op_type=create</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>_create 方式</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/126/_create</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="删除文档"><a href="#删除文档" class="headerlink" title="删除文档"></a>删除文档</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /website/blog/127</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"_index"</span>: <span class="string">"website"</span>,</span><br><span class="line">    <span class="attr">"_type"</span>: <span class="string">"blog"</span>,</span><br><span class="line">    <span class="attr">"_id"</span>: <span class="string">"127"</span>,</span><br><span class="line">    <span class="attr">"_version"</span>: <span class="number">2</span>,</span><br><span class="line">    <span class="attr">"result"</span>: <span class="string">"deleted"</span>,</span><br><span class="line">    <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">        <span class="attr">"total"</span>: <span class="number">2</span>,</span><br><span class="line">        <span class="attr">"successful"</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"_seq_no"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"_primary_term"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意结果：”result”: “deleted”, “_version”: 2</p>
+<h3 id="处理冲突"><a href="#处理冲突" class="headerlink" title="处理冲突"></a>处理冲突</h3><p>两种方法：</p>
+<ol>
+<li>悲观并发控制，使用悲观锁</li>
+<li>乐观并发控制，使用乐观锁</li>
+</ol>
+<h3 id="乐观并发控制"><a href="#乐观并发控制" class="headerlink" title="乐观并发控制"></a>乐观并发控制</h3><p>使用_version实现乐观锁</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/123?version=1</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用外部版本号数值</strong><br>版本号数值如果想使用外部指定值，增加参考：version_type=external<br>前提是外部版本号大于内部版本号，新建文档时可以指定外部版本号。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/123?version=25&amp;version_type=external</span><br></pre></td></tr></table></figure>
+
+<h3 id="文档部分更新"><a href="#文档部分更新" class="headerlink" title="文档部分更新"></a>文档部分更新</h3><p><strong>全量更新用法：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"doc"</span> : &#123;</span><br><span class="line">      <span class="attr">"tags"</span> : [ <span class="string">"testing"</span> ],</span><br><span class="line">      <span class="attr">"views"</span>: <span class="number">0</span></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>局部更新(partial update)用法</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/1/_update</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"doc"</span> : &#123;</span><br><span class="line">      <span class="attr">"tags"</span> : [ <span class="string">"testing"</span> ],</span><br><span class="line">      <span class="attr">"views"</span>: <span class="number">0</span></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="更新过程"><a href="#更新过程" class="headerlink" title="更新过程"></a>更新过程</h5><ol>
+<li>内部先获取对应的document</li>
+<li>将传递过来的字段更新到document的json中(全量：全量替换成新doc, 局部：与原数据进行合并成新doc)</li>
+<li>将原doc标记为deleted</li>
+<li>将新doc创建出来</li>
+</ol>
+<h5 id="区别和优点"><a href="#区别和优点" class="headerlink" title="区别和优点"></a>区别和优点</h5><ol>
+<li>全量更新请求发生在分片外部，局部更新的操作发生在分片内部</li>
+<li>全量更新会完全覆盖原文档，局部更新合并原文档，覆盖原字段，新增新字段</li>
+<li>全量更新使用PUT或POST，局部更新使用POST</li>
+</ol>
+<h5 id="局部更新有点"><a href="#局部更新有点" class="headerlink" title="局部更新有点"></a>局部更新有点</h5><ol>
+<li>局部更新所有操作(查询、修改、写回)都发生在ES分片内部(毫秒级瞬间完成)，避免了网络数据传输的开销，大大提升了性能</li>
+<li>减少了查询和修改中的时间间隔，可以有效减少并发冲突。</li>
+</ol>
+<h5 id="局部更新的并发控制"><a href="#局部更新的并发控制" class="headerlink" title="局部更新的并发控制"></a>局部更新的并发控制</h5><p>局部更新内部使用版本进行并发控制。<br><strong>retry策略</strong><br>指定重试次数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/1/_update?retry_on_conflict=5</span><br></pre></td></tr></table></figure>
+<p>指定某个版本重试次数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/blog/1/_update?retry_on_conflict=5&amp;version=3</span><br></pre></td></tr></table></figure>
+<h5 id="使用内部脚本-painless-和外部脚本-Groovy"><a href="#使用内部脚本-painless-和外部脚本-Groovy" class="headerlink" title="使用内部脚本(painless)和外部脚本(Groovy)"></a>使用内部脚本(painless)和外部脚本(Groovy)</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /website/blog/123/_update</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">"script"</span> : <span class="string">"ctx._source.views += 3"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /website/blog/123/_update</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">"script"</span> : <span class="string">"ctx._source.views += num"</span>,</span><br><span class="line">  <span class="attr">"params"</span> : &#123;</span><br><span class="line">    <span class="attr">"num"</span> : <span class="number">3</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /website/blog/123/_update</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">"script"</span> : <span class="string">"ctx._source.views += 1"</span>,</span><br><span class="line">  <span class="attr">"upsert"</span> : &#123;</span><br><span class="line">    <span class="attr">"views"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果字段不存在则使用upsert新增字段并设置默认.</p>
+<p></p>
+<h3 id="取回多个文档"><a href="#取回多个文档" class="headerlink" title="取回多个文档"></a>取回多个文档</h3><p>使用mget一次获取多个文档</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GET /_mget</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"docs"</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"_index"</span> : <span class="string">"website"</span>,</span><br><span class="line">      <span class="attr">"_type"</span> : <span class="string">"blog"</span>,</span><br><span class="line">      <span class="attr">"_id"</span> : <span class="number">123</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"_index"</span> : <span class="string">"website2"</span>,</span><br><span class="line">      <span class="attr">"_type"</span> : <span class="string">"pageview"</span>,</span><br><span class="line">      <span class="attr">"_id"</span> : <span class="number">1</span></span><br><span class="line">    &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过索引和类型下时使用ids</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /website/blog/_mget</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ids"</span> : [<span class="number">123</span>, <span class="number">124</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>无论是否找到返回的状态码都是200，没找到时found标记为false</p>
+<h3 id="代价较小的批量操作-bulk"><a href="#代价较小的批量操作-bulk" class="headerlink" title="代价较小的批量操作 bulk"></a>代价较小的批量操作 bulk</h3><p>bulk操作格式：<br>{ action : { metadata}}\n<br>{ request body}\n<br>各部分代表意思<br>action ：</p>
+<blockquote>
+<p>create- 创建文档，存在时报错<br>index - 不存在时创建，存在时全量更新,<br>update - 局部更新<br>delete - 删除</p>
+</blockquote>
+<p>metadata : 指定文档的 _index、_type和_id<br>requestbody : create、index和update时指定更新文档内容</p>
+<p>例子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST /_bulk</span><br><span class="line">&#123; <span class="attr">"delete"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website"</span>, <span class="attr">"_type"</span> : <span class="string">"blog"</span>, <span class="attr">"_id"</span> : <span class="string">"125"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"create"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website"</span>, <span class="attr">"_type"</span> : <span class="string">"blog"</span>, <span class="attr">"_id"</span> : <span class="string">"126"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"first_name"</span> : <span class="string">"Tom"</span>, <span class="attr">"last_name"</span> :  <span class="string">"Peter"</span>, <span class="attr">"title"</span> : <span class="string">"my blog 126"</span>&#125;</span><br><span class="line">&#123; <span class="attr">"index"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website"</span>, <span class="attr">"_type"</span> : <span class="string">"blog"</span>, <span class="attr">"_id"</span> : <span class="string">"127"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"first_name"</span> : <span class="string">"Tony"</span>, <span class="attr">"last_name"</span> :  <span class="string">"Lee"</span>, <span class="attr">"title"</span> : <span class="string">"my blog 127"</span>&#125;</span><br><span class="line">&#123; <span class="attr">"update"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website"</span>, <span class="attr">"_type"</span> : <span class="string">"blog"</span>, <span class="attr">"_id"</span> : <span class="string">"124"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"doc"</span> : &#123; <span class="attr">"views"</span> : <span class="number">10</span> &#125; &#125;</span><br></pre></td></tr></table></figure>
+<p>请求路径中index和type可以被覆盖</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /website/blog/_bulk</span><br><span class="line">&#123; <span class="attr">"create"</span> : &#123;<span class="attr">"_id"</span> : <span class="string">"128"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"first_name"</span> : <span class="string">"Tom"</span>, <span class="attr">"last_name"</span> :  <span class="string">"Peter"</span>, <span class="attr">"title"</span> : <span class="string">"my blog 126"</span>&#125;</span><br><span class="line">&#123; <span class="attr">"index"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website2"</span>, <span class="attr">"_type"</span> : <span class="string">"pageviews"</span>, <span class="attr">"_id"</span> : <span class="string">"5"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"first_name"</span> : <span class="string">"Tony"</span>, <span class="attr">"last_name"</span> :  <span class="string">"Lee"</span>, <span class="attr">"title"</span> : <span class="string">"my blog 127"</span>&#125;</span><br><span class="line">&#123; <span class="attr">"create"</span> : &#123;<span class="attr">"_index"</span> : <span class="string">"website3"</span>, <span class="attr">"_type"</span> : <span class="string">"article"</span>, <span class="attr">"_id"</span> : <span class="string">"1"</span> &#125; &#125;</span><br><span class="line">&#123; <span class="attr">"doc"</span> : &#123; <span class="attr">"views"</span> : <span class="number">0</span> &#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>bulk批量操作不是原子操作，其中一个报错不影响其他操作。如果操作中有失败时errors标记为true。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ES/" rel="tag"><i class="fa fa-tag"></i> ES</a>
+              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/14/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/02-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%8E%9F%E7%90%86/" rel="prev" title="02 基础入门 - 集群内的原来">
+      <i class="fa fa-chevron-left"></i> 02 基础入门 - 集群内的原来
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/01/19/ELK%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E7%AC%94%E8%AE%B0/06-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%98%A0%E5%B0%84%E5%92%8C%E5%88%86%E6%9E%90/" rel="next" title="06 基础入门-映射和分析">
+      06 基础入门-映射和分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#输入和输出"><span class="nav-number">1.</span> <span class="nav-text">输入和输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是文档？"><span class="nav-number">2.</span> <span class="nav-text">什么是文档？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档元数据"><span class="nav-number">3.</span> <span class="nav-text">文档元数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引文档"><span class="nav-number">4.</span> <span class="nav-text">索引文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取回一个文档"><span class="nav-number">5.</span> <span class="nav-text">取回一个文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检查文档是否存在"><span class="nav-number">6.</span> <span class="nav-text">检查文档是否存在</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新整个文档"><span class="nav-number">7.</span> <span class="nav-text">更新整个文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建新文档"><span class="nav-number">8.</span> <span class="nav-text">创建新文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除文档"><span class="nav-number">9.</span> <span class="nav-text">删除文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理冲突"><span class="nav-number">10.</span> <span class="nav-text">处理冲突</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#乐观并发控制"><span class="nav-number">11.</span> <span class="nav-text">乐观并发控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档部分更新"><span class="nav-number">12.</span> <span class="nav-text">文档部分更新</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#更新过程"><span class="nav-number">12.0.1.</span> <span class="nav-text">更新过程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#区别和优点"><span class="nav-number">12.0.2.</span> <span class="nav-text">区别和优点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#局部更新有点"><span class="nav-number">12.0.3.</span> <span class="nav-text">局部更新有点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#局部更新的并发控制"><span class="nav-number">12.0.4.</span> <span class="nav-text">局部更新的并发控制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用内部脚本-painless-和外部脚本-Groovy"><span class="nav-number">12.0.5.</span> <span class="nav-text">使用内部脚本(painless)和外部脚本(Groovy)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取回多个文档"><span class="nav-number">13.</span> <span class="nav-text">取回多个文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代价较小的批量操作-bulk"><span class="nav-number">14.</span> <span class="nav-text">代价较小的批量操作 bulk</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="fandro"
+      src="http://qax2cai8x.bkt.clouddn.com/header.jpeg">
+  <p class="site-author-name" itemprop="name">fandro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fandro</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">198k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">3:01</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
