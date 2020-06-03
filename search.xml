@@ -5614,6 +5614,8 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
     <url>/2020/06/03/java/20200529-java%E4%B8%AD%E7%9A%84%E6%B3%9B%E5%9E%8B/</url>
     <content><![CDATA[<h3 id="什么是泛型？"><a href="#什么是泛型？" class="headerlink" title="什么是泛型？"></a>什么是泛型？</h3><p>泛型就是参数化类型，类型以参数形式传递给接口、类和方法中。</p>
 <h3 id="泛型的目的和作用"><a href="#泛型的目的和作用" class="headerlink" title="泛型的目的和作用"></a>泛型的目的和作用</h3><p>泛型的目的是：1.为了安全，避免类型转换异常 2. 为了是代码更泛化<br>泛型的作用是：把运行时的类型强转(cast)检查，提前到编译器的类型检查。</p>
+<a id="more"></a>
+
 <h3 id="泛型分类"><a href="#泛型分类" class="headerlink" title="泛型分类"></a>泛型分类</h3><ul>
 <li>按照参数定义地方分为：泛型类(定义在类名后)，泛型接口(定义在接口后面)，泛型方法(定义在返回值前面)</li>
 <li>按照参数类型分为：ParameterizedType(参数化类型),TypeVariable(类型变量),WildcardType(通配符类型),GenericArrayType（泛型数组类型)</li>
@@ -5694,10 +5696,23 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
   <entry>
     <title>试用vercel托管博客</title>
     <url>/2020/05/29/%E5%85%B6%E4%BB%96/20200529-%E8%AF%95%E7%94%A8vercel%E6%89%98%E7%AE%A1%E5%8D%9A%E5%AE%A2/</url>
-    <content><![CDATA[<p>vercel是一个静态网页和无状态函数托管的云平台。<br>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
+    <content><![CDATA[<p>vercel是一家云部署服务的公司，支持静态托管以及 Serverless 服务。<br>免费服务</p>
+<blockquote>
+<ol>
+<li>免费额度有 20 GB，够用</li>
+<li>提供 Serverless 服务</li>
+<li>免费自定义域名，支持 HTTPS</li>
+<li>不限站点与 Serverless API 数量</li>
+<li>Serverless 支持 Node.js, Go,Python, Ruby  </li>
+<li>提供 Google Cloud 与 AWS 节点，有香港与台湾节点</li>
+<li>支持 now.sh CLI，GitHub，GitLab，Bitbucket 导入/部署</li>
+</ol>
+</blockquote>
+<p>————————————————<br>版权声明：本文为CSDN博主「Lete乐特」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/Lott0419/article/details/106311955/" target="_blank" rel="noopener">https://blog.csdn.net/Lott0419/article/details/106311955/</a></p>
+<p>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
 </a> 文章对自己的博客进行托管服务试用。</p>
 <a id="more"></a>
-<h3 id="关联github账户，同步代码"><a href="#关联github账户，同步代码" class="headerlink" title="关联github账户，同步代码"></a>关联github账户，同步代码</h3><p>使用github账号登录<a href="https://vercel.com。" target="_blank" rel="noopener">https://vercel.com。</a></p>
+<h3 id="关联github账户，同步代码"><a href="#关联github账户，同步代码" class="headerlink" title="关联github账户，同步代码"></a>关联github账户，同步代码</h3><p>使用github账号登录 <a href="https://vercel.com" target="_blank" rel="noopener">https://vercel.com</a> 。</p>
 <p>步骤：</p>
 <ol>
 <li>关联github账户</li>

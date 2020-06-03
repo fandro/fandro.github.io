@@ -218,7 +218,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-06-03 10:44:20 / 修改时间：18:03:24" itemprop="dateCreated datePublished" datetime="2020-06-03T10:44:20+08:00">2020-06-03</time>
+              <time title="创建时间：2020-06-03 10:44:20 / 修改时间：22:18:46" itemprop="dateCreated datePublished" datetime="2020-06-03T10:44:20+08:00">2020-06-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -257,76 +257,14 @@
       
           <h3 id="什么是泛型？"><a href="#什么是泛型？" class="headerlink" title="什么是泛型？"></a>什么是泛型？</h3><p>泛型就是参数化类型，类型以参数形式传递给接口、类和方法中。</p>
 <h3 id="泛型的目的和作用"><a href="#泛型的目的和作用" class="headerlink" title="泛型的目的和作用"></a>泛型的目的和作用</h3><p>泛型的目的是：1.为了安全，避免类型转换异常 2. 为了是代码更泛化<br>泛型的作用是：把运行时的类型强转(cast)检查，提前到编译器的类型检查。</p>
-<h3 id="泛型分类"><a href="#泛型分类" class="headerlink" title="泛型分类"></a>泛型分类</h3><ul>
-<li>按照参数定义地方分为：泛型类(定义在类名后)，泛型接口(定义在接口后面)，泛型方法(定义在返回值前面)</li>
-<li>按照参数类型分为：ParameterizedType(参数化类型),TypeVariable(类型变量),WildcardType(通配符类型),GenericArrayType（泛型数组类型)</li>
-<li>按照边界(bounds)分：有界，无界；有界又分为：上界(关键字 extends)，下界(关键字 super)；无界是只指定参数没指定上下界的都属于无界，例如：<T>、&lt;?&gt;</li>
-</ul>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
-<li><T>和<?>区别： <T>只能代表同一种类型；<?> 没有类型限制。</li>
-<li>&amp;符号与关键字implements一样，表示实现接口，泛型定义中必须先定义类型再实现定义接口</li>
-</ul>
-<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><h4 id="参数定义地方"><a href="#参数定义地方" class="headerlink" title="参数定义地方"></a>参数定义地方</h4><ul>
-<li><p>泛型接口</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>泛型类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Apple</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> T tool;</span><br><span class="line"></span><br><span class="line">  Apple(T t) &#123;</span><br><span class="line">    <span class="keyword">this</span>.tool = t;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>泛型方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Orange</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> T tool;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 是泛型方法：类的泛型参数T 和 方法的泛型参数E 两者共存</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">productJuice</span><span class="params">(T t, E e)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 是泛型方法，参数T是方法中定义的参数T，不是类的泛型参数T。方法参数T优先级高于类的参数T。</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">productJuice2</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 没有定义泛型参数，不是泛型方法。</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h4 id="参数类型"><a href="#参数类型" class="headerlink" title="参数类型"></a>参数类型</h4><ul>
-<li><p>ParameterizedType(参数化类型)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ParameterizedTypeTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Integer&gt; mapField;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map.Entry&lt;String, Integer&gt; entry;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>TypeVariable(类型变量)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TypeVariableTest</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-<ul>
-<li><p>WildcardType(通配符类型)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WildcardTypeTest</span></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ? extends Number, map的key必须继承Number，即key类型上界是Number，常做为生产者。</span></span><br><span class="line"><span class="comment">     * ? super String，map的value 必须是String的父类，即value的下界类型是String，常做为消费者。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;? extends Number, ? <span class="keyword">super</span> String&gt; field;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>GenericArrayType（泛型数组类型)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GenericArrayTypeTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt;[] field;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h4 id="边界-bounds"><a href="#边界-bounds" class="headerlink" title="边界(bounds)"></a>边界(bounds)</h4><ul>
-<li>无界<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnboundedTest</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">    List&lt;T&gt; list1;</span><br><span class="line">    List&lt;?&gt; list2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-<ul>
-<li>有界<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BoundedTest</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Number</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">    <span class="comment">// 上界，常用于生产者，进行写入操作</span></span><br><span class="line">    List&lt;? extends Number&gt; lists1;</span><br><span class="line">    <span class="comment">// 下界，常用于生产者，进行读取操作</span></span><br><span class="line">    List&lt;? <span class="keyword">super</span> String&gt; lists2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &amp;表示implements接口，顺序必须先类型再接口。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solid</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Coord</span> &amp; <span class="title">HasColor</span> &amp; <span class="title">Weight</span>&gt; </span>&#123;</span><br><span class="line">    T item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Bounded</span> <span class="keyword">extends</span> <span class="title">Coord</span> <span class="keyword">implements</span> <span class="title">HasColor</span>, <span class="title">Weight</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BasicBounds</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Solid&lt;Bounded&gt; boundedSolid = <span class="keyword">new</span> Solid&lt;Bounded&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<p>上界和下界</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BoundedTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//--------------  上界 -----------------------------</span></span><br><span class="line">        Plate&lt;? extends Fruit&gt; p = <span class="keyword">new</span> Plate&lt;Apple&gt;(<span class="keyword">new</span> Apple());</span><br><span class="line">        <span class="comment">// 不能存入任何元素，编译器只知道是Fruit或Fruit子类，无法确定是哪个具体类型，所以不允许插入</span></span><br><span class="line">        p.set(<span class="keyword">new</span> Fruit()); <span class="comment">//Error</span></span><br><span class="line">        p.set(<span class="keyword">new</span> Apple()); <span class="comment">//Error</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取出来的东西只能存在Fruit或Fruit的父类里，读取值放在上界类，隐式转换为父类。</span></span><br><span class="line">        Fruit newFruit1 = p.get();</span><br><span class="line">        Object newFruit2 = p.get();</span><br><span class="line">        Apple newFruit3 = p.get();  <span class="comment">//Error</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//--------------- 下界  ----------------------------</span></span><br><span class="line">        Plate&lt;? <span class="keyword">super</span> Fruit&gt; p2 = <span class="keyword">new</span> Plate&lt;Fruit&gt;(<span class="keyword">new</span> Fruit());</span><br><span class="line">        <span class="comment">// 存入元素正常，存入Fruit或其子类都是可以，因为Fruit子类可以隐式转换为Fruit。</span></span><br><span class="line">        p2.set(<span class="keyword">new</span> Fruit());</span><br><span class="line">        p2.set(<span class="keyword">new</span> Apple());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取出来的东西只能存放在Object(上界)里，读取值放在上界类，隐式转换为父类。</span></span><br><span class="line">        Apple apple = p2.get(); <span class="comment">//Error</span></span><br><span class="line">        Fruit fruit = p2.get(); <span class="comment">//Error</span></span><br><span class="line">        Object object = p2.get();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------------------------------------------</span></span><br><span class="line">        <span class="comment">// PECS (Producer Extends Consumer Super)</span></span><br><span class="line">        <span class="comment">// 频繁往外读取内容，适用于上界 extends</span></span><br><span class="line">        <span class="comment">// 经常往里插入的，适合用下界Super</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Leve1 - 食物</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Food</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level2 - 水果和肉</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Fruit</span> <span class="keyword">extends</span> <span class="title">Food</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Meat</span> <span class="keyword">extends</span> <span class="title">Food</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level3</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Apple</span> <span class="keyword">extends</span> <span class="title">Fruit</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Banana</span> <span class="keyword">extends</span> <span class="title">Fruit</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Pork</span> <span class="keyword">extends</span> <span class="title">Meat</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Beef</span> <span class="keyword">extends</span> <span class="title">Meat</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level 4</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">RedApple</span> <span class="keyword">extends</span> <span class="title">Apple</span> </span>&#123; &#125;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">GreenApple</span> <span class="keyword">extends</span> <span class="title">Apple</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Plate</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> T item;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Plate</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">            item=t;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T t)</span></span>&#123;</span><br><span class="line">            item=t;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> item;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>java 5引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type</p>
-<hr>
-<hr>
-<p>参考：<br>java编程思想-泛型<br><a href="https://lingcoder.gitee.io/onjava8/#/book/20-Generics" target="_blank" rel="noopener">https://lingcoder.gitee.io/onjava8/#/book/20-Generics</a></p>
-<p>秒懂Java类型（Type）系统<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/89520530" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/89520530</a></p>
-<p>Java中的Type知多少？(上）<br><a href="https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ</a></p>
-<p>Java中的Type知多少？(下）<br><a href="https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ</a></p>
-<p>秒懂Java泛型<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/80720406" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/80720406</a></p>
-<p>Java泛型与注解<br><a href="https://blog.csdn.net/AhaQianxun/article/details/92594745" target="_blank" rel="noopener">https://blog.csdn.net/AhaQianxun/article/details/92594745</a></p>
-<p>秒懂Java反射<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/81809999" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/81809999</a></p>
-<p>困扰多年的Java泛型 extends T&gt; super T&gt;，终于搞清楚了！<br><a href="https://blog.csdn.net/javaQQ561487941/article/details/90694010" target="_blank" rel="noopener">https://blog.csdn.net/javaQQ561487941/article/details/90694010</a></p>
-<p>Java 泛型 &lt;? super T&gt; 中 super 怎么 理解？与 extends 有何不同？<br><a href="https://www.zhihu.com/question/20400700" target="_blank" rel="noopener">https://www.zhihu.com/question/20400700</a></p>
-<p>Java泛型超详细解读 : super和extend<br><a href="https://blog.csdn.net/c10WTiybQ1Ye3/article/details/78098731?fps=1&amp;locationNum=2" target="_blank" rel="noopener">https://blog.csdn.net/c10WTiybQ1Ye3/article/details/78098731?fps=1&amp;locationNum=2</a></p>
-<p>泛型超详细解读（二）：super和extend<br><a href="https://blog.csdn.net/jeffleo/article/details/52250948" target="_blank" rel="noopener">https://blog.csdn.net/jeffleo/article/details/52250948</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/03/java/20200529-java%E4%B8%AD%E7%9A%84%E6%B3%9B%E5%9E%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -368,10 +306,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-05-29 10:44:20 / 修改时间：16:32:27" itemprop="dateCreated datePublished" datetime="2020-05-29T10:44:20+08:00">2020-05-29</time>
+              <time title="创建时间：2020-05-29 10:44:20" itemprop="dateCreated datePublished" datetime="2020-05-29T10:44:20+08:00">2020-05-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-03 22:35:51" itemprop="dateModified" datetime="2020-06-03T22:35:51+08:00">2020-06-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -388,7 +332,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>563</span>
+              <span>882</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -407,7 +351,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>vercel是一个静态网页和无状态函数托管的云平台。<br>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
+          <p>vercel是一家云部署服务的公司，支持静态托管以及 Serverless 服务。<br>免费服务</p>
+<blockquote>
+<ol>
+<li>免费额度有 20 GB，够用</li>
+<li>提供 Serverless 服务</li>
+<li>免费自定义域名，支持 HTTPS</li>
+<li>不限站点与 Serverless API 数量</li>
+<li>Serverless 支持 Node.js, Go,Python, Ruby  </li>
+<li>提供 Google Cloud 与 AWS 节点，有香港与台湾节点</li>
+<li>支持 now.sh CLI，GitHub，GitLab，Bitbucket 导入/部署</li>
+</ol>
+</blockquote>
+<p>————————————————<br>版权声明：本文为CSDN博主「Lete乐特」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/Lott0419/article/details/106311955/" target="_blank" rel="noopener">https://blog.csdn.net/Lott0419/article/details/106311955/</a></p>
+<p>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
 </a> 文章对自己的博客进行托管服务试用。</p>
           <!--noindex-->
             <div class="post-button">
