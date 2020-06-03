@@ -5625,7 +5625,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 <li><T>和<?>区别： <T>只能代表同一种类型；<?> 没有类型限制。</li>
 <li>&amp;符号与关键字implements一样，表示实现接口，泛型定义中必须先定义类型再实现定义接口</li>
 </ul>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="参数定义地方"><a href="#参数定义地方" class="headerlink" title="参数定义地方"></a>参数定义地方</h4><ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="分类-参数定义地方"><a href="#分类-参数定义地方" class="headerlink" title="分类-参数定义地方"></a>分类-参数定义地方</h4><ul>
 <li><p>泛型接口</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
@@ -5637,7 +5637,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 
 </li>
 </ul>
-<h4 id="参数类型"><a href="#参数类型" class="headerlink" title="参数类型"></a>参数类型</h4><ul>
+<h4 id="分类-参数类型"><a href="#分类-参数类型" class="headerlink" title="分类-参数类型"></a>分类-参数类型</h4><ul>
 <li><p>ParameterizedType(参数化类型)</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ParameterizedTypeTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Integer&gt; mapField;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map.Entry&lt;String, Integer&gt; entry;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
@@ -5656,7 +5656,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 
 </li>
 </ul>
-<h4 id="边界-bounds"><a href="#边界-bounds" class="headerlink" title="边界(bounds)"></a>边界(bounds)</h4><ul>
+<h4 id="分类-边界-bounds"><a href="#分类-边界-bounds" class="headerlink" title="分类-边界(bounds)"></a>分类-边界(bounds)</h4><ul>
 <li>无界<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnboundedTest</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">    List&lt;T&gt; list1;</span><br><span class="line">    List&lt;?&gt; list2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
@@ -5672,7 +5672,8 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 
 </li>
 </ul>
-<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>java 5引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type</p>
+<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><p>待续…</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>java 5引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type</p>
 <hr>
 <hr>
 <p>参考：<br>java编程思想-泛型<br><a href="https://lingcoder.gitee.io/onjava8/#/book/20-Generics" target="_blank" rel="noopener">https://lingcoder.gitee.io/onjava8/#/book/20-Generics</a></p>
