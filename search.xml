@@ -5397,95 +5397,6 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
       </tags>
   </entry>
   <entry>
-    <title>Class和Object关系,以及Type类型</title>
-    <url>/2020/05/26/java/Class%E5%92%8CObject%E5%85%B3%E7%B3%BB/</url>
-    <content><![CDATA[<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p> 了解Class、Object、Type类型之间的关系。</p>
- <a id="more"></a>
-
-<h3 id="Class-和-Object"><a href="#Class-和-Object" class="headerlink" title="Class 和 Object"></a>Class 和 Object</h3><ul>
-<li>Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。</li>
-<li>所有java类都继承了Object类，Class是类，那么Class也继承自Object。</li>
-<li>Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。<br>类图如下：<img data-src="http://qax2cai8x.bkt.clouddn.com/Class-Object-relationship.png" alt="Class-Object-relationship"></li>
-</ul>
-<h3 id="bootstrap-自举过程"><a href="#bootstrap-自举过程" class="headerlink" title="bootstrap(自举过程)"></a>bootstrap(自举过程)</h3><ol>
-<li>JVM先对核心类型分配好内存空间，这时的状态是[已分配空间]但[未完成初始化]，状态不完整还不能使用。</li>
-<li>串联好核心类型的引用关系</li>
-<li>核心类型进入[完全初始化]状态，开始执行java字节码完成java系统的初始化。</li>
-</ol>
-<h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>Type是所有类的父接口，是所有类型的抽象。java 5 引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type。<br>Type类图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/java-Type.png" alt=""></p>
-<h4 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h4><ul>
-<li><p>先有Class还是先有Object？ - RednaxelaFX的回答 - 知乎<br><a href="https://www.zhihu.com/question/30301819/answer/47539163" target="_blank" rel="noopener">https://www.zhihu.com/question/30301819/answer/47539163</a></p>
-</li>
-<li><p>详解Java中的Object.getClass()方法<br><a href="https://www.bbsmax.com/A/MAzADeo8d9/" target="_blank" rel="noopener">https://www.bbsmax.com/A/MAzADeo8d9/</a></p>
-</li>
-<li><p>秒懂Java类型（Type）系统<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/89520530" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/89520530</a></p>
-</li>
-<li><p>Java中的Type知多少？(上）<br><a href="https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ</a></p>
-</li>
-<li><p>Java中的Type知多少？(下）<br><a href="https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ</a></p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>java</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>类图中几种关系</title>
-    <url>/2020/05/26/java/%E7%B1%BB%E5%9B%BE%E4%B8%AD%E5%87%A0%E7%A7%8D%E5%85%B3%E7%B3%BB/</url>
-    <content><![CDATA[<h3 id="类间关系"><a href="#类间关系" class="headerlink" title="类间关系"></a>类间关系</h3><p>表示类之间的关系有： 继承(泛化)、实现、依赖、关联、聚合、组合<br>耦合强度依次从弱到强：依赖&lt;关联&lt;聚合&lt;组合&lt;实现=继承(泛化)</p>
-<p>纵向关系 ：继承(泛化)、实现<br>横向关系 ：依赖、关联、聚合、组合</p>
-<a id="more"></a>
-<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>是一种’使用’关系，不在实例作用域内的一个类或对象的引用。<br>A类中使用了B类。这种使用关系是偶然性的(例如：方法不是每次都使用)，临时的(方法中的引用结束后就失效)，很弱的，但B的变化会影响A。<br>具体表现为：1. 方法的参数和返回值 2. 方法中的局部变量 3. 类的静态方法的引用</p>
-<h3 id="关联"><a href="#关联" class="headerlink" title="关联"></a>关联</h3><p>是一种’连接’关系，是一个实例作用域的变量。关系是长期的，平等的，关联可以是单向、双向。<br>具体表现： 1. 类B是类A的成员属性 2. 类B的全局变量被类A引用</p>
-<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><ul>
-<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
-<li>聚合是has-a关系，提现的是整体和部分、拥有的关系。</li>
-<li>整体和部分有各自的生命周期，他们是可以分离。部分可以属于多个整体，也可以被多个整体共享。<br>例子：公司和员工的关系，雁群和大雁的关系</li>
-</ul>
-<h3 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h3><ul>
-<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
-<li>组合是contain-a的关系，部分的存活在整体生命周期中，整体生命周期结束部分生命周期也结束。<br>例子： 你和你的胳膊，</li>
-</ul>
-<p>如果通过常识无法区分聚合和组合，那么可以按照自己的需求去定义是聚合还是组合。</p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>实例如图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/class-diagram.png" alt=""></p>
-<p>源码如下：</p>
-<p>公司:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Company</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String companyName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，语义上是公司拥有打印机，has-a的关系，所以是聚合关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Printer&gt; printers;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>部门:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Department</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门名称.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String deptName;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 雇员.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Employee&gt; employees;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>普通人：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String gender;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>雇员：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 岗位.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String position;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门编号.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> departmentId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>打印机:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Printer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>dao接口：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeDao</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 保存雇员信息.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>dao实现：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeDaoImpl</span> <span class="keyword">extends</span> <span class="title">Employee</span> <span class="keyword">implements</span> <span class="title">EmployeeDao</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>service接口：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>service实现：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeServiceImpl</span> <span class="keyword">implements</span> <span class="title">EmployeeService</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，关联关系, new EmployeeDaoImpl 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> EmployeeDao employeeDao = <span class="keyword">new</span> EmployeeDaoImpl();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法参数，依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line">        employeeDao.save(employee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回类型, 依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法中使用Department, 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Department department = <span class="keyword">new</span> Department();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h5 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h5><p>继承、实现、依赖、关联、聚合、组合的联系与区别<br><a href="https://www.cnblogs.com/jiqing9006/p/5915023.html" target="_blank" rel="noopener">https://www.cnblogs.com/jiqing9006/p/5915023.html</a></p>
-]]></content>
-      <categories>
-        <category>java</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-        <tag>uml</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>spring的事务 隔离级别和传播机制</title>
     <url>/2019/12/26/spring/spring%E4%BA%8B%E5%8A%A1/</url>
     <content><![CDATA[<h3 id="本文简介"><a href="#本文简介" class="headerlink" title="本文简介"></a>本文简介</h3><p>快速理解 spring 隔离级别和传播机制</p>
@@ -5594,7 +5505,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
   <entry>
     <title>前端技术思维导图</title>
     <url>/2020/05/29/front/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/</url>
-    <content><![CDATA[<h3 id="前端技术思维导图"><a href="#前端技术思维导图" class="headerlink" title="前端技术思维导图"></a>前端技术思维导图</h3><p>整理了一下前端技术的思维导图，快速了解前端技术全貌.</p>
+    <content><![CDATA[<h3 id="前端技术思维导图"><a href="#前端技术思维导图" class="headerlink" title="前端技术思维导图"></a>前端技术思维导图</h3><p>整理了一下前端技术的思维导图，快速了解前端技术全貌。</p>
 <a id="more"></a>
 <p><img data-src="http://qax2cai8x.bkt.clouddn.com/front-tech-overview.png" alt="前端技术思维导图"></p>
 ]]></content>
@@ -5610,15 +5521,222 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
       </tags>
   </entry>
   <entry>
-    <title>java中的泛型</title>
-    <url>/2020/05/29/java/java%E4%B8%AD%E7%9A%84%E6%B3%9B%E5%9E%8B/</url>
-    <content><![CDATA[<p>###</p>
+    <title>Class和Object关系,以及Type类型</title>
+    <url>/2020/05/26/java/20200526-Class%E5%92%8CObject%E5%85%B3%E7%B3%BB/</url>
+    <content><![CDATA[<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p> 了解Class、Object、Type类型之间的关系。</p>
+ <a id="more"></a>
+
+<h3 id="Class-和-Object"><a href="#Class-和-Object" class="headerlink" title="Class 和 Object"></a>Class 和 Object</h3><ul>
+<li>Class只是一个用于描述Java类与接口的、用于支持反射操作的类型，java.lang.Object是一个Java类。</li>
+<li>所有java类都继承了Object类，Class是类，那么Class也继承自Object。</li>
+<li>Object.getClass()是一个实例方法，返回的是java.lang.Class的实例，用于表示对象对应类型的类反射信息。<br>类图如下：<img data-src="http://qax2cai8x.bkt.clouddn.com/Class-Object-relationship.png" alt="Class-Object-relationship"></li>
+</ul>
+<h3 id="bootstrap-自举过程"><a href="#bootstrap-自举过程" class="headerlink" title="bootstrap(自举过程)"></a>bootstrap(自举过程)</h3><ol>
+<li>JVM先对核心类型分配好内存空间，这时的状态是[已分配空间]但[未完成初始化]，状态不完整还不能使用。</li>
+<li>串联好核心类型的引用关系</li>
+<li>核心类型进入[完全初始化]状态，开始执行java字节码完成java系统的初始化。</li>
+</ol>
+<h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>Type是所有类的父接口，是所有类型的抽象。java 5 引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type。<br>Type类图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/java-Type.png" alt=""></p>
+<h4 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h4><ul>
+<li><p>先有Class还是先有Object？ - RednaxelaFX的回答 - 知乎<br><a href="https://www.zhihu.com/question/30301819/answer/47539163" target="_blank" rel="noopener">https://www.zhihu.com/question/30301819/answer/47539163</a></p>
+</li>
+<li><p>详解Java中的Object.getClass()方法<br><a href="https://www.bbsmax.com/A/MAzADeo8d9/" target="_blank" rel="noopener">https://www.bbsmax.com/A/MAzADeo8d9/</a></p>
+</li>
+<li><p>秒懂Java类型（Type）系统<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/89520530" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/89520530</a></p>
+</li>
+<li><p>Java中的Type知多少？(上）<br><a href="https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ</a></p>
+</li>
+<li><p>Java中的Type知多少？(下）<br><a href="https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ</a></p>
+</li>
+</ul>
 ]]></content>
       <categories>
         <category>java</category>
       </categories>
       <tags>
         <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>类图中几种关系</title>
+    <url>/2020/05/26/java/20200526-%E7%B1%BB%E5%9B%BE%E4%B8%AD%E5%87%A0%E7%A7%8D%E5%85%B3%E7%B3%BB/</url>
+    <content><![CDATA[<h3 id="类间关系"><a href="#类间关系" class="headerlink" title="类间关系"></a>类间关系</h3><p>表示类之间的关系有： 继承(泛化)、实现、依赖、关联、聚合、组合<br>耦合强度依次从弱到强：依赖&lt;关联&lt;聚合&lt;组合&lt;实现=继承(泛化)</p>
+<p>纵向关系 ：继承(泛化)、实现<br>横向关系 ：依赖、关联、聚合、组合</p>
+<a id="more"></a>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>是一种’使用’关系，不在实例作用域内的一个类或对象的引用。<br>A类中使用了B类。这种使用关系是偶然性的(例如：方法不是每次都使用)，临时的(方法中的引用结束后就失效)，很弱的，但B的变化会影响A。<br>具体表现为：1. 方法的参数和返回值 2. 方法中的局部变量 3. 类的静态方法的引用</p>
+<h3 id="关联"><a href="#关联" class="headerlink" title="关联"></a>关联</h3><p>是一种’连接’关系，是一个实例作用域的变量。关系是长期的，平等的，关联可以是单向、双向。<br>具体表现： 1. 类B是类A的成员属性 2. 类B的全局变量被类A引用</p>
+<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><ul>
+<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
+<li>聚合是has-a关系，提现的是整体和部分、拥有的关系。</li>
+<li>整体和部分有各自的生命周期，他们是可以分离。部分可以属于多个整体，也可以被多个整体共享。<br>例子：公司和员工的关系，雁群和大雁的关系</li>
+</ul>
+<h3 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h3><ul>
+<li>聚合和组合都是关联的一种特例，在代码层面与关联关系是一样的，只是在语义级别的有区别，就是赋加一种逻辑关系。</li>
+<li>组合是contain-a的关系，部分的存活在整体生命周期中，整体生命周期结束部分生命周期也结束。<br>例子： 你和你的胳膊，</li>
+</ul>
+<p>如果通过常识无法区分聚合和组合，那么可以按照自己的需求去定义是聚合还是组合。</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>实例如图：<br><img data-src="http://qax2cai8x.bkt.clouddn.com/class-diagram.png" alt=""></p>
+<p>源码如下：</p>
+<p>公司:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Company</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String companyName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，语义上是公司拥有打印机，has-a的关系，所以是聚合关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Printer&gt; printers;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>部门:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Department</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门名称.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String deptName;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 雇员.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Employee&gt; employees;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>普通人：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String gender;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>雇员：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 岗位.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String position;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 部门编号.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> departmentId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印机:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Printer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>dao接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeDao</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 保存雇员信息.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>dao实现：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeDaoImpl</span> <span class="keyword">extends</span> <span class="title">Employee</span> <span class="keyword">implements</span> <span class="title">EmployeeDao</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>service接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>service实现：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeServiceImpl</span> <span class="keyword">implements</span> <span class="title">EmployeeService</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 成员变量，关联关系, new EmployeeDaoImpl 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> EmployeeDao employeeDao = <span class="keyword">new</span> EmployeeDaoImpl();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法参数，依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> employee</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(Employee employee)</span> </span>&#123;</span><br><span class="line">        employeeDao.save(employee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回类型, 依赖关系.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Company <span class="title">getCompany</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法中使用Department, 依赖关系.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">modifyDepartment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Department department = <span class="keyword">new</span> Department();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h5><p>继承、实现、依赖、关联、聚合、组合的联系与区别<br><a href="https://www.cnblogs.com/jiqing9006/p/5915023.html" target="_blank" rel="noopener">https://www.cnblogs.com/jiqing9006/p/5915023.html</a></p>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>uml</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>java中的泛型</title>
+    <url>/2020/06/03/java/20200529-java%E4%B8%AD%E7%9A%84%E6%B3%9B%E5%9E%8B/</url>
+    <content><![CDATA[<h3 id="什么是泛型？"><a href="#什么是泛型？" class="headerlink" title="什么是泛型？"></a>什么是泛型？</h3><p>泛型就是参数化类型，类型以参数形式传递给接口、类和方法中。</p>
+<h3 id="泛型的目的和作用"><a href="#泛型的目的和作用" class="headerlink" title="泛型的目的和作用"></a>泛型的目的和作用</h3><p>泛型的目的是：1.为了安全，避免类型转换异常 2. 为了是代码更泛化<br>泛型的作用是：把运行时的类型强转(cast)检查，提前到编译器的类型检查。</p>
+<h3 id="泛型分类"><a href="#泛型分类" class="headerlink" title="泛型分类"></a>泛型分类</h3><ul>
+<li>按照参数定义地方分为：泛型类(定义在类名后)，泛型接口(定义在接口后面)，泛型方法(定义在返回值前面)</li>
+<li>按照参数类型分为：ParameterizedType(参数化类型),TypeVariable(类型变量),WildcardType(通配符类型),GenericArrayType（泛型数组类型)</li>
+<li>按照边界(bounds)分：有界，无界；有界又分为：上界(关键字 extends)，下界(关键字 super)；无界是只指定参数没指定上下界的都属于无界，例如：<T>、&lt;?&gt;</li>
+</ul>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><T>和<?>区别： <T>只能代表同一种类型；<?> 没有类型限制。</li>
+<li>&amp;符号与关键字implements一样，表示实现接口，泛型定义中必须先定义类型再实现定义接口</li>
+</ul>
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><h4 id="参数定义地方"><a href="#参数定义地方" class="headerlink" title="参数定义地方"></a>参数定义地方</h4><ul>
+<li><p>泛型接口</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>泛型类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Apple</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> T tool;</span><br><span class="line"></span><br><span class="line">  Apple(T t) &#123;</span><br><span class="line">    <span class="keyword">this</span>.tool = t;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>泛型方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Orange</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> T tool;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 是泛型方法：类的泛型参数T 和 方法的泛型参数E 两者共存</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">productJuice</span><span class="params">(T t, E e)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 是泛型方法，参数T是方法中定义的参数T，不是类的泛型参数T。方法参数T优先级高于类的参数T。</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">productJuice2</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 没有定义泛型参数，不是泛型方法。</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="参数类型"><a href="#参数类型" class="headerlink" title="参数类型"></a>参数类型</h4><ul>
+<li><p>ParameterizedType(参数化类型)</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ParameterizedTypeTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Integer&gt; mapField;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map.Entry&lt;String, Integer&gt; entry;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>TypeVariable(类型变量)</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TypeVariableTest</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li><p>WildcardType(通配符类型)</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WildcardTypeTest</span></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ? extends Number, map的key必须继承Number，即key类型上界是Number，常做为生产者。</span></span><br><span class="line"><span class="comment">     * ? super String，map的value 必须是String的父类，即value的下界类型是String，常做为消费者。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;? extends Number, ? <span class="keyword">super</span> String&gt; field;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>GenericArrayType（泛型数组类型)</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GenericArrayTypeTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt;[] field;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="边界-bounds"><a href="#边界-bounds" class="headerlink" title="边界(bounds)"></a>边界(bounds)</h4><ul>
+<li>无界<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnboundedTest</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">    List&lt;T&gt; list1;</span><br><span class="line">    List&lt;?&gt; list2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li>有界<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BoundedTest</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Number</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> T field;</span><br><span class="line">    <span class="comment">// 上界，常用于生产者，进行写入操作</span></span><br><span class="line">    List&lt;? extends Number&gt; lists1;</span><br><span class="line">    <span class="comment">// 下界，常用于生产者，进行读取操作</span></span><br><span class="line">    List&lt;? <span class="keyword">super</span> String&gt; lists2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &amp;表示implements接口，顺序必须先类型再接口。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solid</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Coord</span> &amp; <span class="title">HasColor</span> &amp; <span class="title">Weight</span>&gt; </span>&#123;</span><br><span class="line">    T item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Bounded</span> <span class="keyword">extends</span> <span class="title">Coord</span> <span class="keyword">implements</span> <span class="title">HasColor</span>, <span class="title">Weight</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BasicBounds</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Solid&lt;Bounded&gt; boundedSolid = <span class="keyword">new</span> Solid&lt;Bounded&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>上界和下界</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BoundedTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//--------------  上界 -----------------------------</span></span><br><span class="line">        Plate&lt;? extends Fruit&gt; p = <span class="keyword">new</span> Plate&lt;Apple&gt;(<span class="keyword">new</span> Apple());</span><br><span class="line">        <span class="comment">// 不能存入任何元素，编译器只知道是Fruit或Fruit子类，无法确定是哪个具体类型，所以不允许插入</span></span><br><span class="line">        p.set(<span class="keyword">new</span> Fruit()); <span class="comment">//Error</span></span><br><span class="line">        p.set(<span class="keyword">new</span> Apple()); <span class="comment">//Error</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取出来的东西只能存在Fruit或Fruit的父类里，读取值放在上界类，隐式转换为父类。</span></span><br><span class="line">        Fruit newFruit1 = p.get();</span><br><span class="line">        Object newFruit2 = p.get();</span><br><span class="line">        Apple newFruit3 = p.get();  <span class="comment">//Error</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//--------------- 下界  ----------------------------</span></span><br><span class="line">        Plate&lt;? <span class="keyword">super</span> Fruit&gt; p2 = <span class="keyword">new</span> Plate&lt;Fruit&gt;(<span class="keyword">new</span> Fruit());</span><br><span class="line">        <span class="comment">// 存入元素正常，存入Fruit或其子类都是可以，因为Fruit子类可以隐式转换为Fruit。</span></span><br><span class="line">        p2.set(<span class="keyword">new</span> Fruit());</span><br><span class="line">        p2.set(<span class="keyword">new</span> Apple());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取出来的东西只能存放在Object(上界)里，读取值放在上界类，隐式转换为父类。</span></span><br><span class="line">        Apple apple = p2.get(); <span class="comment">//Error</span></span><br><span class="line">        Fruit fruit = p2.get(); <span class="comment">//Error</span></span><br><span class="line">        Object object = p2.get();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------------------------------------------</span></span><br><span class="line">        <span class="comment">// PECS (Producer Extends Consumer Super)</span></span><br><span class="line">        <span class="comment">// 频繁往外读取内容，适用于上界 extends</span></span><br><span class="line">        <span class="comment">// 经常往里插入的，适合用下界Super</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Leve1 - 食物</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Food</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level2 - 水果和肉</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Fruit</span> <span class="keyword">extends</span> <span class="title">Food</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Meat</span> <span class="keyword">extends</span> <span class="title">Food</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level3</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Apple</span> <span class="keyword">extends</span> <span class="title">Fruit</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Banana</span> <span class="keyword">extends</span> <span class="title">Fruit</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Pork</span> <span class="keyword">extends</span> <span class="title">Meat</span></span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Beef</span> <span class="keyword">extends</span> <span class="title">Meat</span></span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Level 4</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">RedApple</span> <span class="keyword">extends</span> <span class="title">Apple</span> </span>&#123; &#125;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">GreenApple</span> <span class="keyword">extends</span> <span class="title">Apple</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Plate</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> T item;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Plate</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">            item=t;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T t)</span></span>&#123;</span><br><span class="line">            item=t;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> item;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="泛型擦除"><a href="#泛型擦除" class="headerlink" title="泛型擦除"></a>泛型擦除</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><h3 id="Type类型"><a href="#Type类型" class="headerlink" title="Type类型"></a>Type类型</h3><p>java 5引入了Type类型，应该是为了加入泛型才引入的。Type类路径是 java.lang.reflect.Type</p>
+<hr>
+<hr>
+<p>参考：<br>java编程思想-泛型<br><a href="https://lingcoder.gitee.io/onjava8/#/book/20-Generics" target="_blank" rel="noopener">https://lingcoder.gitee.io/onjava8/#/book/20-Generics</a></p>
+<p>秒懂Java类型（Type）系统<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/89520530" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/89520530</a></p>
+<p>Java中的Type知多少？(上）<br><a href="https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sNodHgRgAWSgl5e2MgPRFQ</a></p>
+<p>Java中的Type知多少？(下）<br><a href="https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oKA9nHmxghkUaPArJ7yQzQ</a></p>
+<p>秒懂Java泛型<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/80720406" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/80720406</a></p>
+<p>Java泛型与注解<br><a href="https://blog.csdn.net/AhaQianxun/article/details/92594745" target="_blank" rel="noopener">https://blog.csdn.net/AhaQianxun/article/details/92594745</a></p>
+<p>秒懂Java反射<br><a href="https://blog.csdn.net/ShuSheng0007/article/details/81809999" target="_blank" rel="noopener">https://blog.csdn.net/ShuSheng0007/article/details/81809999</a></p>
+<p>困扰多年的Java泛型 extends T&gt; super T&gt;，终于搞清楚了！<br><a href="https://blog.csdn.net/javaQQ561487941/article/details/90694010" target="_blank" rel="noopener">https://blog.csdn.net/javaQQ561487941/article/details/90694010</a></p>
+<p>Java 泛型 &lt;? super T&gt; 中 super 怎么 理解？与 extends 有何不同？<br><a href="https://www.zhihu.com/question/20400700" target="_blank" rel="noopener">https://www.zhihu.com/question/20400700</a></p>
+<p>Java泛型超详细解读 : super和extend<br><a href="https://blog.csdn.net/c10WTiybQ1Ye3/article/details/78098731?fps=1&amp;locationNum=2" target="_blank" rel="noopener">https://blog.csdn.net/c10WTiybQ1Ye3/article/details/78098731?fps=1&amp;locationNum=2</a></p>
+<p>泛型超详细解读（二）：super和extend<br><a href="https://blog.csdn.net/jeffleo/article/details/52250948" target="_blank" rel="noopener">https://blog.csdn.net/jeffleo/article/details/52250948</a></p>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>试用vercel托管博客</title>
+    <url>/2020/05/29/%E5%85%B6%E4%BB%96/20200529-%E8%AF%95%E7%94%A8vercel%E6%89%98%E7%AE%A1%E5%8D%9A%E5%AE%A2/</url>
+    <content><![CDATA[<p>vercel是一个静态网页和无状态函数托管的云平台。<br>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
+</a> 文章对自己的博客进行托管服务试用。</p>
+<a id="more"></a>
+<h3 id="关联github账户，同步代码"><a href="#关联github账户，同步代码" class="headerlink" title="关联github账户，同步代码"></a>关联github账户，同步代码</h3><p>使用github账号登录<a href="https://vercel.com。" target="_blank" rel="noopener">https://vercel.com。</a></p>
+<p>步骤：</p>
+<ol>
+<li>关联github账户</li>
+<li>选择同步一个项目</li>
+<li>vercel同步完后就有一个可以访问的站点，同github.io。</li>
+<li>如果push修改到github,vercel会自动同步</li>
+</ol>
+<h3 id="设置域名"><a href="#设置域名" class="headerlink" title="设置域名"></a>设置域名</h3><p>站点建完后vercel提供了3个不同的域名：<br>fandro-blog.fandro.now.sh<br>fandro-blog.now.sh<br>fandro-blog-2rqktxlpl.now.sh  </p>
+<h3 id="设置域名跳转地址"><a href="#设置域名跳转地址" class="headerlink" title="设置域名跳转地址"></a>设置域名跳转地址</h3><ol>
+<li><p>获取域名(fandro-blog.now.sh)的ip地址,</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ ping fandro-blog.now.sh  </span><br><span class="line">64 bytes from 104.199.217.228: icmp_seq=0 ttl=34 time=60.423 ms</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>去域名商网站设置新跳转地址104.199.217.228,</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="left">类型</th>
+<th align="left">名称</th>
+<th align="left">值</th>
+<th align="left">TTL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">A</td>
+<td align="left">@</td>
+<td align="left">104.199.217.228</td>
+<td align="left">1小时</td>
+</tr>
+</tbody></table>
+<h4 id="vercel也支持hexo源文件"><a href="#vercel也支持hexo源文件" class="headerlink" title="vercel也支持hexo源文件"></a>vercel也支持hexo源文件</h4><p>我同步的是hexo已经生成好的站点文件，可以直接访问。vercel 也支持hexo源文件，vercel可以自动执行hexo命令生成站点。</p>
+<h3 id="vercel-优势是访问速度快"><a href="#vercel-优势是访问速度快" class="headerlink" title="vercel 优势是访问速度快"></a>vercel 优势是访问速度快</h3>]]></content>
+      <categories>
+        <category>其他</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>blog</tag>
       </tags>
   </entry>
 </search>
