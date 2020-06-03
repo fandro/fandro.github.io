@@ -5708,7 +5708,6 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 <li>支持 now.sh CLI，GitHub，GitLab，Bitbucket 导入/部署</li>
 </ol>
 </blockquote>
-<p>————————————————<br>版权声明：本文为CSDN博主「Lete乐特」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/Lott0419/article/details/106311955/" target="_blank" rel="noopener">https://blog.csdn.net/Lott0419/article/details/106311955/</a></p>
 <p>参考这篇 <a href="https://www.qtmuniao.com/2020/03/15/hexo-to-zeit-co/" target="_blank" rel="noopener">使用 zeit.co 托管 Hexo 静态博客
 </a> 文章对自己的博客进行托管服务试用。</p>
 <a id="more"></a>
