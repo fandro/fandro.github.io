@@ -5625,7 +5625,7 @@ DELETE 释放锁<figure class="highlight"><table><tr><td class="code"><pre><span
 <li><T>和<?>区别： <T>只能代表同一种类型；<?> 没有类型限制。</li>
 <li>&amp;符号与关键字implements一样，表示实现接口，泛型定义中必须先定义类型再实现定义接口</li>
 </ul>
-<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><h4 id="参数定义地方"><a href="#参数定义地方" class="headerlink" title="参数定义地方"></a>参数定义地方</h4><ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="参数定义地方"><a href="#参数定义地方" class="headerlink" title="参数定义地方"></a>参数定义地方</h4><ul>
 <li><p>泛型接口</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Fruit</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">hasColor</span><span class="params">(T t)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
